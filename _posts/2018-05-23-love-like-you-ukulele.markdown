@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "First post!"
-date:   2018-05-23 10:49:00 -0600
+date:   2018-05-23 10:49:00
 categories: music
 ---
 
@@ -49,15 +49,8 @@ I wish that I knew
      Gm        Am           C
 What makes you think I'm so special
 
-(Repeat part A)
-
-             Gm           C
-I could even learn how to love
-     Am     Dm
-Like you...
-           Am       C
-Love, like you...
-             F
-Love me like you
 ```
 
+Repeat part A otherwise identical (except for lyrics), end in F major in "Love me like you".
+
+![Me playing ukulele](../images/ukulele.jpg)
