@@ -8,7 +8,6 @@ I am a PhD student in language technology at University of Gothenburg and Chalme
 ## Contact
 
 * Email: `inari at chalmers dot se`
-  * My [PGP key](https://keybase.io/inariksit)
 * Phone: 031 772 1025
 * Office: Rännvägen 6b (EDIT building), 6th floor, office 6113A
 * Post: Department of Computer Science and Engineering, Chalmers University of Technology and University of Gothenburg, S-412 96 Göteborg, Sweden
