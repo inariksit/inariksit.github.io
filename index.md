@@ -5,10 +5,6 @@
 layout: page
 ---
 
-
-## About me
-
-
 I am a PhD student in language technology at University of Gothenburg and Chalmers University of Technology. I work in the project [REMU: Reliable Multilingual Digital Communication](http://remu.grammaticalframework.org/) under the supervision of [Koen Claessen](http://www.cse.chalmers.se/~koen/) and [Aarne Ranta](http://www.cse.chalmers.se/~aarne/). My current research topic is applying software testing methods to computational grammars, especially [Grammatical Framework](http://www.grammaticalframework.org/) (GF) and [Constraint Grammar](http://visl.sdu.dk/constraint_grammar.html). In addition, I contribute actively to the GF Resource Grammar Library.
 
 ## Contact
