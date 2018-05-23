@@ -53,4 +53,6 @@ What makes you think I'm so special
 
 Repeat part A otherwise identical (except for lyrics), end in F major in "Love me like you".
 
-![Me playing ukulele](../images/ukulele.jpg)
+And here's me playing ukulele. ^_^
+
+![ukulele](/images/ukulele.jpg "Me playing ukulele")
