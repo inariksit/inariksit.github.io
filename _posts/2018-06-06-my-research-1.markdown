@@ -16,89 +16,91 @@ format which I can then copypaste into `thesis.tex` and make it nicer.
 
 ## Writing (GF) grammars
 
-Already before starting my PhD, I was involved in the Grammatical
-Framework (GF) community, writing and improving grammars in their
-Resource Grammar Library (RGL). While the grammar writing itself was
-never the main focus of my PhD, I've kept doing it on the side
-throughout the 5 years.
+Already before starting my PhD, I was involved in the [Grammatical
+Framework](http://www.grammaticalframework.org/) (GF) community,
+writing and improving grammars in their Resource Grammar Library
+(RGL). While the grammar writing itself was never the main focus of my
+PhD, I've kept doing it on the side throughout the 5 years.
 
-In 2015, I started writing a Basque grammar completely from
-scratch--initially it was a joint project with Francis Tyers, but
-after the first months I took over. Basque is an isolate language,
-without anything similar in the RGL, so there wasn't much to build on.
-There was also the additional challenge of me not speaking
-Basque--below A1 level in any practical things, with some grasp of
-nominal and verbal morphology. I could have some chance of detecting
-if the morphology was wrong sometimes, but with syntax I had to rely
-on a grammar book and native speakers.
+In 2015, I started writing a Basque grammar--initially it was a joint
+project with Francis Tyers, but after the first months I took
+over. Basque is an isolate language with "exotic" features such as
+absolutive-ergative system and 3-way verb agreement (i.e. verb agrees
+with subject, object and indirect object), so there was nothing in the
+RGL to build upon. There was also the additional challenge of me not
+speaking Basque--below A1 level in any practical things, with a weak
+grasp of nominal and verbal morphology. I could have some chance of
+detecting if the morphology was wrong sometimes, but with syntax I had
+to rely on a grammar book and native speakers.
 
 So how to strategically employ native speakers? You implement a
 function and show them sentences. This was my workflow in summer 2016,
 when I had 2 weeks to sit down with a native speaker.
 
-******
+<div class="highlight">
+<div style="margin:20px">
 
-Inari: "Today I'm doing relative clauses, can you help me a bit!"
+  <p>Inari: “Today I’m doing relative clauses, can you help me a bit!”</p>
 
-I can piece together simple sentences, like "the boy drinks beer", but
+  <p>I can piece together simple sentences, like “the boy drinks beer”, but
 I start out with no idea whatsoever how to form relative clauses.  So
 I just give the boy and the beer sentence, and ask how to transform
-that into a relative clause.
+that into a relative clause.</p>
 
-Inari: "How do you make this into a relative clause? *The boy who
-drinks beer*?"
+  <p>Inari: “How do you make this into a relative clause? <em>The boy who
+drinks beer</em>?”</p>
 
-Informant: "Beer-absolutive drink-relative boy-absolutive."
+  <p>Informant: “Beer-absolutive drink-relative boy-absolutive.”</p>
 
-Inari: "Okay, and how about *The beer that the boy drinks*?"
+  <p>Inari: “Okay, and how about <em>The beer that the boy drinks</em>?”</p>
 
-Informant: "Boy-ergative drink-relative beer-absolutive."
+  <p>Informant: “Boy-ergative drink-relative beer-absolutive.”</p>
 
-I write first version of the function, and generate 10 sentences,
-which all use relative clauses.  I'm not expecting the function to be
-perfect, but to prod the informant to come up with more examples: it's
+  <p>I write first version of the function, and generate 10 sentences,
+which all use relative clauses.  I’m not expecting the function to be
+perfect, but to prod the informant to come up with more examples: it’s
 easier to correct an error than to dig the perfect description of
-Basque relative clauses from your head.
+Basque relative clauses from your head.</p>
 
-Informant: "What is this sentence supposed to be, *our your dog drink beer*?"
+  <p>Informant: “What is this sentence supposed to be, <em>our your dog drink beer</em>?”</p>
 
-Inari: "It's supposed to be *our beer, which your dog drinks*."
+  <p>Inari: “It’s supposed to be <em>our beer, which your dog drinks</em>.”</p>
 
-Informant: "The word order should be: *[your dog drink] our beer*."
+  <p>Informant: “The word order should be: <em>[your dog drink] our beer</em>.”</p>
 
-Inari: "Aha right, I see! And how about *these [your dog drink] beers*
-(these beers, which your dog drinks)?"
+  <p>Inari: “Aha right, I see! And how about <em>these [your dog drink] beers</em>
+(these beers, which your dog drinks)?”</p>
 
-Informant: "That's fine."
+  <p>Informant: “That’s fine.”</p>
 
-Inari: "And *these five [your dog drink] beers* (these five beers,
-which your dog drinks)?"
+  <p>Inari: “And <em>these five [your dog drink] beers</em> (these five beers,
+which your dog drinks)?”</p>
 
-Informant: "That's wrong too; should be *these [your dog drink] five beers*;
-the number *five* should go at the end like *our*. But if you
-have *These five yellow beers*, then it's right."
+  <p>Informant: “That’s wrong too; should be <em>these [your dog drink] five beers</em>;
+the number <em>five</em> should go at the end like <em>our</em>. But if you
+have <em>These five yellow beers</em>, then it’s right.”</p>
 
-After some discussion, I add a distinction between "heavy" and "light"
+  <p>After some discussion, I add a distinction between “heavy” and “light”
 modifiers: adjectives are light, relative clauses are heavy. In
 addition, I split determiners into two classes: numbers and possessives
 go after heavy modifiers and before light modifiers, the rest go always
-before all modifiers.
+before all modifiers.</p>
 
-I generate 10 more random sentences which use relative.
+  <p>I generate 10 more random sentences which use relative.</p>
 
-Informant: "The relative clauses are correct now. But verb X takes
-partitive; and if you have partitive, you must put the verb in singular."
+  <p>Informant: “The relative clauses are correct now. But verb X takes
+partitive; and if you have partitive, you must put the verb in singular.”</p>
 
-Inari: "Okay, thanks for the info! Quick fix, I'll force singular
-agreement with partitive object."
+  <p>Inari: “Okay, thanks for the info! Quick fix, I’ll force singular
+agreement with partitive object.”</p>
 
-I generate a new set of examples, which all use partitive.
+  <p>I generate a new set of examples, which all use partitive.</p>
 
-Informant: "Actually, personal pronouns don't have partitive; and
+  <p>Informant: “Actually, personal pronouns don’t have partitive; and
 also, now I remember that negation changes the word order, can you
-generate some negative sentences?"
-
-*******
+generate some negative sentences?”</p>
+</div>
+</div>
 
 Oh but that sounds pretty smooth, so what's the problem here? It's
 exactly the "generate 10 sentences" part: we're talking about nothing
