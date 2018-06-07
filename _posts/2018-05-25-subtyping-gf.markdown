@@ -20,11 +20,11 @@ We say:
 
 Terms of type `S` are more *informative*, for example:
 
-`{s : Str ; n : Number} <: {s : Str}`
+`{s : Str ; b : Bool} <: {s : Str}`
 
 We can use `S` anywhere we could use `T`. In other words, if we want
 to do something with an `s : Str`, we don't mind that the extra field
-`n : Number`, we can just ignore it.
+`b : Bool`, we can just ignore it.
 
 See also the GF reference manual
 [entry on subtyping](http://www.grammaticalframework.org/doc/gf-refman.html#toc41).
@@ -120,7 +120,7 @@ class="highlight">
 
 
 Why? Because `insertAdv adv cls` returns a `VPhrase`, but `AdvSlash`
-needs a `ClSlash`. The `subj`, `post` and `missing` fields were
+needs to return a `ClSlash`. The `subj`, `post` and `missing` fields were
 already present in the argument `cls`, and inserting an adverb doesn't
 change that, so we add `cls ** ` before calling `insertAdv`: this
 *extends* the original `cls` by the changes made by `insertAdv`. We
@@ -214,10 +214,13 @@ lincats, e.g. `lincat Adv, Conj = {s : Str} ;`.
 To you these are identical, but the GF compiler inserts a hidden field,
 so actually `Adv` is `{s : Str ; lock_Adv : {}}` and Conj is `{s : Str ; lock_Conj : {}}`.
 
-That's why we don't write `lincat N2 = N ** {c2 : Prep}`: it
-would make `N2` into `{ s : NForm => Str ; g : Gender ; lock_N : {} ;
-lock_N2 : {}}`.
+That's why we don't write `lincat N2 = N ** {c2 : Prep}`: it would
+make `N2` into the following type:
 
+```haskell
+{ s : NForm => Str ; g : Gender ; lock_N : {} ;
+ c2 : Prep ; lock_N2 : {} } ;
+```
 
 This is also the reason why you might have seen `lin X` in the 
 paradigms, like in the following:
