@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "My research, part II"
-date:   2018-06-07 00:00:00
+date:   2018-06-07
 categories: research
 tags: research
 ---

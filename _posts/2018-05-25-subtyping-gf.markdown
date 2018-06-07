@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Subtyping in GF: practical examples"
-date:   2018-05-25 01:00:00
+date:   2018-05-25
 categories: gf
 tags: gf
 ---

@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "My research, part I"
-date:   2018-06-06 10:49:00
+date:   2018-06-06
 categories: research
 tags: research gf
 ---
