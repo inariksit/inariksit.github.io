@@ -84,7 +84,9 @@ a noun".
 We could apply all the rules in sequence to a corpus, and see if a
 rule never triggers. But it may be just that the corpus is incomplete,
 and doesn't contain just the sentence needed to trigger that
-particular rule. Instead, we use *symbolic evaluation*.
+particular rule. Even if we found such a rule that never triggers, we
+wouldn't know which rule(s) are those that conflict with it.
+To solve these problems, we use *symbolic evaluation*.
 
 We construct an initial sentence of some width, e.g. 10 words. We call
 this a *symbolic sentence*. Initially, all symbolic words in the symbolic
@@ -149,7 +151,10 @@ example, say we have the alphabet `{a,b}` and the language
 `aⁿbⁿ`. Then we can construct a CG grammar, apply it to an even-length
 symbolic sentence consisting of `a`s and `b`s, and have it output a
 string where the first half is `a`s, followed by a second half of
-`b`s. This language is context-free, and we have only found a method to write such a grammar manually, but we have a method that can translate any regular language into a corresponding CG automatically, and apply it to a symbolic sentence.
+`b`s. This language is context-free, and we have only found a method
+to write such a grammar manually, but we have a method that can
+translate any regular language into a corresponding CG automatically,
+and apply it to a symbolic sentence.
 
 <!-- Bick and Didriksen describe CG as "a declarative whole of contextual
 possibilities and impossibilities for a language or genre". -->
