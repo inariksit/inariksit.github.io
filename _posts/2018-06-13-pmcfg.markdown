@@ -1,0 +1,229 @@
+---
+layout: post
+title:  "Compiling GF to PMCFG"
+date:   2018-06-13
+categories: gf
+tags: gf
+---
+
+So I'm talking a bunch about PMCFG, concrete categories, sequences and
+such when I talk aboug `gftest`. If you ever wondered what's that all
+about, keep reading.
+
+How about if you have never wondered what's that all about? Honestly,
+that's no problem either. It may be cool to know PMCFG if you're
+writing a lot of GF, but only in the sense that it may be cool to
+learn some Italian if you [eat a lot of pizza](https://twitter.com/matthewconover/status/1004130435650150400).
+So take this post as a cool extra tidbits about your favourite grammar
+formalism, not as a prerequisite for anything.
+
+All my examples come from the
+[Foods grammar](https://github.com/GrammaticalFramework/gf-contrib/tree/master/foods).
+I'm assuming that if you're reading about advanced topics in GF,
+you're familiar with Foods, but in case not, take a look at the
+abstract syntax and why not check out the concrete in some language you
+know.
+
+<h2><a name="gf-lin">GF linearisation</a></h2>
+
+Here we use a generic Romance language for concrete syntax: adjectives
+inflect in number and gender, nouns have a fixed gender and inflect in
+number; most adjectives come after the noun but some come before.
+Here's pseudocode (we don't have if-then-else, otherwise it's legit)
+GF for the `Mod` function.
+
+
+```haskell
+lincat
+  Kind    = { s : Number => Str ; g : Gender } ;
+  Quality = { s : Number => Gender => Str ; isPre : Bool }
+
+lin
+  -- Mod : Quality -> Kind -> Kind ;
+  Mod quality kind = 
+  { s = \\num =>
+     let q = quality.s ! num ! kind.gender ;
+         k = kind.s ! num ;
+      in if quality.isPre then q++k else k++q } ;
+```
+
+So `Mod` constructs a table of `Number => Str`, choosing the right
+gender form of `Quality` and putting it either before or after the
+`Kind`, depending on the parameter `isPre` of `Quality`.
+
+
+<h2><a name="concr-cats">Concrete categories</a></h2>
+
+This is the actual output you get when you type `pg` (print_grammar)
+in the GF shell! Let's start from the concrete categories for `Kind`
+and `Quality`.
+
+
+```haskell
+categories
+  Kind := range  [C5 .. C6]
+          labels ["s Sg"
+                  "s Pl"]
+  Quality := range  [C7 .. C8]
+             labels ["s Masc Sg"
+                     "s Masc Pl"
+                     "s Fem Sg"
+                     "s Fem Pl"]
+
+```
+
+Okay, this tells us that both `Kind` and `Quality` have been split
+into two concrete categores (`C5-C6` and `C7-C8` respectively).
+
+The things in `labels` are *variable* to the category. This is easy to
+see from the names of the labels---Sg, Pl, Masc, Fem are all names of
+the parameters in the original tables.
+What used to be `Kind` consists of two strings, labelled "s Sg" and "s Pl":
+there used to be a table `Number => Str` in the field `s`, but now
+it's just flattened into strings. So far not a big deal: we just went
+from a record with tables `{ s : Number => Str }` into a vector of
+strings `[sSg, sPl]`.
+The same happened to `Quality`: it used to have a nested table `{ s :
+Number => Gender => Str }`, but now all combinations are enumerated.
+
+
+The things in `range` are *inherent* to the category: as we will soon
+see, `C5` corresponds to masculine `Kind`, and `C6` to
+feminine. Likewise, `C7` corresponds to postmodifier `Quality`
+(i.e. `isPre` field is False) and `C8` to premodifier (`isPre` field
+is True).
+
+<h2><a name="productions">Concrete productions</a></h2>
+Now let's have a closer look at `C5`--`C6`. Which productions make them?
+
+```haskell
+productions
+
+    C5 -> F24[]       -- Cheese
+    C5 -> F25[]       -- Fish
+    C5 -> F26[]       -- Wine
+    C5 -> F27[C7,C5]  -- Mod
+    C5 -> F28[C8,C5]  -- Mod
+    C6 -> F29[C7,C6]  -- Mod
+    C6 -> F30[C8,C6]  -- Mod
+    C6 -> F31[]       -- Pizza
+```
+
+I added the comments (Cheese--Pizza) to make it clearer, otherwise it's
+straight from `pg`. This is what we learn:
+
+* Functions `F24`--`F28` produce a `C5` (masculine `Kind`).
+* Functions  `F29`--`F31` produce a `C6` (feminine `Kind`).
+* Functions `F24`,`F25`,`F26` and `F31` take no arguments.
+* Functions `F27`,`F28`,`F29` and `F30` take 2 arguments, their types
+  specified inside `[]`.
+
+You don't know it anywhere from the PMCFG that `C5` is in fact
+masculine, you just have to know if based on e.g. the fact that
+Cheese, Fish and Wine are all masculine nouns in Generic Romance. If
+you actually go and look at `F24` and follow the trail, you will
+eventually get to the string `"cheese"`, and then you know that `F24`
+corresponds to `Cheese`.
+
+Anyway, we were interested in `Mod`! So we better look up
+`F27`--`F30`. Let's check out `Pizza` as well, just to appreciate the
+difference between functions with and without arguments.
+
+<h2><a name="concr-funs">Concrete functions</a></h2>
+
+```haskell
+lin
+
+  F27[C7,C5] := (S19,S20) [Mod]  -- post,masc
+  F28[C8,C5] := (S21,S22) [Mod]  -- pre,masc
+  F29[C7,C6] := (S23,S24) [Mod]  -- post,fem
+  F30[C8,C6] := (S25,S26) [Mod]  -- pre,fem
+
+  F31        := (S27,S28) [Pizza]
+```
+
+Okay, we have split `Mod` into several *concrete functions*
+(called `F27-F30`) according to the concrete categories of their
+arguments. There are 4 of them, because `{masc,fem} x {post,pre}`
+makes 4 combinations.
+
+`Pizza` doesn't change a lot: it's just called `F31` now, but it
+didn't split into many.
+
+Next, what are those `S19`--`S28`? They're called *sequences*. There
+are 2 sequences for each concrete `Mod` (and `Pizza`), because the
+goal category (`C5` or `C6`, i.e. masculine or feminine `Kind`) has
+two strings in it: singular and plural.
+
+
+<h2><a name="sequences">Sequences</a></h2>
+
+Sequences define the actual action that happens to the
+arguments. Compared to the [GF syntax](#gf-lin), the sequences look
+quite primitive.
+
+```haskell
+sequences
+
+  S19 := <1,0> <0,0>   -- post,masc,sg
+  S20 := <1,1> <0,1>   -- post,masc,pl
+  S21 := <0,0> <1,0>   -- pre,masc,sg
+  S22 := <0,1> <1,1>   -- pre,masc,pl
+  S23 := <1,0> <0,2>   -- post,fem,sg
+  S24 := <1,1> <0,3>   -- post,fem,pl
+  S25 := <0,2> <1,0>   -- pre,fem,sg
+  S26 := <0,3> <1,1>   -- pre,fem,pl
+
+  S27 := "pizza"
+  S28 := "pizzas"
+```
+
+Pizza looks pretty self-explanatory? We renamed `Pizza` into `F31`,
+defined it in terms of `S27` and `S28`, which finally resolve into
+the strings "pizza" and "pizzas".
+
+How about the others, with the weird numbers? These `<n,m>` are,
+respectively, `<#argument, #string>`.
+
+Just like `Mod` itself, the sequences used for all concrete versions
+of `Mod` have two arguments. We don't even bother to name
+them--they're just called `0` and `1`, short for "first argument" and
+"second argument".
+
+So what is the order of the arguments? You can look at the
+[productions](#productions) with `F27[C7,C5]` and so on, or just the
+original [GF code](#gf-lin), with `Mod : Quality -> Kind -> Kind`.  Both will
+tell you that `0` corresponds to `Quality`, and `1` corresponds to
+`Kind`.
+
+The second number in the `<n,m>` is the index of the string in the
+argument. As we remember from [concrete categories](#concr-cats),
+`Quality` has 4 strings, `Kind` has 2 strings. Now we can tell that
+`S23 := <1,0> <0,2>` builds a new string out of the *first string* of
+its second argument, and the *third string* of its first
+argument. Here's an example pair of arguments:
+
+```haskell
+0 = ["vegano", "veganos", "vegana", "veganas"]
+1 = ["pizza", "pizzas"]
+```
+
+Given these arguments to `S23`, we get the string *pizza vegana*.
+
+Okay, that `S23` was only the first part of the concrete function
+`F29`. Here's the definition again:
+
+```haskell
+F29[C7,C6] := (S23,S24)
+```
+Applied to the same arguments, `S24` produces *pizzas veganas*. This
+makes sense: `F29` applied to `Vegan` and `Pizza` produces the vector
+`["pizza vegana", "pizzas veganas"]`.
+
+## That's it for now
+
+So, now you can type `pg` in the GF shell and try to decipher your
+own grammar! Why not also take a look at the
+[obscure](https://github.com/GrammaticalFramework/GF/tree/master/src/tools/gftest#less-common-use-cases)
+[options](https://github.com/GrammaticalFramework/GF/tree/master/src/tools/gftest#detailed-information-about-the-grammar)
+in `gftest`.
