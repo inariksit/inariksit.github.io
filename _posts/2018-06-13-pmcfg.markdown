@@ -1,21 +1,40 @@
 ---
 layout: post
-title:  "Compiling GF to PMCFG"
+title:  "Compiling GF to a low-level format"
 date:   2018-06-13
 categories: gf
 tags: gf
 ---
 
-So I'm talking a bunch about PMCFG, concrete categories, sequences and
-such when I talk aboug `gftest`. If you ever wondered what's that all
+So I'm talking a bunch about PGF, PMCFG, concrete categories, sequences and
+such when I talk about `gftest`. If you ever wondered what's that all
 about, keep reading.
 
 How about if you have never wondered what's that all about? Honestly,
-that's no problem either. It may be cool to know PMCFG if you're
+that's no problem either. It may be cool to learn about PMCFG if you're
 writing a lot of GF, but only in the sense that it may be cool to
 learn some Italian if you [eat a lot of pizza](https://twitter.com/matthewconover/status/1004130435650150400).
 So take this post as a cool extra tidbits about your favourite grammar
 formalism, not as a prerequisite for anything.
+
+## Terminology
+
+**PMCFG** is short for "Parallel Multiple Context-Free Grammar", introduced by [Seki et al. (1991)](https://core.ac.uk/download/pdf/81109478.pdf). (An important subset of) GF is "equivalent to" PMCFGs, in the sense that all things we can express in GF, we can also express in PMCFG. As the name might suggest, PMCFGs are more expressive than plain old context-free grammars, but still not quite as expressive as context-sensitive grammars.
+
+Okay, and what are the formats for writing PMCFG grammars? That is, "grammars that are as expressive as those by Seki et al., and that have the same hard-to-read low-level feeling to them".
+
+We know of at least three:
+1. The particular format used by [Seki et al.](https://core.ac.uk/download/pdf/81109478.pdf)
+1. [This format](https://github.com/PMCFG/PMCFG/blob/master/specification.md) which doesn't seem to have gained much following
+1. PGF, by [Angelov (2011)](http://www.cse.chalmers.se/~krasimir/phd-thesis.pdf)
+
+It's not really all that strange--you can write regular grammars in automata, regular expressions or `A → Aa` style production rules (see e.g. [this StackOverflow answer](http://stackoverflow.com/a/13945932) if you're confused about this).
+
+However, we don't usually say that GF as a programming language *is* PMCFG, instead that it is *equivalent to* PMCFG.
+
+**PGF** is short for "Portable Grammar Format". It's the concrete low-level format to which GF grammars are compiled. The syntax I use in this post is specific to PGF, not to PMCFG in general. (Technically, PGF is an *extension* of PMCFG with added features such as multilinguality, but seriously, nobody is going to die if we just say that PGF is a format for writing PMCFG grammars.)
+
+## Grammars
 
 All my examples come from the
 [Foods grammar](https://github.com/GrammaticalFramework/gf-contrib/tree/master/foods).
@@ -23,6 +42,7 @@ I'm assuming that if you're reading about advanced topics in GF,
 you're familiar with Foods, but in case not, take a look at the
 abstract syntax and why not check out the concrete in some language you
 know.
+
 
 <h2><a name="gf-lin">GF linearisation</a></h2>
 
@@ -118,7 +138,7 @@ straight from `pg`. This is what we learn:
 * Functions `F27`,`F28`,`F29` and `F30` take 2 arguments, their types
   specified inside `[]`.
 
-You don't know it anywhere from the PMCFG that `C5` is in fact
+You don't know it anywhere from the PGF that `C5` is in fact
 masculine, you just have to know if based on e.g. the fact that
 Cheese, Fish and Wine are all masculine nouns in Generic Romance. If
 you actually go and look at `F24` and follow the trail, you will
