@@ -244,6 +244,6 @@ makes sense: `F29` applied to `Vegan` and `Pizza` produces the vector
 
 So, now you can type `pg` in the GF shell and try to decipher your
 own grammar! Why not also take a look at the
-[obscure](https://github.com/GrammaticalFramework/GF/tree/master/src/tools/gftest#less-common-use-cases)
-[options](https://github.com/GrammaticalFramework/GF/tree/master/src/tools/gftest#detailed-information-about-the-grammar)
+[obscure](https://github.com/GrammaticalFramework/gftest#less-common-use-cases)
+[options](https://github.com/GrammaticalFramework/gftest#detailed-information-about-the-grammar)
 in `gftest`.

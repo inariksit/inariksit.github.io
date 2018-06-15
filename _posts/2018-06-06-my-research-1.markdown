@@ -196,6 +196,6 @@ To understand the details of how this works, you should read my
 thesis!
 
 To use the tool in practice, see
-[instructions](https://github.com/GrammaticalFramework/GF/blob/master/src/tools/gftest/README.md).
+[instructions](https://github.com/GrammaticalFramework/gftest#readme).
 
 [Part II of this series](https://inariksit.github.io/research/2018/06/07/my-research-2.html).
