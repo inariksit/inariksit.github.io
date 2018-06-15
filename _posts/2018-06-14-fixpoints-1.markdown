@@ -105,7 +105,7 @@ So we can replace all of the GF functions with just a `&&`. In case of multiple 
 
 <div class="language-haskell highlighter-rouge"><div
 class="highlight"><pre class="highlight"><code><span
-class="err">VP</span><span class="err">¹</span> <span class="o">::=</span> <span class="err">V</span><span class="err">²</span>  <span class="o">||</span>  <span class="err">VV⁹</span> <span class="o">&&<Yspan> <span class="err">VP⁵</span> 
+class="err">VP</span><span class="err">¹</span> <span class="o">::=</span> <span class="err">V</span><span class="err">²</span>  <span class="o">||</span>  <span class="err">VV⁹</span> <span class="o">&&</span> <span class="err">VP⁵</span> 
 <span class="err">VP</span><span class="err">³</span> <span
 class="o">::=</span> <span class="err">VV</span><span
 class="err">⁴</span> <span class="o">&&</span> <span class="err">VP</span><span class="err">⁵</span>
@@ -126,7 +126,7 @@ actually have values:
 
 <div class="language-haskell highlighter-rouge"><div
 class="highlight"><pre class="highlight"><code><span
-class="err">VP</span><span class="err">¹</span> <span class="o">::=</span> <span class="kt">V²</span>  <span class="o">||</span>  <span class="err">VV⁹</span> <span class="o">&&<Yspan> <span class="err">VP⁵</span> 
+class="err">VP</span><span class="err">¹</span> <span class="o">::=</span> <span class="kt">V²</span>  <span class="o">||</span>  <span class="err">VV⁹</span> <span class="o">&&</span> <span class="err">VP⁵</span> 
 <span class="err">VP</span><span class="err">³</span> <span
 class="o">::=</span> <span class="err">VV</span><span
 class="err">⁴</span> <span class="n">&&</span> <span class="err">VP</span><span class="err">⁵</span>
@@ -143,7 +143,7 @@ values:
 
 <div class="language-haskell highlighter-rouge"><div
 class="highlight"><pre class="highlight"><code><span
-class="kt">VP¹</span> <span class="o">::=</span> <span class="kt">V²</span>  <span class="o">||</span>  <span class="err">VV⁹</span> <span class="o">&&<Yspan> <span class="err">VP⁵</span> 
+class="kt">VP¹</span> <span class="o">::=</span> <span class="kt">V²</span>  <span class="o">||</span>  <span class="err">VV⁹</span> <span class="o">&&</span> <span class="err">VP⁵</span> 
 <span class="err">VP</span><span class="err">³</span> <span
 class="o">::=</span> <span class="err">VV</span><span
 class="err">⁴</span> <span class="n">&&</span> <span class="err">VP</span><span class="err">⁵</span>
@@ -161,7 +161,7 @@ Moving on--can we update some other values?
 
 <div class="language-haskell highlighter-rouge"><div
 class="highlight"><pre class="highlight"><code><span
-class="kt">VP¹</span> <span class="o">::=</span> <span class="kt">V²</span>  <span class="o">||</span>  <span class="err">VV⁹</span> <span class="o">&&<Yspan> <span class="err">VP⁵</span> 
+class="kt">VP¹</span> <span class="o">::=</span> <span class="kt">V²</span>  <span class="o">||</span>  <span class="err">VV⁹</span> <span class="o">&&</span> <span class="err">VP⁵</span> 
 <span class="err">VP</span><span class="err">³</span> <span
 class="o">::=</span> <span class="err">VV</span><span
 class="err">⁴</span> <span class="n">&&</span> <span class="err">VP</span><span class="err">⁵</span>
