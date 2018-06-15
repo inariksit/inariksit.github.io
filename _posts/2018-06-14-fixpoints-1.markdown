@@ -20,8 +20,7 @@ actually in use?
 We could solve this problem in many ways (and honestly, in simpler
 ways than I'm going to show). But bear with me--this is a lesson in thinking in
 fixpoints, not a lesson in "does this make sense to model as a
-fixpoint computation". Eventually we get to problems that *do* make
-sense to model as fixpoint computation.
+fixpoint computation".
 
 That said, let's get started!
 
@@ -67,12 +66,14 @@ x30 = … x24 … x27 …
 Now, let's move from the GF abstract syntax to the PMCFG concrete
 categories. I've labeled the different concrete categories with
 superscript numbers; we don't need to care about their actual content
-just now.
+just now. Two things to simplify:
+* Just consider the functions `UseV` and `ComplVV`; in reality, all others are in there too
+* Assume that any concrete category may have multiple functions that form them, just like in the first line. I've just omitted the rest for readability.
 
-<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">VP</span><span class="kt">¹</span> <span class="o">::=</span> <span class="n">useV</span><span class="n">¹</span> <span class="kt">V</span><span class="kt">²</span>
-<span class="kt">VP</span><span class="kt">³</span> <span class="o">::=</span> <span class="n">complVV</span><span class="n">³</span> <span class="kt">VV</span><span class="kt">⁴</span> <span class="kt">VP</span><span class="kt">⁵</span>
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">VP¹</span> <span class="o">::=</span> <span class="n">useV¹</span> <span class="kt">V²</span> | <span class="n">complVV¹</span> <span class="kt">VV⁹ VP⁵</span> | <span class="n">…</span>
+<span class="kt">VP³</span> <span class="o">::=</span> <span class="n">complVV³</span> <span class="kt">VV</span><span class="kt">⁴</span> <span class="kt">VP</span><span class="kt">⁵</span>
 <span class="o">...</span>
-<span class="kt">VP</span><span class="kt">⁵</span> <span class="o">::=</span> <span class="n">useV</span><span class="n">⁵</span> <span class="kt">V</span><span class="kt">⁶</span>
+<span class="kt">VP</span><span class="kt">⁵</span> <span class="o">::=</span> <span class="n">useV⁵</span> <span class="kt">V</span><span class="kt">⁶</span>
 <span class="o">...</span>
 <span class="kt">VP</span><span class="kt">⁷</span> <span class="o">::=</span> <span class="n">complVV</span><span class="n">⁷</span> <span class="kt">VV</span><span class="kt">⁸</span> <span class="kt">VP</span><span class="kt">¹</span>
 </code></pre></div></div>
@@ -90,7 +91,7 @@ just know if a given category has a member or no, so we can deal with
 Booleans. We give an initial value of `False` to all variables: that
 is, "all categories are empty". Let's mark that with red text.
 
-<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">VP</span><span class="err">¹</span> <span class="o">::=</span> <span class="n">useV</span><span class="n">¹</span> <span class="err">V</span><span class="err">²</span>
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">VP¹</span> <span class="o">::=</span> <span class="n">useV¹</span> <span class="err">V²</span> | <span class="n">complVV¹</span> <span class="err">VV⁹ VP⁵</span> | <span class="n">…</span>
 <span class="err">VP</span><span class="err">³</span> <span class="o">::=</span> <span class="n">complVV</span><span class="n">³</span> <span class="err">VV</span><span class="err">⁴</span> <span class="err">VP</span><span class="err">⁵</span>
 <span class="o">...</span>
 <span class="err">VP</span><span class="err">⁵</span> <span class="o">::=</span> <span class="n">useV</span><span class="n">⁵</span> <span class="err">V</span><span class="err">⁶</span>
@@ -100,14 +101,14 @@ is, "all categories are empty". Let's mark that with red text.
 
 In fact, now that we're reduced to Booleans, we don't even need to
 care about what the original GF functions *do* with their arguments.
-So we can replace all of the GF functions with just a `&&`:
+So we can replace all of the GF functions with just a `&&`. In case of multiple functions that have the same concrete category as a result, we replace the `|` with `||`.
 
 <div class="language-haskell highlighter-rouge"><div
 class="highlight"><pre class="highlight"><code><span
-class="err">VP</span><span class="err">¹</span> <span class="o">::=</span> <span class="err">V</span><span class="err">²</span>
+class="err">VP</span><span class="err">¹</span> <span class="o">::=</span> <span class="err">V</span><span class="err">²</span>  <span class="o">||</span>  <span class="err">VV⁹</span> <span class="o">&&<Yspan> <span class="err">VP⁵</span> 
 <span class="err">VP</span><span class="err">³</span> <span
 class="o">::=</span> <span class="err">VV</span><span
-class="err">⁴</span> <span class="n">&&</span> <span class="err">VP</span><span class="err">⁵</span>
+class="err">⁴</span> <span class="o">&&</span> <span class="err">VP</span><span class="err">⁵</span>
 <span class="o">...</span>
 <span class="err">VP</span><span class="err">⁵</span> <span
 class="o">::=</span> <span class="err">V</span><span class="err">⁶</span>
@@ -119,13 +120,13 @@ class="err">⁸</span> <span class="n">&&</span> <span class="err">VP</span><spa
 
 How can a variable for a category turn into `True`? We find a member
 of that category! On the first round, we've got to deal with the
-lexical categories: `V²` and `V⁶` for intransitive verbs, `VV⁴` and
-`VV⁸` for verbs with a `VP` complement. Say that `V²` and `VV⁸`
+lexical categories: `V²` and `V⁶` for intransitive verbs, `VV⁴`,
+`VV⁸` and VV⁹ for verbs with a `VP` complement. Say that `V²` and `VV⁸`
 actually have values:
 
 <div class="language-haskell highlighter-rouge"><div
 class="highlight"><pre class="highlight"><code><span
-class="err">VP</span><span class="err">¹</span> <span class="o">::=</span> <span class="kt">V²</span>
+class="err">VP</span><span class="err">¹</span> <span class="o">::=</span> <span class="kt">V²</span>  <span class="o">||</span>  <span class="err">VV⁹</span> <span class="o">&&<Yspan> <span class="err">VP⁵</span> 
 <span class="err">VP</span><span class="err">³</span> <span
 class="o">::=</span> <span class="err">VV</span><span
 class="err">⁴</span> <span class="n">&&</span> <span class="err">VP</span><span class="err">⁵</span>
@@ -142,7 +143,7 @@ values:
 
 <div class="language-haskell highlighter-rouge"><div
 class="highlight"><pre class="highlight"><code><span
-class="kt">VP¹</span> <span class="o">::=</span> <span class="kt">V²</span>
+class="kt">VP¹</span> <span class="o">::=</span> <span class="kt">V²</span>  <span class="o">||</span>  <span class="err">VV⁹</span> <span class="o">&&<Yspan> <span class="err">VP⁵</span> 
 <span class="err">VP</span><span class="err">³</span> <span
 class="o">::=</span> <span class="err">VV</span><span
 class="err">⁴</span> <span class="n">&&</span> <span class="err">VP</span><span class="err">⁵</span>
@@ -154,21 +155,13 @@ class="o">::=</span> <span class="err">V</span><span class="err">⁶</span>
 class="o">::=</span> <span class="kt">VV⁸</span> <span class="n">&&</span> <span class="kt">VP¹</span>
 </code></pre></div></div>
 
-Now that `V²` was confirmed non-empty, `VP¹` became that too. Note
-that there could be multiple ways to construct a `VP¹`, and they could
-all be impossible except for one, but that's fine. All we need is that
-there is at least one way to construct a `VP¹`, and then `VP¹` is
-definitely non-empty.
+Yes we can: when `V²` was confirmed non-empty, next round `VP¹` gets confirmed too.
 
-(By the way, now that we're dealing with Booleans, isn't it just
-obvious why Koen likes this? :-D)
-
-Anyway, moving on--can we update some other values? Yes: the `VP¹` on
-the right-hand side of `VP⁷` just got updated, which updates `VP⁷`.
+Moving on--can we update some other values?
 
 <div class="language-haskell highlighter-rouge"><div
 class="highlight"><pre class="highlight"><code><span
-class="kt">VP¹</span> <span class="o">::=</span> <span class="kt">V²</span>
+class="kt">VP¹</span> <span class="o">::=</span> <span class="kt">V²</span>  <span class="o">||</span>  <span class="err">VV⁹</span> <span class="o">&&<Yspan> <span class="err">VP⁵</span> 
 <span class="err">VP</span><span class="err">³</span> <span
 class="o">::=</span> <span class="err">VV</span><span
 class="err">⁴</span> <span class="n">&&</span> <span class="err">VP</span><span class="err">⁵</span>
@@ -179,6 +172,8 @@ class="o">::=</span> <span class="err">V</span><span class="err">⁶</span>
 <span class="kt">VP⁷</span> <span
 class="o">::=</span> <span class="kt">VV⁸</span> <span class="n">&&</span> <span class="kt">VP¹</span>
 </code></pre></div></div>
+
+Another change happened: that `VP¹` just made `VP⁷` non-empty.
 
 But after this step, nothing is going to change anymore, no matter how
 much we recompute. In other words, we've found a fixed point!
