@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Fixpoints, part I"
+title:  "Fixpoints in gftest, part I"
 date:   2018-06-14
 categories: research
 tags: research
@@ -66,7 +66,7 @@ x30 = … x24 … x27 …
 Now, let's move from the GF abstract syntax to the PMCFG concrete
 categories. I've labeled the different concrete categories with
 superscript numbers; we don't need to care about their actual content
-just now. The example is simplified in two wais.
+just now. The example is simplified in two ways.
 * We only show the functions `UseV` and `ComplVV`. In reality, all
   others are in there too.
 * Apart from the first line, we show only one function for each
@@ -216,10 +216,11 @@ This was quite a trivial problem for two reasons: the values are
 not changing after they get confirmed as True, and we had absolutely
 no use for the actual GF functions (or the PMCFG versions of them).
 
-Let's take another fairly trivial problem: **Is a category reachable from the top category?**
+Let's take another fairly trivial problem:<a name="reachable"> </a>**Is a category reachable
+from the start category?**
 
-* Start value: False (all categories are non-reachable from the top category)
-* Confirm that the top category is reachable from the top category.
+* Start value: False (all categories are non-reachable from the start category)
+* Confirm that the start category is reachable from the start category.
 * For each function whose *result category* is confirmed reachable,
 confirm its *argument categories* reachable.
 
@@ -228,11 +229,11 @@ just knowledge which arguments it takes. The values are still
 Booleans, and don't change once they've become True.
 
 Notice that the first problem was bottom-up: we started from several
-terminal categories, and moved up all the way to the top category.
+terminal categories, and moved up all the way to the start category.
 This time we start from the top, and confirm more and more lower-level
 categories reachable. But the iterative process is the same in both cases.
 
-Another one! **Are some fields always empty?**
+Another one! **Are some fields always empty?**<a name="always-empty"> </a>
 
 * Start (least) value: all fields in all categories are empty. Now the value
   is not a Boolean, it is instead a set of fields that are non-empty
