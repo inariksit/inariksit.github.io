@@ -237,7 +237,7 @@ Another one! **Are some fields always empty?**<a name="always-empty"> </a>
 
 * Start (least) value: all fields in all categories are empty. Now the value
   is not a Boolean, it is instead a set of fields that are non-empty
-  empty--which in the beginning is an empty set. The ordering is
+  empty--which in the beginning is an empty set. The ordering is the
   subset relation: `A ≤ B` if `A ⊆ B`.
 * A field `s` in a terminal category `T` is non-empty, if there is some
   actual word with a non-empty string in `s`. When such a word
