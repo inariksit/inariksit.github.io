@@ -202,7 +202,7 @@ oper
 
 The "basic human rights for types" thing, as well as "annotate the
 hell out of everything because the type checker seems like a clueless
-idiot" thing is just a prerequisite for having dependent types.
+idiot" thing is just a prerequisite for doing cool stuff with dependent types.
 
 Despite the subheading, I am not going to go further into dependent
 types in this post. You don't need them to write resource grammars, or
