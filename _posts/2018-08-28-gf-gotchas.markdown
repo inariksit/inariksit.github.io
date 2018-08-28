@@ -110,7 +110,7 @@ didn't even occur to me to think that this new thing called "dependent
 types" is something particularly fancy. I heard the cool kids namedrop
 lambda calculus, and I asked a friend whether we were supposed to
 learn lambda calculus at school and I just missed all of it. (For
-anyone else who is wondering: no, we didn't.)  And now I'm posing with
+anyone else who is wondering: no, we weren't.)  And now I'm posing with
 a massive lambda in my blog which is so far exclusively about
 programming.
 
