@@ -16,7 +16,7 @@ again.
 - [Restricted inheritance](#restricted-inheritance)
 - [linref](#linref)
 - [What's the problem with variants in resource grammar?](#whats-the-problem-with-variants-in-resource-grammar)
-- [`Type` and `PType`](#type-and-ptype)
+- [A bit about types](#a-bit-about-types)
 - [Some overlooked GF shell commands](#some-overlooked-gf-shell-commands)
   - [ai](#ai)
   - [ma](#ma)
