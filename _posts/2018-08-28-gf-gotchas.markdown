@@ -7,7 +7,7 @@ tags: gf
 ---
 
 ![duck](/images/gf-rubber-duck.png "Your favourite companion for writing GF")
-Latest update: 2018-08-28
+Latest update: 2018-08-30
 
 This post contains real-life examples when I or my friends have been
 confused in the past. It might be updated whenever someone is confused
@@ -169,7 +169,7 @@ and
 [here](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/ConjunctionEng.gf#L39)
 to see some `PType` in action.
 
-### Type variables
+### Types can be arguments to functions
 
 Now that we're granting basic human rights to types, look at this
 piece of code:
@@ -182,38 +182,16 @@ AdjCN adj cn = {
   } ;
 ```
 
-Looks kinda awkward, to be honest. You might want to mentally sugar it
+If the `if_then_else` bit looks strange, we can sugar it
 into the following:
 
 ```haskell
-AdjCN adj cn = {
-  s = if adj.isPre
-       then adj.s ++ cn.s
-       else cn.s ++ adj.s
-  } ;
+if adj.isPre; then adj.s ++ cn.s; else cn.s ++ adj.s
 ```
 
-Now it should look more readable. What happens is that in GF there is
-no `if … then … else` keyword, just a function `if_then_else` that
-takes, in our example, the following 4 arguments:
-
-* The type of what it returns (`Str`)
-* The Boolean that it checks (`adj.isPre`, i.e. whether the adjective
-  is premodifier)
-* What happens if the adjective *is* premodifier (put `adj.s` before
-`cn.s`, return that string)
-* What happens if the adjective *is not* premodifier (put `adj.s` after
-`cn.s`, return that string).
-
-Why do we need the first argument? I don't know--my understanding is
-at the level that the cool expressive power that comes from dependent
-types comes with a tradeoff: it is hard (or impossible?) to guess
-things implicitly. Like in this case, we gave `if_then_else` two
-strings as arguments, but we still needed to give the *type* `Str` as
-the first argument.
-
-
-This is how it is defined in the
+So what is happening? In GF, there is no `if … then … else` keyword, just a function
+`if_then_else` that takes 4 arguments, of which the first one is a
+type. This is how it's defined in the
 [GF prelude](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/prelude/Prelude.gf#L64-L69):
 
 ```haskell
@@ -225,23 +203,43 @@ oper
 } ;
 ```
 
+In our `AdjCN` example, we give the following 4 arguments:
+
+* The type of what it returns (`Str`)
+* The Boolean that it checks (`adj.isPre`, i.e. whether the adjective
+  is premodifier)
+* What happens if the adjective *is* premodifier (put `adj.s` before
+`cn.s`, return that string)
+* What happens if the adjective *is not* premodifier (put `adj.s` after
+`cn.s`, return that string).
+
+Why do we need the first argument? I don't know the details, but as
+far as I've understood, the cool expressive power that comes from
+dependent types comes with a tradeoff: the compiler can't just *guess*
+things anymore. (In type theorist lingo, dependent types don't mix
+well with polymorphism<!--type inference ? -->.) Like in this case,
+we gave `if_then_else` two strings as arguments, but we still needed
+to give the *type* `Str` as the first argument.
+
+
 ### Dependent types
 
-The "basic human rights for types" thing, as well as "annotate the
+The "types can be *of type*" thing, as well as "annotate the
 hell out of everything because the type checker seems like a clueless
 idiot" thing is just a prerequisite for doing cool stuff with dependent types.
 
 Despite the subheading, I am not going to go further into dependent
 types in this post. In order to write resource grammars (or most
 application grammars), you would do perfectly fine without ever having
-heard the concept *dependent type*. I've just explained two things you
-do see in GF grammars often, and which probably seem weird if you
-have background in other programming languages.
+heard the concept *dependent type*. I just wanted to explain two things
+that appear in GF grammars quite often, and which probably seem weird
+if you have background in other programming languages.
 <!-- the common pattern `Verb : Type` and `be : Verb`, as well as type
 parameters, like `Str` to `if_then_else`. -->
 
-If you want to learn more about dependent types in GF, [here's the
-section in the tutorial](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc110).
+If you want to learn more about dependent types in GF (I recommend,
+it's cool!),
+[here's the section in the tutorial](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc110).
 
 If you want to learn about dependent types in more general-purpose
 programming languages, maybe pick up some
@@ -434,9 +432,14 @@ Lang> l PredVP (DetCN (DetQuant DefArt NumSg) (UseN scissor_N)) (UseComp (CompAd
 the scissors is here
 ```
 
-If you think this will be a problem, proceed with caution. Also,
-problems with ambiguity may occur, but it's not as dangerous as
-linearising empty strings.
+Also, problems with ambiguity may occur, which can give weird results for
+translation: you parse "I run with scissors" in English, get two
+trees, accidentally choose the singular, and linearise in some other
+language "I run with scissor". 
+
+If you think any of the two points will be a problem in your use case,
+proceed with caution. Otherwise, I think this approach would work
+pretty well for many applications.
 
 #### Linearise theoretical forms and let the application grammarian to deal with them
 
@@ -447,31 +450,58 @@ Pl => "scissors" ;
 ```
 
 Just put *scissor* in the table, and if someone needs it in an
-application, let them take care to never actually use the singular.
+application, let them take care to always choose the plural.
 
-I kind of like this option, but I understand it's not for
-every situation. Here's a more hardcore example: Basque verb agreement when
-both subject and object is the same person doesn't exist, instead you
-need to use reflexive, which is a whole different construction with
-different verb agreement and words and stuff. There is already an
-abstract syntax function for reflexive, so why would I need to put it
-in just any old verb? I decided to linearise nonexisting forms: the
+Okay, *scissor* is not such a controversial thing to put in an
+inflection table. After all, the form does exist e.g. in
+[compound words](http://images4.fanpop.com/image/photos/16700000/Edward-Scissorhands-edward-scissorhands-16774394-488-720.jpg). But
+in my personal opinion<sup>[1](#opinion)</sup>,<a name="fn-1"></a>
+this is a feasible option even for more questionable forms.
+
+I'm mostly thinking about RGL, which is already full
+of somewhat questionable language. Consider the following trees:
+
+```haskell
+PredVP (UsePron i_Pron) (ComplSlash (SlashV2a like_V2) (UsePron i_Pron))
+-- 'I like me'
+
+PredVP (UsePron i_Pron) (ReflVP (SlashV2a like_V2))
+-- 'I like myself'
+```
+
+*I like me* sounds less idiomatic in English than *I like myself*, but
+the RGL's task is not to judge what is idiomatic, just to provide a
+wide variety of syntactic structures, and let an application
+grammarian to choose the most idiomatic structures for a given
+language and situation.
+
+The first sentence is created by a construction, which creates all
+combinations of `<Pron> <Verb> <Pron>`. Sure, we could write a special
+case for those instances where the two pronouns are the same, and
+replace the second pronoun by the appropriate reflexive pronoun. But
+the reflexive construction already exists in the RGL, as a completely
+separate entity. I personally think both can coexist in the RGL. Maybe
+*I like me* sounds weird in English, but in some language it could
+well sound natural. Or it could apply to an extraordinary situation,
+involving clones, time travel etc., in a way that *I like myself*
+doesn't quite capture.
+
+Now let's consider Basque, where transitive verbs agree with both
+subject and object. Except when the subject and object are both the
+same 1st or 2nd person pronoun. So *he/she/they like(s) him/her/them* is
+all fine, but *I/we like me/us* or *you like you*--the verb form
+needed to convey this information just doesn't exist. In such a case,
+the reflexive construction (where the object agreement is always 3rd
+person singular) is the only way to go.
+
+Despite this, I decided to linearise nonexisting forms: the
 morpheme for e.g. 1st person as a subject exists, so does the morpheme
 for 1st person as an object, just put the morphemes together and call
-it a theoretical form<sup>[1](#def)</sup>.<a name="fn-1"></a>
+it a theoretical form<sup>[2](#def)</sup>.<a name="fn-2"></a>
 
-
-Another point in favour of "theoretical forms" is that even in
-English, *I like me* is a bit questionable, but still the RG
-constructs that form, as a separate entity from the more natural *I
-like myself*, which has a different AST. In Basque, it's just more
-radical, because the verb form needed to construct *I like me* doesn't
-exist.
-
-(Side note: my nick *inariksit* is a combination of Finnish morphemes
-in an illegal way, so maybe I just like breaking the
-~~law~~ morphotactics.)
-
+This approach is definitely not for all use cases. For instance, don't
+use it in applications where you provide suggestions for the next
+word, unless your users are into speculative morphotactics.
 
 #### Raise an exception
 
@@ -523,18 +553,11 @@ at least we get *I like* part properly linearised.
 
 
 
-1.<a name="def"> </a>Actually, I wonder if the
+1.<a name="opinion"> </a>My nick *inariksit* is a combination of Finnish morphemes
+in an illegal way, so maybe I just like breaking the
+~~law~~ morphotactics. <a href="#fn-1">↩</a>
+
+2.<a name="def"> </a>Actually, I wonder if the
 [def](http://www.grammaticalframework.org/doc/gf-refman.html#toc19)
-feature would work here--just define the following tree
-
-```haskell
-PredVP (UsePron i_Pron) (ComplSlash (SlashV2a like_V2) (UsePron i_Pron))
--- 'I like me'
-``` 
-as this tree:
-
-```haskell
-PredVP (UsePron i_Pron) (ReflVP (SlashV2a like_V2))
--- 'I like myself'
-```
-<a href="#fn-1">↩</a>
+feature would work here--just define `PredVP (UsePron i_Pron) (ComplSlash (SlashV2a like_V2) (UsePron i_Pron))`
+as `PredVP (UsePron i_Pron) (ReflVP (SlashV2a like_V2))`. <a href="#fn-2">↩</a>
