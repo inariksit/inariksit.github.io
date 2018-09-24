@@ -25,10 +25,10 @@ reasons for this can be many and complicated, but we can identify two concrete r
 categories](/gf/2018/06/13/pmcfg.html#concr-cats) and
 [concrete functions](/gf/2018/06/13/pmcfg.html#concr-funs) that the
 grammar compiles into. For instance, Bantu languages have up to 20 noun classes<sup>[citation needed]</sup>: these all compile into different concrete categories.
-(If you like staring at PGF files, look for `range` in [here](http://localhost:4000/gf/2018/06/13/pmcfg.html#concr-cats).)
+(If you like staring at PGF files, look for `range` in [here](/gf/2018/06/13/pmcfg.html#concr-cats).)
 
 * The *size* of concrete categories. For instance, Finnish nouns have 14 cases and 2 numbers. There's just one concrete category, but they have 28 strings in them.
-(Again for those comfortable with PGF, look for `labels` in [here](http://localhost:4000/gf/2018/06/13/pmcfg.html#concr-cats).)
+(Again for those comfortable with PGF, look for `labels` in [here](/gf/2018/06/13/pmcfg.html#concr-cats).)
 
 Both of these things can make a grammar blow up, and reducing either
 can make it decent again. Example of amount: back in like 2011 I tried
