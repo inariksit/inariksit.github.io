@@ -6,13 +6,13 @@ categories: gf
 tags: gf
 ---
 
-- [I. The problem](#i-the-problem)
-- [II. Reducing the amount of concrete categories](#ii-reducing-the-amount-of-concrete-categories)
-  * [Word order](#word-order)
-  * [Has `<some function>` been applied?](#has---some-function---been-applied-)
-- [III. Reducing the size of concrete categories](#iii-reducing-the-size-of-concrete-categories)
-  * [Inflection tables vs. glu `&+` ing morph `&+` eme `&+` s](#inflection-tables-vs-glu------ing-morph------eme------s)
-  * [Trading size for number: Basque case study](#trading-size-for-number)
+* [I. The problem](#i-the-problem)
+* [II. Reducing the amount of concrete categories](#ii-reducing-the-amount-of-concrete-categories)
+* [III. Reducing the size of concrete categories](#iii-reducing-the-size-of-concrete-categories)
+* [IV. Trading size for amount: a case study in Basque](#iv-trading-size-for-amount)
+
+
+
 
 ## I. The problem
 
@@ -31,22 +31,35 @@ grammar compiles into. For instance, Bantu languages have up to 20 noun classes<
 (Again for those comfortable with PGF, look for `labels` in [here](/gf/2018/06/13/pmcfg.html#concr-cats).)
 
 Both of these things can make a grammar blow up, and reducing either
-can make it decent again. Example of amount: back in like 2011 I tried
-to add a vowel harmony parameter to a few categories in Finnish, and
-the grammar just stopped compiling. Example of size: in the same
-Finnish grammar, Aarne replaced the inflection tables of nouns and
-verbs with just the minimum number of different stems, and that sped
-up the grammar a lot, with vowel harmony and all.
+can make it decent again. Especially the amount of concrete categories
+can be very sneaky; you wouldn't expect that adding just a tiny
+Boolean to some insignificant category would cause a blowup, but it
+just might. Did you ever wonder why French is so much slower than
+Spanish, even though they use the same functor? It's because French
+participles agree in gender and
+number<sup>[1](#belgium-reform)</sup><a name="fn-1">,</a> and Spanish
+don't---a difference of two 2-valued parameters cause a major
+difference in compile time.
+
+
+Here's another anecdote: back in 2011 or so, I tried to add a 2-valued
+vowel harmony parameter to a few categories in Finnish, and the
+grammar just stopped compiling. Later, Aarne reduced the *size* of
+nouns and verbs, by replacing the inflection tables of nouns and verbs
+with just the minimum number of different stems (the method known as
+[glu `&+` ing morph `&+` eme `&+`
+s](#iii-reducing-the-size-of-concrete-categories)). That sped up
+the grammar a lot, with vowel harmony and all!
 
 So, a problem that comes from adding one parameter can be solved by
 shaving off from somewhere else, either by getting rid of some other
 parameter, or making the inflection tables smaller (in the changed
 category, or elsewhere). You can get some ideas of the numbers when
 you compile your GF grammar with the setting
-`-v=3`<sup>[1](#verbosity)</sup>.<a name="fn-1"></a> The bad news is
-that a lot of categories are deeply interconnected, so it's not always
-straightforward where to start. The good news is that if you just find
-a place where it's
+`-v=3`<sup>[2](#verbosity)</sup>.<a name="fn-2"></a> The bad news is
+that a lot of categories are deeply interconnected, so you really
+might have no clue where to start. The good news is that if you just
+start from where it seems
 [*feasible*](https://en.wikipedia.org/wiki/Streetlight_effect), it's
 often actually helpful.
 
@@ -200,12 +213,12 @@ to you how you feel about such a decision.
 
 
 This time, we don't touch the inherent parameters, but the
-*variable* ones, that is, stuff that comes on the LHS of a table. If our
+*variable* ones, that is, the LHS of a table. If our
 Noun type is `{s : Case => Str}`, we want to make the parameter `Case`
 smaller.
 
 
-### Inflection tables vs. glu `&+` ing morph `&+` eme `&+` s
+### Inflection tables vs. glu &+ ing morph &+ eme &+ s
 
 
 A traditional GF grammar would store an inflection table in the
@@ -262,21 +275,41 @@ you only need 5-10 different *stems* where you attach only, say, 1-5
 different allomorphs of whatever morphemes you now want to
 attach. Here's an [example in the Basque
 RG](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/basque/ResEus.gf#L27-L30)
-that demonstrates both: the case `LocStem` replaces all locative
-cases, because they all use the same stem, and the parameter `Phono`
-with values `FinalR, FinalCons, FinalA, FinalVow` tells which
-allomorph to choose. Then the [`locPrep`
+that demonstrates both:
+
+```haskell
+let stem =
+  itsaso ++ table {
+      {- other cases … -} ;
+      LocStem => table {
+        FinalCons => BIND ++ "e" ; --mutil+e+tik
+        FinalR    => BIND ++ "re" ; --txakur+re+tik
+        FinalA    => BIND ++ "a" ; --neska+tik
+        _         => [] } --itsaso+tik
+   } ;
+
+```
+
+So, the case `LocStem` replaces locative cases, because they all
+use the same stem, and the parameter `Phono` with values `FinalR,
+FinalCons, FinalA, FinalVow` tells which allomorph to choose. Then the
+[`locPrep`
 oper](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/basque/ParadigmsEus.gf#L144-L145)
 chooses the form with parameter `LocStem` from its `NP` argument and
 glues its string argument into the `NP`.
 
 
-### Trading size for number
+<h2 id="iv-trading-size-for-amount">IV. Trading size for amount: a case study in Basque</h2>
 
-So, Basque again. If you're reading this blog, chances are high that
+Here's a real-life case study, where first I had few concrete
+categories but they were huge (verb inflection tables). I replaced
+those with many concrete categories that were small, and it improved
+the performance a lot.
+
+If you're reading this blog, chances are high that
 you know a thing or two about Basque verbs, but in case no, here's a
 recap:
-* Agrees with subject, direct object and indirect object, in
+* Agrees with subject, direct object (if it has one) and indirect object (if it has one), in
 all tenses and moods.
 * Most verbs are inflected with an auxiliary; so think
 "*intransitive-do* sleeping", "*transitive-do* eating",
@@ -332,7 +365,7 @@ object in corresponding fields--still no finite verb forms, just the
 parameter that was there since the beginning.  Finally, we introduce
 the actual verb inflection in `PredVP`. It's only at that point we
 know all the arguments (subject, direct object and indirect object),
-so we can choose the agreement at once<sup>[2](#basque-details)</sup>.<a name="fn-2"></a>
+so we can choose the agreement at once<sup>[3](#basque-details)</sup>.<a name="fn-3"></a>
 
 I might write more about this, if I ever write a paper about the
 Basque RG. But now let's recap what we did for verbs:
@@ -340,13 +373,24 @@ Basque RG. But now let's recap what we did for verbs:
 * First design: no inherent parameters, 200+-form inflection tables. Compiled in minutes--hours.
 * Second design: ~10 inherent parameters, 3-form inflection tables. Compiles in <30 seconds.
 
-I wonder if this scales up when I add the remaining synthetic verbs. There should be around 20 parameters for a complete grammar, rather than 10, but I haven't gotten around adding them; we don't need more in the small resource lexicon. It is possible that this approach doesn't scale up, but at least is has scaled up better than the original version with inflection tables.
+I wonder if this scales up when I add the remaining synthetic
+verbs. There should be around 20 parameters for a complete grammar,
+rather than 10, but I haven't gotten around adding them; we don't need
+more in the small resource lexicon. It is possible that this approach
+doesn't scale up, but at least is has scaled up better than the
+original version with inflection tables.
 
-Of course, not all languages support this kind of thing--but maybe you can find other redundancies to exploit in yours. The take-home message here was that "you don't need to put verb inflection forms in the verb *category*, but somewhere higher up". Maybe write a RG or two, and by your third, you'll get creative! ^_^
+Of course, not all languages support this kind of thing--but maybe you
+can find other redundancies to exploit in yours. The take-home message
+here was that "you don't need to put verb inflection forms in the
+*verb* category, but somewhere higher up". Maybe write a RG or two,
+and by your third, you'll get creative! ^_^
 
 ## Footnotes
 
-1.<a name="verbosity"> </a>Compiling with `-v=3`, you get this kind of output:
+1.<a name="belgium-reform"> </a>Let's hope that the French language goes through this [grammar reform](https://www.liberation.fr/debats/2018/09/02/les-crepes-que-j-ai-mange-un-nouvel-accord-pour-le-participe-passe_1676135), then we have some hope of GF grammars running faster! <a href="#fn-1">↩</a>
+
+2.<a name="verbosity"> </a>Compiling with `-v=3`, you get this kind of output:
 
 ```
   generating PMCFG 
@@ -361,13 +405,13 @@ Of course, not all languages support this kind of thing--but maybe you can find 
 + ComplSlash 2211840 (25600,21)
 ```
 
-If you're developing a resource grammar, you can try playing around with the parameters and see if you get a difference in the numbers. <a href="#fn-1">↩</a>
+If you're developing a resource grammar, you can try playing around with the parameters and see if you get a difference in the numbers. <a href="#fn-2">↩</a>
 
 
-2.<a name="basque-details"> </a>I know this is quite abstract, so [here's some
+3.<a name="basque-details"> </a>I know this is quite abstract, so [here's some
 code](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/basque/ResEus.gf#L529-L544). The
 actual verbs live in the weird-sounding identifiers like
 [AditzTrinkoak](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/basque/AditzTrinkoak.gf#L255-L295).`ukanZaio`,
 and `chooseAuxPol` picks the right forms (the right forms also depend
 on if the sentence is negative or positive, and that comes one step
-later, from `UseCl`). <a href="#fn-2">↩</a>
+later, from `UseCl`). <a href="#fn-3">↩</a>
