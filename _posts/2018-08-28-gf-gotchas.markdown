@@ -128,7 +128,12 @@ It's a long thread, so here's the essential.
 
 Here's an [alternative hack](https://github.com/GrammaticalFramework/GF/issues/32), if you need the behaviour of `variants` but it's too slow. However, consider also whether you really want variants--e.g. in the thread in question, it is much better to separate European and Brazilian Portuguese into distinct modules.
 
+<!--
+### Variants vs. `|`
 
+- what is the difference between | and variants? 
+- which is better, variants {"ink well" ; "ink-well"} or "ink" ++ variants{"-" ; ""} ++ "well"? (I know these do not produce the same strings, but you get the idea)
+-->
 
 ## A bit about types
 
@@ -559,5 +564,15 @@ in an illegal way, so maybe I just like breaking the
 
 2.<a name="def"> </a>Actually, I wonder if the
 [def](http://www.grammaticalframework.org/doc/gf-refman.html#toc19)
-feature would work here--just define `PredVP (UsePron i_Pron) (ComplSlash (SlashV2a like_V2) (UsePron i_Pron))`
-as `PredVP (UsePron i_Pron) (ReflVP (SlashV2a like_V2))`. <a href="#fn-2">↩</a>
+feature would work here--just define all trees of form 
+
+```haskell
+PredVP (UsePron x) (ComplSlash (SlashV2a like_V2) (UsePron x))
+```
+
+as the corresponding tree using `ReflVP`:
+
+```haskell
+PredVP (UsePron x) (ReflVP (SlashV2a like_V2))
+```
+<a href="#fn-2">↩</a>
