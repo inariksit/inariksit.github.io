@@ -11,6 +11,6 @@ During 2018, I will defend my PhD in language technology at University of Gothen
 
 * Email: `inari at digitalgrammars dot com`
 * Phone: 070 772 61 15
-* Office: A109, Holtermansgatan 1A, 41129 Göteborg
+* Office: D002, Holtermansgatan 1A, 41129 Göteborg
 * Post: Digital Grammars, Stena Center 1A, 41292 Göteborg, Sweden
 * IRC: inariksit at Freenode. You can find me on [#gf](https://webchat.freenode.net/?channels=gf), [#hfst](https://webchat.freenode.net/?channels=hfst) and [#apertium](https://webchat.freenode.net/?channels=apertium).
