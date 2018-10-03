@@ -278,10 +278,16 @@ first, but why bother when `Pred` already takes a `Quality` directly
 to `Comment`?
 
 In English, we don't bother, because there's only one field in
-`Quality`. Now let's take a language that is just like English, except
-that adjectives come in two variants, attributive and predicative.
-Dutch fits the description pretty well: "this warm pizza is warm" =
-"deze warme pizza is warm". Now we've got two fields for
+`Quality`. Now let's take a hypothetical language that is just like 
+English, except that adjectives come in two variants, attributive and 
+predicative.
+
+```
+LangEng> the warm pizza is warm
+LangDut> de warme pizza is warm
+```
+
+Actually it exists and is called Dutch. Now we've got two fields for
 `Quality`--let's call them `pred` and `attr`. The function `Pred`
 covers the field `pred`, and we need to wait until the 3rd round,
 when `CtxKind` is no more empty, to find a context that covers `attr`.
@@ -389,10 +395,6 @@ gives the pizza the pizza".
 
 That's all. Now we know how to see context generation as a fixpoint
 computation.
-
-A possible part III is about Koen's Fancy Fixpoints: how does he make
-them so fast?
-
 
 ***
 
