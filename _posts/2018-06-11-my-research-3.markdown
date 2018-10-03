@@ -102,8 +102,8 @@ of test cases?
 
 First of all, we are testing a PMCFG representation of natural
 language. This representation is also infinite: for example, the
-grammar can parse and produce a sentence with [arbitrarily many
-relative clauses](https://inariksit.github.io/gf/2018/06/10/completeness.html)
+grammar can parse and produce a sentence with arbitrarily many
+subordinate clauses 
 (*I know that you think that she disagrees that … this example is
 silly*), only limited by physical constraints such as memory or having
 a source of power after all humans die. But importantly, the grammar
