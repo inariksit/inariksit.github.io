@@ -567,12 +567,12 @@ in an illegal way, so maybe I just like breaking the
 feature would work here--just define all trees of form 
 
 ```haskell
-PredVP (UsePron x) (ComplSlash (SlashV2a like_V2) (UsePron x))
+PredVP (UsePron p) (ComplSlash (SlashV2a v) (UsePron p))
 ```
 
 as the corresponding tree using `ReflVP`:
 
 ```haskell
-PredVP (UsePron x) (ReflVP (SlashV2a like_V2))
+PredVP (UsePron p) (ReflVP (SlashV2a v))
 ```
 <a href="#fn-2">↩</a>
