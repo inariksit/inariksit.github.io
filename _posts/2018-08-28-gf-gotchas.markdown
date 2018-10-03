@@ -7,7 +7,7 @@ tags: gf
 ---
 
 ![duck](/images/gf-rubber-duck.png "Your favourite companion for writing GF")
-Latest update: 2018-08-30
+Latest update: 2018-10-03
 
 This post contains real-life examples when I or my friends have been
 confused in the past. It might be updated whenever someone is confused
@@ -126,14 +126,27 @@ It's a long thread, so here's the essential.
 
 ![cautionary-tale](/images/variants.png "A cautionary tale")
 
-Here's an [alternative hack](https://github.com/GrammaticalFramework/GF/issues/32), if you need the behaviour of `variants` but it's too slow. However, consider also whether you really want variants--e.g. in the thread in question, it is much better to separate European and Brazilian Portuguese into distinct modules.
+Here's an [alternative hack](https://github.com/GrammaticalFramework/GF/issues/32),
+if you need the behaviour of `variants` but it's too slow. However, consider
+also whether you really want variants--e.g. in the thread in question,
+it is much better to separate European and Brazilian Portuguese into
+distinct modules.
 
-<!--
 ### Variants vs. `|`
 
-- what is the difference between | and variants? 
-- which is better, variants {"ink well" ; "ink-well"} or "ink" ++ variants{"-" ; ""} ++ "well"? (I know these do not produce the same strings, but you get the idea)
--->
+You may have come across the use of `variants` while reading GF
+code. Except for the behaviour of [empty variants](#empty-variants),
+`t1 | ... | tn` and `variants {t1 ; ... ; tn}` are equivalent.
+
+### Nested variants
+
+It is clear that `{s = "ink well" | "ink-well"}` is the same as `{s =
+"ink well"} | {s = "ink-well}`, but which is better? Both will compile
+to the same thing at the PGF level, but the former is clearer and less
+repetitive. Just be careful with examples which are not actually
+equivalent, such as `{s = "Auto" ; g = Neutr} | {s = "Wagen" ; g =
+Masc}` and `{s = "Auto" | "Wagen" ; g = Neutr | Masc}`.
+
 
 ## A bit about types
 
