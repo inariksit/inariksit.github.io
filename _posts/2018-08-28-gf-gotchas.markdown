@@ -7,7 +7,7 @@ tags: gf
 ---
 
 ![duck](/images/gf-rubber-duck.png "Your favourite companion for writing GF")
-Latest update: 2018-10-03
+Latest update: 2018-11-01
 
 This post contains real-life examples when I or my friends have been
 confused in the past. It might be updated whenever someone is confused
@@ -21,6 +21,7 @@ again.
   - [ai](#ai)
   - [ma](#ma)
   - [The coolest flags of `l`](#the-coolest-flags-of-l)
+- [Generating MissingXxx](#generating-missingxxx)
 - [Placeholders/empty linearisations](#placeholdersempty-linearisations)
   - [Linearise an empty string](#linearise-an-empty-string-to-mark-a-nonexistent-option)
   - [Linearise some other form that exists](#linearise-some-other-form-that-exists)
@@ -313,7 +314,6 @@ Lang> pg -missing | ? grep -o Voc
 Then, if you are missing any of `NoVoc`, `please_Voc` or `VocNP`, it
 will show in the output.
 
-
 ### ma
 
 Wouldn't it be handy if you just typed a word in the GF shell and
@@ -382,7 +382,35 @@ LangFin: (Cl:3 (NP:1 (Language:0 norjaa)) (VP:2 väsyttää))
 
 Find out the rest by typing `help l` in the GF shell.
 
+## Generating MissingXxx
 
+When you have a resource grammar that is not quite complete, but you still want to have the API functions for it, you generate a `MissingXxx.gf` (where `Xxx` is the extension of your language). It looks like [this](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/basque/MissingEus.gf#L3) or [this](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/latin/MissingLat.gf#L3).
+
+Here's how to generate one, mostly for myself so I don't need to type these again next time. :-P
+
+```haskell
+-- (in GF shell)
+Lang> pg -missing | ? tr ' ' '\n' > /tmp/missingLins.txt
+```
+
+You can also prepare the file in the language directory:
+
+```
+echo "resource MissingXxx = open GrammarXxx, Prelude in {" > MissingXxx.gf
+echo "-- temporary definitions to enable the compilation of RGL API" >> MissingXxx.gf 
+```
+
+Then go to the directory `abstract`, and do this:
+
+```
+for l in `cat ./tmp/missingLins.txt` ; do egrep -o "\<$l\> +:.*;" *.gf | tr -s ' ' | egrep -v "(Definition|Document|Inflection|Language|Mark|Month|Monthday|Tag|Timeunit|Weekday|Year|Month)" | sed 's/gf:/ ;/g' | cut -f 2 -d ';' | sed -E 's/(.*) : (.*)/oper \1 : \2 = notYet "\1" ;/' ; done >> ../XXX/MissingXXX.gf
+```
+
+And remember to add the ending brace to the `MissingXxx` file.
+
+It won't work straight out of the box, because it only greps the abstract files, and some old definitions are in the file commented out. Just fix those as you try to build and get an error.
+
+If you also haven't implemented `SymbolXxx`, then you need to find missing lins from there as well. Open SymbolXxx in GF shell, do `pg -missing` and complete the same procedure.  And in the header you need to add `resource MissingXxx = open GrammarXxx, SymbolXxx, Prelude in { … }`.
 
 ## Placeholders/empty linearisations
 
