@@ -5,7 +5,7 @@ title: About me
 
 I create and maintain language resources at [Digital Grammars](https://www.digitalgrammars.com/), a company providing reliable multilingual machine translation.
 
-During 2018, I will defend my PhD in language technology at University of Gothenburg, under the supervision of [Koen Claessen](http://www.cse.chalmers.se/~koen/) and [Aarne Ranta](http://www.cse.chalmers.se/~aarne/). My research topic is applying software testing methods to computational grammars, especially [Grammatical Framework](http://www.grammaticalframework.org/) (GF) and [Constraint Grammar](http://visl.sdu.dk/constraint_grammar.html). In addition, I contribute actively to the GF Resource Grammar Library.
+In early 2019, I will defend my PhD in language technology at University of Gothenburg, under the supervision of [Koen Claessen](http://www.cse.chalmers.se/~koen/) and [Aarne Ranta](http://www.cse.chalmers.se/~aarne/). My research topic is applying software testing methods to computational grammars, especially [Grammatical Framework](http://www.grammaticalframework.org/) (GF) and [Constraint Grammar](http://visl.sdu.dk/constraint_grammar.html). In addition, I contribute actively to the GF Resource Grammar Library.
 
 ## Contact
 
