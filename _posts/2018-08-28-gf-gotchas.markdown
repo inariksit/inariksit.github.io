@@ -7,7 +7,7 @@ tags: gf
 ---
 
 ![duck](/images/gf-rubber-duck.png "Your favourite companion for writing GF")
-Latest update: 2018-08-30
+Latest update: 2018-11-01
 
 This post contains real-life examples when I or my friends have been
 confused in the past. It might be updated whenever someone is confused
@@ -21,6 +21,7 @@ again.
   - [ai](#ai)
   - [ma](#ma)
   - [The coolest flags of `l`](#the-coolest-flags-of-l)
+- [Generating MissingXxx](#generating-missingxxx)
 - [Placeholders/empty linearisations](#placeholdersempty-linearisations)
   - [Linearise an empty string](#linearise-an-empty-string-to-mark-a-nonexistent-option)
   - [Linearise some other form that exists](#linearise-some-other-form-that-exists)
@@ -126,14 +127,27 @@ It's a long thread, so here's the essential.
 
 ![cautionary-tale](/images/variants.png "A cautionary tale")
 
-Here's an [alternative hack](https://github.com/GrammaticalFramework/GF/issues/32), if you need the behaviour of `variants` but it's too slow. However, consider also whether you really want variants--e.g. in the thread in question, it is much better to separate European and Brazilian Portuguese into distinct modules.
+Here's an [alternative hack](https://github.com/GrammaticalFramework/GF/issues/32),
+if you need the behaviour of `variants` but it's too slow. However, consider
+also whether you really want variants--e.g. in the thread in question,
+it is much better to separate European and Brazilian Portuguese into
+distinct modules.
 
-<!--
 ### Variants vs. `|`
 
-- what is the difference between | and variants? 
-- which is better, variants {"ink well" ; "ink-well"} or "ink" ++ variants{"-" ; ""} ++ "well"? (I know these do not produce the same strings, but you get the idea)
--->
+You may have come across the use of `variants` while reading GF
+code. Except for the behaviour of [empty variants](#empty-variants),
+`t1 | ... | tn` and `variants {t1 ; ... ; tn}` are equivalent.
+
+### Nested variants
+
+It is clear that `{s = "ink well" | "ink-well"}` is the same as `{s =
+"ink well"} | {s = "ink-well}`, but which is better? Both will compile
+to the same thing at the PGF level, but the former is clearer and less
+repetitive. Just be careful with examples which are not actually
+equivalent, such as `{s = "Auto" ; g = Neutr} | {s = "Wagen" ; g =
+Masc}` and `{s = "Auto" | "Wagen" ; g = Neutr | Masc}`.
+
 
 ## A bit about types
 
@@ -300,7 +314,6 @@ Lang> pg -missing | ? grep -o Voc
 Then, if you are missing any of `NoVoc`, `please_Voc` or `VocNP`, it
 will show in the output.
 
-
 ### ma
 
 Wouldn't it be handy if you just typed a word in the GF shell and
@@ -369,7 +382,35 @@ LangFin: (Cl:3 (NP:1 (Language:0 norjaa)) (VP:2 väsyttää))
 
 Find out the rest by typing `help l` in the GF shell.
 
+## Generating MissingXxx
 
+When you have a resource grammar that is not quite complete, but you still want to have the API functions for it, you generate a `MissingXxx.gf` (where `Xxx` is the extension of your language). The file itself looks like [this](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/basque/MissingEus.gf#L3). **You need to add `** open MissingXxx in {}` in front of every file in the `api` directory, like [this](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/api/ConstructorsLat.gf#L3-L4)**. If it still doesn't work, try to include the directory in the header, like this: `--# -path=.:alltenses:prelude:../Xxx`. But I've seen it work without the latter so I'm not quite sure, maybe it depends on some environment variables or the position of the stars.
+
+Here's how to generate one, mostly for myself so I don't need to type these again next time. :-P
+
+```haskell
+-- (in GF shell)
+Lang> pg -missing | ? tr ' ' '\n' > /tmp/missingLins.txt
+```
+
+You can also prepare the file in the language directory:
+
+```
+echo "resource MissingXxx = open GrammarXxx, Prelude in {" > MissingXxx.gf
+echo "-- temporary definitions to enable the compilation of RGL API" >> MissingXxx.gf 
+```
+
+Then go to the directory `abstract`, and do this:
+
+```
+for l in `cat /tmp/missingLins.txt` ; do egrep -o "\<$l\> +:.*;" *.gf | tr -s ' ' | egrep -v "(Definition|Document|Inflection|Language|Mark|Month|Monthday|Tag|Timeunit|Weekday|Year|Month)" | sed 's/gf:/ ;/g' | cut -f 2 -d ';' | sed -E 's/(.*) : (.*)/oper \1 : \2 = notYet "\1" ;/' ; done >> ../XXX/MissingXXX.gf
+```
+
+And remember to add the ending brace to the `MissingXxx` file.
+
+It won't work straight out of the box, because it only greps the abstract files, and some old definitions are in the file commented out. Just fix those as you try to build and get an error.
+
+If you also haven't implemented `SymbolXxx`, then you need to find missing lins from there as well. Open SymbolXxx in GF shell, do `pg -missing` and complete the same procedure.  And on the first line you need to add `resource MissingXxx = open GrammarXxx,` **SymbolXxx**`, Prelude in …`.
 
 ## Placeholders/empty linearisations
 
