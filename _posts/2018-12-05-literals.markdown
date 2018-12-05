@@ -1,0 +1,141 @@
+---
+layout: post
+title:  "String, Int and Float literals in GF"
+date:   2018-12-05
+categories: gf
+tags: gf
+---
+
+Here's a simple grammar that parses expressions such as the following:
+
+* call 46536914141
+* follow ABC-123
+* measure 2.71828
+
+```haskell
+abstract Numbers = {
+flags startcat = Command ;
+cat
+  Command ;
+fun
+  Call    : Int -> Command ;
+  Follow  : String -> Int -> Command ;
+  Measure : Float -> Command ;
+}
+```
+
+With the following concrete syntax in English:
+
+```haskell
+concrete NumbersEng of Numbers = open
+  Prelude,
+  SymbolicEng,
+  SyntaxEng,
+  ParadigmsEng in {
+
+lincat
+  Command = Imp ;
+
+lin
+  Call i =
+    mkImp (mkV2 "call") (symb i);
+  Follow s i =
+    mkImp (mkV2 "follow") (dashNP (symb s) (symb i)) ;
+  Measure f =
+    mkImp (mkV2 "measure") (symb f) ;
+
+oper
+  dashNP : NP -> NP -> NP = \np1,np2 -> np1 **
+    {s = \\c => np1.s ! c ++ "-" ++ np2.s ! c} ;
+}
+```
+
+Let's break this down to smaller pieces.
+
+## Literals as abstract syntax categories
+
+Look at the abstract syntax. In `cat`, I have only defined `Command`,
+but in `fun` I'm using the types `Int`, `String` and `Float`. These types
+are built in GF, and you can see their specification in [here](http://www.grammaticalframework.org/doc/gf-refman.html#toc59).
+
+They are present in all grammars, even if you don't write them. If you type
+`pg` in your GF shell, you'd see something like the following:
+
+![cats](/images/pg.png "Built-in categories creeping in your grammar D:")
+
+## `symb` and friends
+
+In order to become an object of a verb such as "call" or "measure", the literal
+needs to be turned into a GF category like `NP`. The module [Symbolic](http://www.grammaticalframework.org/~john/rgl-browser/#api/Symbolic.gf)
+has an overloaded function `symb`, which does just that. Check out the link
+(and the new fancy version of RGL source browser!) to see the API.
+
+In the grammar, I can simply use the function `symb` that turns an Int into an NP
+as follows:
+
+```haskell
+lin
+  Call i =              -- : NP
+    mkImp (mkV2 "call") (symb i) ;
+```
+
+## Parsing and linearisation
+
+Parsing works just as expected:
+
+```
+Numbers> p "follow ABC - 123"
+Follow "ABC" 123
+Numbers> p "call 911"
+Call 911
+```
+
+(With the grammar I pasted, you get spaces the registration plate;
+ use `BIND` to get rid of it.)
+
+You can also linearise any tree you want to (up to integer overflow):
+
+```
+Numbers> l Call 99999999999999
+call 99999999999999
+Numbers> l Call 9999999999999999999999999999999999
+call 4003012203950112767
+```
+
+## Generation
+
+If you type `gt`
+in e.g. Foods grammar, you get a long and repetitive list of trees like
+"this very very very Italian wine is very Italian",
+and at some point it stops, depending on the `--depth` parameter.
+
+Generating trees with literals works differently. For both random and exhaustive
+generation in the GF shell, you only get one of each:
+
+```
+Numbers> gt -cat=Int
+999
+Numbers> gt -cat=String
+"Foo"
+Numbers> gt -cat=Float
+3.14
+```
+
+This happens in every category that uses literals, so here's all that `gt` does
+for the whole grammar:
+
+```
+Numbers> gt
+Call 999
+Follow "Foo" 999
+Measure 3.14
+```
+
+## Read more
+
+* GF [reference manual entry](http://www.grammaticalframework.org/doc/gf-refman.html#toc59)
+* GF [tutorial](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc132)
+* Some grammars that use literals:
+  * [Prop](https://github.com/GrammaticalFramework/gf-contrib/blob/master/cade-2011/Prop.gf#L89)
+  * [Data](https://github.com/odanoburu/gf-data)
+  * [MathText](https://github.com/GrammaticalFramework/gf-contrib/blob/master/mathtext/MathText.gf#L41)
