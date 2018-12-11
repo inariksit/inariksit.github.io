@@ -49,8 +49,7 @@ know.
 Here we use a generic Romance language for concrete syntax: adjectives
 inflect in number and gender, nouns have a fixed gender and inflect in
 number; most adjectives come after the noun but some come before.
-Here's pseudocode (we don't have if-then-else, otherwise it's legit)
-GF for the `Mod` function.
+Here's GF code for the `Mod` function.
 
 
 ```haskell
@@ -64,7 +63,10 @@ lin
   { s = \\num =>
      let q = quality.s ! num ! kind.gender ;
          k = kind.s ! num ;
-      in if quality.isPre then q++k else k++q } ;
+      in case quality.isPre of {
+                True  => q++k ;
+                False => k++q }
+  } ;
 ```
 
 So `Mod` constructs a table of `Number => Str`, choosing the right
@@ -239,6 +241,98 @@ F29[C7,C6] := (S23,S24)
 Applied to the same arguments, `S24` produces *pizzas veganas*. This
 makes sense: `F29` applied to `Vegan` and `Pizza` produces the vector
 `["pizza vegana", "pizzas veganas"]`.
+
+## Variants
+
+Say that we want to be able to capture learner language: for instance,
+I couldn't care less about the gender of nouns. I trust that people
+understand me, even if I say *pizza vegano*. In GF concrete syntax, the
+grammarian could model that as follows:
+
+```haskell
+lin Pizza = {s = table {Sg => "pizza" ;
+                        Pl => "pizzas" } ;
+             g = Masc|Fem } ;
+```
+
+Remember that masculine nouns are compiled into the concrete category
+`C5` and feminine nouns into `C6`. The difference to our changed
+grammar in the PGF is simple: just add one more *production* from `C5`
+to `F31`.
+
+
+```haskell
+productions
+
+    C5 -> F24[]       -- Cheese
+    C5 -> F25[]       -- Fish
+    C5 -> F26[]       -- Wine
+    C5 -> F31[]       -- Pizza (m)
+    ...
+    C6 -> F31[]       -- Pizza (f)
+```
+
+How about adding another string as a variant? This time I'm not even
+trying to make a plausible real-world scenario, but here's the
+grammarian's solution to allowing "pizza" or "Neapolitan pie":
+
+
+```haskell
+lin Pizza = {s = table {Sg => "pizza"|"Neapolitan pie" ;
+                        Pl => "pizzas"|"Neapolitan pies" } ;
+             g = Masc|Fem } ;
+```
+
+This time we need a new concrete syntax function, let's just call it
+`F32[]` and it will expand to two new sequences.
+
+```haskell
+productions
+
+    C5 -> F24[]       -- Cheese
+    C5 -> F25[]       -- Fish
+    C5 -> F26[]       -- Wine
+    C5 -> F31[]       -- Pizza (m), variant "pizza"
+    C5 -> F32[]       -- Pizza (m), variant "Neapolitan pie"
+    ...
+    C6 -> F31[]       -- Pizza (f), variant "pizza"
+    C6 -> F32[]       -- Pizza (f), variant "Neapolitan pie"
+```
+
+For completeness' sake, here are the two new sequences:
+
+```haskell
+lin
+
+  F27[C7,C5] := (S19,S20) [Mod]  -- post,masc
+  F28[C8,C5] := (S21,S22) [Mod]  -- pre,masc
+  F29[C7,C6] := (S23,S24) [Mod]  -- post,fem
+  F30[C8,C6] := (S25,S26) [Mod]  -- pre,fem
+
+  F31        := (S27,S28) [Pizza] -- variant "pizza"
+  F32        := (S29,S30) [Pizza] -- variant "Neapolitan pie"
+```
+
+```haskell
+sequences
+
+  S27 := "pizza"
+  S28 := "pizzas"
+  S29 := "Neapolitan" ++ "pie"
+  S30 := "Neapolitan" ++ "pies"
+```
+
+For big grammars, this might blow up. To quote [Angelov (2011)](http://www.cse.chalmers.se/~krasimir/phd-thesis.pdf):
+
+>  The free variation is a useful tool but it have to be used
+>  carefully. Note that when the variants are concatenated, the number
+>  of possibilities multiply, so having too many variations could lead
+>  to combinatorial explosion. It is even worse when the explosion is
+>  not easy to find, for example the variants can be in operations
+>  which are only later expanded in the linearization rules. At the
+>  same time, if we refactor the abstract syntax and add explicit
+>  categories for operation [--], then we can eliminate the variations
+>  all together which usually improves the parsing efficiency.
 
 ## That's it for now
 

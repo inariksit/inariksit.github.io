@@ -20,6 +20,7 @@ again.
 - [Some overlooked GF shell commands](#some-overlooked-gf-shell-commands)
   - [ai](#ai)
   - [ma](#ma)
+  - [tt](#tt)
   - [The coolest flags of `l`](#the-coolest-flags-of-l)
 - [Generating MissingXxx](#generating-missingxxx)
 - [Placeholders/empty linearisations](#placeholdersempty-linearisations)
@@ -329,6 +330,28 @@ DefArt : s True Sg Neutr
 DefArt : s False Sg Neutr
 ...
 ```
+### tt
+
+`tt`, short for `to_trie`, outputs the results of a parse in a trie
+format, so you can see at a glance where the differences lie. Use it
+in place of `l`, like in the example below:
+
+```
+MiniLang> p "you are a cat" | tt
+* UttS
+    * UseCl
+        * TSim
+          PPos
+          PredVP
+            * UsePron
+                1 youPl_Pron
+                2 youSg_Pron
+              UseNP
+                * DetCN
+                    * a_Det
+                      UseN
+                        * cat_N
+```
 
 ### The coolest flags of `l`
 
@@ -381,6 +404,7 @@ LangFin: (Cl:3 (NP:1 (Language:0 norjaa)) (VP:2 väsyttää))
 ```
 
 Find out the rest by typing `help l` in the GF shell.
+
 
 ## Generating MissingXxx
 
@@ -593,6 +617,12 @@ If we had defined `beer_N` as a table `\\_ => nonExist`, then
 linearising the sentence would have produced no output whatsoever. Now
 at least we get *I like* part properly linearised.
 
+## Too good linearisations for some RGL functions
+
+For instance, `DetNP every_Det` returns "everything" for English.
+One can argue that it's better for as many RGL trees as possible to return something that makes sense;
+in such a case, "everything is blue" or "I see everything" is preferrable to "every is blue" and "I see every".
+On the other hand, such (over)engineered solution creates ambiguity: now "everything" is a linearisation of both `everything_NP` and `DetNP every_Det`. Furthermore, it forces other languages to do something that makes equally much sense, because now you will get more nonsensical trees while parsing text that makes sense.
 
 
 ## Footnotes
