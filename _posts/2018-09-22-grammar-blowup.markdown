@@ -10,7 +10,7 @@ tags: gf
 * [II. Reducing the amount of concrete categories](#ii-reducing-the-amount-of-concrete-categories)
 * [III. Reducing the size of concrete categories](#iii-reducing-the-size-of-concrete-categories)
 * [IV. Trading size for amount: a case study in Basque](#iv-trading-size-for-amount)
-
+* [V. Quick fix for testing an oversized grammar](#v-quick-fix-for-testing-an-oversized-grammar)
 
 
 
@@ -385,6 +385,53 @@ can find other redundancies to exploit in yours. The take-home message
 here was that "you don't need to put verb inflection forms in the
 *verb* category, but somewhere higher up". Maybe write a RG or two,
 and by your third, you'll get creative! ^_^
+
+## V. Quick fix for testing an oversized grammar
+
+The part that takes time is the conversion to PMCFG--that's what is
+needed for parsing.  However, it is also possible to use a GF grammar
+such that it only linearises.  Unfortunately, as of December 2018,
+this is possible only in the GF shell, i.e. it is not supported in any
+external application.
+
+But if you want to test a slow grammar just for linearising, you can do as follows.
+
+![nopmcfg](/images/no-pmcfg.png "Importing a grammar without compiling it to PMCFG")
+
+In words:
+
+* Import your grammar with flags [`-retain`](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc42) and `-no-pmcfg`.
+  * `-no-pmcfg`, as the name suggests, imports the grammar without creating a PMCFG. 
+  * `-retain` imports the grammar but leaves all `oper` definitions available, so you can also test opers and not just lins, if you want to.
+* To test a linearisation, use the command `cc <syntax tree>`. In the screenshot, I have used the option `-list` to `cc`; you can see all options when you type `help cc` in a gf shell.
+
+
+```
+> help cc
+cc, compute_concrete
+computes concrete syntax term using a source grammar
+
+syntax:
+  cc (-all | -table | -unqual)? TERM
+
+Compute TERM by concrete syntax definitions. Uses the topmost
+module (the last one imported) to resolve constant names.
+N.B.1 You need the flag -retain when importing the grammar, if you want
+the definitions to be retained after compilation.
+N.B.2 The resulting term is not a tree in the sense of abstract syntax
+and hence not a valid input to a Tree-expecting command.
+This command must be a line of its own, and thus cannot be a part
+of a pipe.
+
+options:
+ -all	pick all strings (forms and variants) from records and tables
+ -list	all strings, comma-separated on one line
+ -one	pick the first strings, if there is any, from records and tables
+ -table	show all strings labelled by parameters
+ -unqual	hide qualifying module names
+ -trace	trace computations
+```
+
 
 ## Footnotes
 
