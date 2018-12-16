@@ -7,7 +7,7 @@ tags: gf
 ---
 
 ![duck](/images/gf-rubber-duck.png "Your favourite companion for writing GF")
-Latest update: 2018-11-01
+Latest update: 2018-12-15
 
 This post contains real-life examples when I or my friends have been
 confused in the past. It might be updated whenever someone is confused
@@ -23,12 +23,14 @@ again.
   - [tt](#tt)
   - [The coolest flags of `l`](#the-coolest-flags-of-l)
 - [Generating MissingXxx](#generating-missingxxx)
+- [Metavariables, or those question marks that appear when parsing](#metavariables-or-those-question-marks-that-appear-when-parsing)
 - [Placeholders/empty linearisations](#placeholdersempty-linearisations)
   - [Linearise an empty string](#linearise-an-empty-string-to-mark-a-nonexistent-option)
   - [Linearise some other form that exists](#linearise-some-other-form-that-exists)
   - [Linearise a theoretical form](#linearise-theoretical-forms-and-let-the-application-grammarian-to-deal-with-them)
   - [Raise an exception](#raise-an-exception)
   - [variants {}](#empty-variants)
+- [Too good linearisations for some RGL functions](#too-good-linearisations-for-some-rgl-functions)
 
 
 ## Restricted inheritance
@@ -436,6 +438,70 @@ It won't work straight out of the box, because it only greps the abstract files,
 
 If you also haven't implemented `SymbolXxx`, then you need to find missing lins from there as well. Open SymbolXxx in GF shell, do `pg -missing` and complete the same procedure.  And on the first line you need to add `resource MissingXxx = open GrammarXxx,` **SymbolXxx**`, Prelude in …`.
 
+## Metavariables, or those question marks that appear when parsing
+
+Has something similar happened to you before? You parse a completely
+unambiguous sentence, and get mysterious question marks in the tree.
+
+![metavariable ?6](/images/metavariable.png "Parsing a string and getting ?1 and ?2 in the tree")
+
+Follow-up question: have you seen this before?
+
+```haskell
+             -- Cl = {s : Polarity => Tense => Str}
+UseCl tense pol cl = {
+  s = tense.s ++ pol.s ++ cl.s ! pol.p ! tense.t
+  } ;
+
+               -- p : Polarity
+PPos  = {s = [] ; p = Pos} ;
+PNeg  = {s = [] ; p = Neg} ;
+
+               -- t : Tense
+TSim  = {s = [] ; t = Sim} ;
+TAnt  = {s = [] ; t = Ant} ;
+
+```
+
+In other words, all the tenses and polarities have an empty `s` field,
+but `UseCl` still adds it to the linearisation.
+
+The latter is done exactly to prevent the first situation from
+happening.  The rule is that every argument needs to contribute with a
+*string*, otherwise it isn't recognised when parsing. This happens
+even if there is no ambiguity: the parameters `Pos`, `Neg`, `Sim` and
+`Ant` all select a different form from the table in `Cl`.
+
+The solution is simply to include some string field in every lincat,
+even if its only purpose is to select a form from an inflection table
+in another category.
+
+Sometimes you run into these situations even when there is a string:
+for instance, say that you implement obligatory prodrop in the following way.
+
+```haskell
+PredVP np vp = 
+  let subj = case np.isPron of {
+      	       True  => [] ;
+     	       False => np.s ! Nom 
+      } ;
+      pred = vp.s ! np.a ;
+  in {s = subj ++ pred} ;
+```
+
+Then when you parse "the cat sleeps", the `cat_N` has contributed with
+a string that is selected in `np.s ! Nom`, but in case of "I sleep", `subj` becomes just the empty
+string.  The solution is to add some dummy string field to your `NP`
+type, and add it in case the `NP` is a pronoun, as shown below.
+
+```haskell
+-- NP = {s : Case => Str ; empty : Str}
+let subj = case np.isPron of {
+      True  => np.empty ;
+      False => np.s ! Nom 
+   } ;
+```
+
 ## Placeholders/empty linearisations
 
 Some words have incomplete paradigms: a form just doesn't exist. One
@@ -502,10 +568,12 @@ Lang> l PredVP (DetCN (DetQuant DefArt NumSg) (UseN scissor_N)) (UseComp (CompAd
 the scissors is here
 ```
 
-Also, problems with ambiguity may occur, which can give weird results for
-translation: you parse "I run with scissors" in English, get two
+Also, problems with ambiguity may occur, which can give weird results
+for translation: you parse "I run with scissors" in English, get two
 trees, accidentally choose the singular, and linearise in some other
-language "I run with scissor". 
+language "I run with scissor". The core point is parsing text
+that makes sense and getting trees that don't--we return to it [later in
+this post](#too-good-linearisations-for-some-rgl-functions).)
 
 If you think any of the two points will be a problem in your use case,
 proceed with caution. Otherwise, I think this approach would work
