@@ -22,13 +22,13 @@ generate test cases when using
 reasons for this can be many and complicated, but we can identify two concrete reasons:
 
 * The *amount* of [concrete
-categories](/gf/2018/06/13/pmcfg.html#concr-cats) and
-[concrete functions](/gf/2018/06/13/pmcfg.html#concr-funs) that the
+categories](/gf/2018/06/13/pmcfg.html#concrete-categories) and
+[concrete functions](/gf/2018/06/13/pmcfg.html#concrete-functions) that the
 grammar compiles into. For instance, Bantu languages have up to 20 noun classes<sup>[citation needed]</sup>: these all compile into different concrete categories.
-(If you like staring at PGF files, look for `range` in [here](/gf/2018/06/13/pmcfg.html#concr-cats).)
+(If you like staring at PGF files, look for `range` in [here](/gf/2018/06/13/pmcfg.html#concrete-categories).)
 
 * The *size* of concrete categories. For instance, Finnish nouns have 14 cases and 2 numbers. There's just one concrete category, but they have 28 strings in them.
-(Again for those comfortable with PGF, look for `labels` in [here](/gf/2018/06/13/pmcfg.html#concr-cats).)
+(Again for those comfortable with PGF, look for `labels` in [here](/gf/2018/06/13/pmcfg.html#concrete-categories).)
 
 Both of these things can make a grammar blow up, and reducing either
 can make it decent again. Especially the amount of concrete categories
@@ -172,7 +172,7 @@ lin
   DetCN det cn = {
    s = case cn.hasAdj of {
         True  => \\c => det.s ++ cn.s ! Abs ++ cn.adj ! c ;
-        False => \\c => det.s ++ cn.s ! c } 
+        False => \\c => det.s ++ cn.s ! c }
   } ;
 ```
 
@@ -199,7 +199,7 @@ lin
     s   = \\c => cn.s ! Abs ;
     adj = \\c => cn.adj ! Abs ++ adj.s ! c ;
   } ;
-    
+
   DetCN det cn = {
     s = \\c => det.s ++ cn.s ! c ++ cn.adj ! c
   } ;
@@ -235,8 +235,8 @@ lincat
 
 lin
   -- : NP -> V2 -> NP -> S ;
-  MakeSentence subj verb obj = subj.s ! Nom 
-                            ++ verb.s ! subj.agr 
+  MakeSentence subj verb obj = subj.s ! Nom
+                            ++ verb.s ! subj.agr
                             ++ obj.s ! verb.compl ;
 ```
 
@@ -253,7 +253,7 @@ lincat
 lin
   -- : NP -> V2 -> NP -> S ;
   MakeSentence subj verb obj = subj.s -- base form = Nom
-                            ++ glue verb.s subj.agr 
+                            ++ glue verb.s subj.agr
                             ++ glue obj.s verb.compl ;
 
 oper
@@ -401,7 +401,7 @@ But if you want to test a slow grammar just for linearising, you can do as follo
 In words:
 
 * Import your grammar with flags [`-retain`](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc42) and `-no-pmcfg`.
-  * `-no-pmcfg`, as the name suggests, imports the grammar without creating a PMCFG. 
+  * `-no-pmcfg`, as the name suggests, imports the grammar without creating a PMCFG.
   * `-retain` imports the grammar but leaves all `oper` definitions available, so you can also test opers and not just lins, if you want to.
 * To test a linearisation, use the command `cc <syntax tree>`. In the screenshot, I have used the option `-list` to `cc`; you can see all options when you type `help cc` in a gf shell.
 
@@ -440,7 +440,7 @@ options:
 2.<a name="verbosity"> </a>Compiling with `-v=3`, you get this kind of output:
 
 ```
-  generating PMCFG 
+  generating PMCFG
 + AdVVP 1280 (1280,1)
 + AdVVPSlash 69120 (69120,1)
 + AdvVP 1280 (1280,1)

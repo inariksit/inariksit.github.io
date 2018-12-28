@@ -57,7 +57,7 @@ If the subtree is any other tree in a non-start category, then it
 category. The `s` field of `Comment` is the goal for all categories:
 we need to find a succession of function applications that take a
 string from some field in `C`, through all other intermediate
-categories, so that it finally ends up in the `s` field of `Comment.
+categories, so that it finally ends up in the `s` field of `Comment`.
 
 The word *depend* is a bit counter-intuitive here: normally you'd think that
 `Item` depends on `Kind`, because the only way to form an `Item` is
@@ -135,7 +135,7 @@ grammar. The notation is as follows: `Category ➡ (Function, arg. position, [fi
 
 
 <div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">Item</span>    <span class="o">➡</span> <span class="p">(</span><span class="kt">Pred</span><span class="p">,</span><span class="mi">0</span><span class="p">,[</span><span class="n">s</span><span class="p">])</span> <span class="c1">-- Pred : Item → Quality → Comment</span>
-<span class="kt">Quality</span> <span class="o">➡</span> <span class="p">(</span><span class="kt">Pred</span><span class="p">,</span><span class="mi">1</span><span class="p">,[</span><span class="n">s</span><span class="p">])</span> 
+<span class="kt">Quality</span> <span class="o">➡</span> <span class="p">(</span><span class="kt">Pred</span><span class="p">,</span><span class="mi">1</span><span class="p">,[</span><span class="n">s</span><span class="p">])</span>
           <span class="p">,(</span><span class="kt">Mod</span><span class="p">,</span><span class="mi">0</span><span class="p">,[</span><span class="n">s</span><span class="p">])</span>  <span class="c1">-- Mod : Quality → Kind → Kind</span>
 <span class="kt">Kind</span>    <span class="o">➡</span> <span class="p">(</span><span class="kt">This</span><span class="p">,</span><span class="mi">0</span><span class="p">,[</span><span class="n">sg</span><span class="p">])</span> <span class="c1">-- This,That,… : Kind → Item</span>
           <span class="p">,(</span><span class="kt">That</span><span class="p">,</span><span class="mi">0</span><span class="p">,[</span><span class="n">sg</span><span class="p">])</span>
@@ -146,7 +146,7 @@ grammar. The notation is as follows: `Category ➡ (Function, arg. position, [fi
 
 ### Round 1
 
-With this information, can we now find some contexts for `Item`? 
+With this information, can we now find some contexts for `Item`?
 
 <div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">CtxComment</span> <span class="o">:=</span> <span class="o">{</span> <span class="n">id</span> <span class="o">}</span>
 <span class="kt">CtxItem</span>    <span class="o">:=</span> <span class="o">{</span> <span class="n">ctx</span> <span class="p">(</span><span class="kt">Pred</span> <span class="n">•</span> <span class="n">🐰</span><span class="p">)</span> <span class="o">|</span> <span class="n">ctx</span> <span class="n">←</span> <span class="kt">CtxComment</span> <span class="o">}</span>
@@ -154,7 +154,7 @@ With this information, can we now find some contexts for `Item`?
 <span class="kt">CtxKind</span>    <span class="o">:=</span> <span class="o">{</span> <span class="o">}</span>
 </code></pre></div></div>
 
-Looks promising! By the way, remember that `ctx` comes from 
+Looks promising! By the way, remember that `ctx` comes from
 `CtxComment`, which only contains `id`. So `CtxItem` reduces
 to `{Pred • 🐰}`.
 
@@ -233,7 +233,7 @@ let's add that information into the contexts we have so far:
 <span class="kt">CtxKind</span>    <span class="o">:=</span> <span class="o">{</span> <span class="p">(</span> <span class="n">ctx</span> <span class="p">(</span><span class="kt">That</span> <span class="n">•</span><span class="p">)</span>   <span class="p">,</span> <span class="p">[</span><span class="n">sg</span><span class="p">]</span> <span class="p">)</span>
               <span class="o">|</span> <span class="n">(ctx,_) ←</span> <span class="kt">CtxItem</span> <span class="o">}</span>
 </code></pre></div></div>
-              
+
 
 
 This shows more clearly that we're not done yet: we only cover the
@@ -278,8 +278,8 @@ first, but why bother when `Pred` already takes a `Quality` directly
 to `Comment`?
 
 In English, we don't bother, because there's only one field in
-`Quality`. Now let's take a hypothetical language that is just like 
-English, except that adjectives come in two variants, attributive and 
+`Quality`. Now let's take a hypothetical language that is just like
+English, except that adjectives come in two variants, attributive and
 predicative.
 
 ```
@@ -300,7 +300,7 @@ when `CtxKind` is no more empty, to find a context that covers `attr`.
 <span class="kt">CtxQuality</span> <span class="o">:=</span> <span class="o">{</span> <span class="p">(</span> <span class="n">ctx</span> <span class="p">(</span><span class="kt">Pred</span> <span class="n">🐰</span> <span class="n">•</span><span class="p">),</span> <span class="p">[</span><span class="n">pred</span><span class="p">]</span> <span class="p">)</span>
               <span class="o">|</span> <span class="n">(ctx,_) ←</span> <span class="kt">CtxComment</span> <span class="o">}</span> <span class="n">∪</span>
               <span class="o">{</span> <span class="p">(</span> <span class="n">ctx</span> <span class="p">(</span><span class="kt">Mod</span> <span class="n">•</span> <span class="n">🐰</span><span class="p">)</span> <span class="p">,</span> <span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="p">)</span>
-              <span class="o">|</span> <span class="n">(ctx,_) ←</span> <span class="kt">CtxKind</span> <span class="o">}</span> 
+              <span class="o">|</span> <span class="n">(ctx,_) ←</span> <span class="kt">CtxKind</span> <span class="o">}</span>
 <span class="kt">CtxKind</span>    <span class="o">:=</span> <span class="o">{</span> <span class="p">(</span> <span class="n">ctx</span> <span class="p">(</span><span class="kt">That</span>  <span class="n">•</span><span class="p">)</span>  <span class="p">,</span> <span class="p">[</span><span class="n">sg</span><span class="p">]</span> <span class="p">)</span>
               <span class="p">,</span> <span class="p">(</span> <span class="n">ctx</span> <span class="p">(</span><span class="kt">These</span> <span class="n">•</span><span class="p">)</span>  <span class="p">,</span> <span class="p">[</span><span class="n">pl</span><span class="p">]</span> <span class="p">)</span>
               <span class="o">|</span> <span class="n">(ctx,_) ←</span> <span class="kt">CtxItem</span> <span class="o">}</span>
@@ -382,7 +382,7 @@ Looks better. Let's keep reducing those expressions, we're almost done
 <div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">CtxKind</span>    <span class="o">:=</span> <span class="o">{</span> <span class="p">(</span> <span class="kt">Pred</span> <span class="p">(</span><span class="kt">That</span>  <span class="n">•</span><span class="p">)</span> <span class="n">🐰</span> <span class="p">,</span> <span class="p">[</span><span class="n">sg</span><span class="p">]</span> <span class="p">)</span>
               <span class="p">,</span> <span class="p">(</span> <span class="kt">Pred</span> <span class="p">(</span><span class="kt">These</span> <span class="n">•</span><span class="p">)</span> <span class="n">🐰</span> <span class="p">,</span> <span class="p">[</span><span class="n">pl</span><span class="p">]</span> <span class="p">)</span> <span class="o">}</span>
               </code></pre></div></div>
-              
+
 
 Now these looks like proper contexts! Well, except for the bunnies. So
 now we get rid of them in a simple step: *generate an arbitrary (minimal) subtree
@@ -408,7 +408,7 @@ more like how `Pizza` would like it. <a href="#fn-1">↩</a>
 
 
 
-2.<a name="just-kidding"> </a>If, on the other hand, you liked that, 
+2.<a name="just-kidding"> </a>If, on the other hand, you liked that,
 here's one more illustration just for you! <a href="#fn-2">↩</a>
 
 ![alt text](/images/categories.png "Antropomorfic categories")

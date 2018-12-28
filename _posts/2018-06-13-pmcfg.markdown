@@ -17,6 +17,8 @@ learn some Italian if you [eat a lot of pizza](https://twitter.com/matthewconove
 So take this post as a cool extra tidbits about your favourite grammar
 formalism, not as a prerequisite for anything.
 
+*Update 2018-12-28: this post adapted into   a [presentation](https://docs.google.com/presentation/d/1yWUCS95DuVmKLTHMnCeVSJ8qXiilTcli5elZCrtaKEs/edit?usp=sharing).*
+
 ## Terminology
 
 **PMCFG** is short for "Parallel Multiple Context-Free Grammar", introduced by [Seki et al. (1991)](https://core.ac.uk/download/pdf/81109478.pdf). (An important subset of) GF is "equivalent to" PMCFGs, in the sense that all things we can express in GF, we can also express in PMCFG. As the name might suggest, PMCFGs are more expressive than plain old context-free grammars, but still not quite as expressive as context-sensitive grammars.
@@ -44,7 +46,7 @@ abstract syntax and why not check out the concrete in some language you
 know.
 
 
-<h2><a name="gf-lin">GF linearisation</a></h2>
+## GF linearisation
 
 Here we use a generic Romance language for concrete syntax: adjectives
 inflect in number and gender, nouns have a fixed gender and inflect in
@@ -59,7 +61,7 @@ lincat
 
 lin
   -- Mod : Quality -> Kind -> Kind ;
-  Mod quality kind = 
+  Mod quality kind =
   { s = \\num =>
      let q = quality.s ! num ! kind.gender ;
          k = kind.s ! num ;
@@ -74,7 +76,7 @@ gender form of `Quality` and putting it either before or after the
 `Kind`, depending on the parameter `isPre` of `Quality`.
 
 
-<h2><a name="concr-cats">Concrete categories</a></h2>
+## Concrete categories
 
 This is the actual output you get when you type `pg` (print_grammar)
 in the GF shell! Let's start from the concrete categories for `Kind`
@@ -115,7 +117,7 @@ feminine. Likewise, `C7` corresponds to postmodifier `Quality`
 (i.e. `isPre` field is False) and `C8` to premodifier (`isPre` field
 is True).
 
-<h2><a name="productions">Concrete productions</a></h2>
+## Concrete productions
 Now let's have a closer look at `C5`--`C6`. Which productions make them?
 
 ```haskell
@@ -151,7 +153,7 @@ Anyway, we were interested in `Mod`! So we better look up
 `F27`--`F30`. Let's check out `Pizza` as well, just to appreciate the
 difference between functions with and without arguments.
 
-<h2><a name="concr-funs">Concrete functions</a></h2>
+## Concrete functions
 
 ```haskell
 lin
@@ -178,10 +180,10 @@ goal category (`C5` or `C6`, i.e. masculine or feminine `Kind`) has
 two strings in it: singular and plural.
 
 
-<h2><a name="sequences">Sequences</a></h2>
+## Sequences
 
 Sequences define the actual action that happens to the
-arguments. Compared to the [GF syntax](#gf-lin), the sequences look
+arguments. Compared to the [GF syntax](#gf-linearisation), the sequences look
 quite primitive.
 
 ```haskell
@@ -213,13 +215,13 @@ them--they're just called `0` and `1`, short for "first argument" and
 "second argument".
 
 So what is the order of the arguments? You can look at the
-[productions](#productions) with `F27[C7,C5]` and so on, or just the
-original [GF code](#gf-lin), with `Mod : Quality -> Kind -> Kind`.  Both will
+[productions](#concrete-productions) with `F27[C7,C5]` and so on, or just the
+original [GF code](#gf-linearisation), with `Mod : Quality -> Kind -> Kind`.  Both will
 tell you that `0` corresponds to `Quality`, and `1` corresponds to
 `Kind`.
 
 The second number in the `<n,m>` is the index of the string in the
-argument. As we remember from [concrete categories](#concr-cats),
+argument. As we remember from [concrete categories](#concrete-categories),
 `Quality` has 4 strings, `Kind` has 2 strings. Now we can tell that
 `S23 := <1,0> <0,2>` builds a new string out of the *first string* of
 its second argument, and the *third string* of its first

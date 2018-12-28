@@ -7,7 +7,7 @@ tags: gf
 ---
 
 ![duck](/images/gf-rubber-duck.png "Your favourite companion for writing GF")
-Latest update: 2018-12-15
+Latest update: 2018-12-28
 
 This post contains real-life examples when I or my friends have been
 confused in the past. It might be updated whenever someone is confused
@@ -62,7 +62,7 @@ Then in addition, you need to exclude `Pol`, `SC` and `CAdv` in
 [GrammarEng](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/GrammarEng.gf#L14-L17):
 
 ```haskell
-concrete GrammarEng of Grammar = 
+concrete GrammarEng of Grammar =
   NounEng,
   ...,
   PhraseEng,
@@ -154,118 +154,7 @@ Masc}` and `{s = "Auto" | "Wagen" ; g = Neutr | Masc}`.
 
 ## A bit about types
 
-You may have heard that GF is dependently typed, and wondered what
-that means. (Or maybe this is the first time, and now you sure are
-wondering what that means!) Perhaps you have looked at
-[Coordination.gf](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/prelude/Coordination.gf)
-and gotten confused about the weird functions that take *types* as
-arguments.
-
-### Types are of type `Type`
-
-You may have seen things like this before:
-
-```haskell
-oper
-  Verb : Type = {- s : Agr => String ; c : Case -} ;
-
-  copula : Verb = {- … -} ;
-```
-  
-This piece of code is telling you that `Verb` is a type, and `copula`
-is a `Verb`. Or in a more verbose way: `Verb` is of type `Type`, and
-`copula` is of type `Verb`. There is no reason why types cannot be *of
-type* something!
-
-`PType` is the same but for `param`s. Like this:
-
-```haskell
-param
-  Case = Nom | Acc | ... ;
-```
-
-The values `Nom`, `Acc` etc. are of type `Case`, and `Case` is of type
-`PType`. Check out
-[here](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/prelude/Coordination.gf#L38-L39)
-and
-[here](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/ConjunctionEng.gf#L39)
-to see some `PType` in action.
-
-### Types can be arguments to functions
-
-Now that we're granting basic human rights to types, look at this
-piece of code:
-
-```haskell
-AdjCN adj cn = {
-  s = if_then_else Str adj.isPre 
-        (adj.s ++ cn.s)
-        (cn.s ++ adj.s)
-  } ;
-```
-
-If the `if_then_else` bit looks strange, we can sugar it
-into the following:
-
-```haskell
-if adj.isPre; then adj.s ++ cn.s; else cn.s ++ adj.s
-```
-
-So what is happening? In GF, there is no `if … then … else` keyword, just a function
-`if_then_else` that takes 4 arguments, of which the first one is a
-type. This is how it's defined in the
-[GF prelude](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/prelude/Prelude.gf#L64-L69):
-
-```haskell
-oper
- if_then_else : (A : Type) -> Bool -> A -> A -> A = \_,c,d,e -> 
-   case c of {
-     True => d ;
-     False => e
-} ;
-```
-
-In our `AdjCN` example, we give the following 4 arguments:
-
-* The type of what it returns (`Str`)
-* The Boolean that it checks (`adj.isPre`, i.e. whether the adjective
-  is premodifier)
-* What happens if the adjective *is* premodifier (put `adj.s` before
-`cn.s`, return that string)
-* What happens if the adjective *is not* premodifier (put `adj.s` after
-`cn.s`, return that string).
-
-Why do we need the first argument? I don't know the details, but as
-far as I've understood, the cool expressive power that comes from
-dependent types comes with a tradeoff: the compiler can't just *guess*
-things anymore. (In type theorist lingo, dependent types don't mix
-well with polymorphism<!--type inference ? -->.) Like in this case,
-we gave `if_then_else` two strings as arguments, but we still needed
-to give the *type* `Str` as the first argument.
-
-
-### Dependent types
-
-The "types can be *of type*" thing, as well as "annotate the
-hell out of everything because the type checker seems like a clueless
-idiot" thing is just a prerequisite for doing cool stuff with dependent types.
-
-Despite the subheading, I am not going to go further into dependent
-types in this post. In order to write resource grammars (or most
-application grammars), you would do perfectly fine without ever having
-heard the concept *dependent type*. I just wanted to explain two things
-that appear in GF grammars quite often, and which probably seem weird
-if you have background in other programming languages.
-<!-- the common pattern `Verb : Type` and `be : Verb`, as well as type
-parameters, like `Str` to `if_then_else`. -->
-
-If you want to learn more about dependent types in GF (I recommend,
-it's cool!),
-[here's the section in the tutorial](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc110).
-
-If you want to learn about dependent types in more general-purpose
-programming languages, maybe pick up some
-[Agda](http://wiki.portal.chalmers.se/agda/pmwiki.php) or [Idris](https://www.idris-lang.org/).
+**Update 2018-12-28**: I thought this part deserved its own post, go and [read it](/gf/2018/12/28/dependent-types.html).
 
 ## Some overlooked GF shell commands
 
@@ -300,7 +189,7 @@ linearisations. Here's a concrete example:
 ```
 Lang> ai Voc
 cat Voc ;
- 
+
 fun NoVoc : Voc ;
 fun VocNP : NP -> Voc ;
 fun please_Voc : Voc ;
@@ -423,7 +312,7 @@ You can also prepare the file in the language directory:
 
 ```
 echo "resource MissingXxx = open GrammarXxx, Prelude in {" > MissingXxx.gf
-echo "-- temporary definitions to enable the compilation of RGL API" >> MissingXxx.gf 
+echo "-- temporary definitions to enable the compilation of RGL API" >> MissingXxx.gf
 ```
 
 Then go to the directory `abstract`, and do this:
@@ -480,10 +369,10 @@ Sometimes you run into these situations even when there is a string:
 for instance, say that you implement obligatory prodrop in the following way.
 
 ```haskell
-PredVP np vp = 
+PredVP np vp =
   let subj = case np.isPron of {
       	       True  => [] ;
-     	       False => np.s ! Nom 
+     	       False => np.s ! Nom
       } ;
       pred = vp.s ! np.a ;
   in {s = subj ++ pred} ;
@@ -498,7 +387,7 @@ type, and add it in case the `NP` is a pronoun, as shown below.
 -- NP = {s : Case => Str ; empty : Str}
 let subj = case np.isPron of {
       True  => np.empty ;
-      False => np.s ! Nom 
+      False => np.s ! Nom
    } ;
 ```
 
@@ -517,7 +406,7 @@ the following.
 In the case of scissors, you would create the following inflection table:
 
 ```haskell
-Sg => "" ; 
+Sg => "" ;
 Pl => "scissors" ;
 ```
 
@@ -538,7 +427,7 @@ string. Then this happens:
 Lang> l PredVP (UsePron i_Pron) (AdvVP (UseV run_V) today_Adv)
 I run
 
-Lang> l PredVP (UsePron i_Pron) (UseV run_V) 
+Lang> l PredVP (UsePron i_Pron) (UseV run_V)
 I run
 ```
 
@@ -550,7 +439,7 @@ parsing it. For these reasons, most often you should consider other options.
 
 
 ```haskell
-Sg => "scissors" ; 
+Sg => "scissors" ;
 Pl => "scissors" ;
 ```
 
@@ -583,7 +472,7 @@ pretty well for many applications.
 
 
 ```haskell
-Sg => "scissor" ; 
+Sg => "scissor" ;
 Pl => "scissors" ;
 ```
 
@@ -673,7 +562,7 @@ function, instead of just a single form, you can use empty variants:
 
 ```haskell
 lin beer_N = variants {} ;
-``` 
+```
 Using `beer_N` in a sentence works like this:
 
 ```
@@ -703,7 +592,7 @@ in an illegal way, so maybe I just like breaking the
 
 2.<a name="def"> </a>Actually, I wonder if the
 [def](http://www.grammaticalframework.org/doc/gf-refman.html#toc19)
-feature would work here--just define all trees of form 
+feature would work here--just define all trees of form
 
 ```haskell
 PredVP (UsePron p) (ComplSlash (SlashV2a v) (UsePron p))

@@ -35,7 +35,7 @@ cat
 fun
   UseV    : V        -> VP ;
   ComplV2 : V2 -> NP -> VP ;
-  ComplVA : VA -> AP -> VP ; 
+  ComplVA : VA -> AP -> VP ;
   ComplVS : VS -> S  -> VP ;
   ComplVV : VV -> VP -> VP ;
   ComplVQ : VQ -> QS -> VP ;
@@ -112,7 +112,7 @@ So we can replace all of the GF functions with just a `&&`. In case of multiple 
 
 <div class="language-haskell highlighter-rouge"><div
 class="highlight"><pre class="highlight"><code><span
-class="err">VP</span><span class="err">¹</span> <span class="o">::=</span> <span class="err">V</span><span class="err">²</span>  <span class="o">||</span>  (<span class="err">VV⁹</span> <span class="o">&&</span> <span class="err">VP⁵</span>) 
+class="err">VP</span><span class="err">¹</span> <span class="o">::=</span> <span class="err">V</span><span class="err">²</span>  <span class="o">||</span>  (<span class="err">VV⁹</span> <span class="o">&&</span> <span class="err">VP⁵</span>)
 <span class="err">VP</span><span class="err">³</span> <span
 class="o">::=</span> <span class="err">VV</span><span
 class="err">⁴</span> <span class="o">&&</span> <span class="err">VP</span><span class="err">⁵</span>
@@ -133,7 +133,7 @@ actually have values:
 
 <div class="language-haskell highlighter-rouge"><div
 class="highlight"><pre class="highlight"><code><span
-class="err">VP</span><span class="err">¹</span> <span class="o">::=</span> <span class="kt">V²</span>  <span class="o">||</span>  (<span class="err">VV⁹</span> <span class="o">&&</span> <span class="err">VP⁵</span>) 
+class="err">VP</span><span class="err">¹</span> <span class="o">::=</span> <span class="kt">V²</span>  <span class="o">||</span>  (<span class="err">VV⁹</span> <span class="o">&&</span> <span class="err">VP⁵</span>)
 <span class="err">VP</span><span class="err">³</span> <span
 class="o">::=</span> <span class="err">VV</span><span
 class="err">⁴</span> <span class="o">&&</span> <span class="err">VP</span><span class="err">⁵</span>
@@ -150,7 +150,7 @@ variables:
 
 <div class="language-haskell highlighter-rouge"><div
 class="highlight"><pre class="highlight"><code><span
-class="kt">VP¹</span> <span class="o">::=</span> <span class="kt">V²</span>  <span class="o">||</span>  (<span class="err">VV⁹</span> <span class="o">&&</span> <span class="err">VP⁵</span>) 
+class="kt">VP¹</span> <span class="o">::=</span> <span class="kt">V²</span>  <span class="o">||</span>  (<span class="err">VV⁹</span> <span class="o">&&</span> <span class="err">VP⁵</span>)
 <span class="err">VP</span><span class="err">³</span> <span
 class="o">::=</span> <span class="err">VV</span><span
 class="err">⁴</span> <span class="o">&&</span> <span class="err">VP</span><span class="err">⁵</span>
@@ -168,7 +168,7 @@ Moving on--can we update yet more variables?
 
 <div class="language-haskell highlighter-rouge"><div
 class="highlight"><pre class="highlight"><code><span
-class="kt">VP¹</span> <span class="o">::=</span> <span class="kt">V²</span>  <span class="o">||</span>  (<span class="err">VV⁹</span> <span class="o">&&</span> <span class="err">VP⁵</span>) 
+class="kt">VP¹</span> <span class="o">::=</span> <span class="kt">V²</span>  <span class="o">||</span>  (<span class="err">VV⁹</span> <span class="o">&&</span> <span class="err">VP⁵</span>)
 <span class="err">VP</span><span class="err">³</span> <span
 class="o">::=</span> <span class="err">VV</span><span
 class="err">⁴</span> <span class="o">&&</span> <span class="err">VP</span><span class="err">⁵</span>
@@ -236,8 +236,8 @@ categories reachable. But the iterative process is the same in both cases.
 Another one! **Are some fields always empty?**<a name="always-empty"> </a>
 
 * Start (least) value: all fields in all categories are empty. Now the value
-  is not a Boolean, it is instead a set of fields that are non-empty
-  empty--which in the beginning is an empty set. The ordering is the
+  is not a Boolean, it is instead a set of fields that are non-empty--which
+  in the beginning is an empty set. The ordering is the
   subset relation: `A ≤ B` if `A ⊆ B`.
 * A field `s` in a terminal category `T` is non-empty, if there is some
   actual word with a non-empty string in `s`. When such a word
