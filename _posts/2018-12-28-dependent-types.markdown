@@ -234,17 +234,19 @@ cat
   Depicting Person Painting ;
 fun
   Portrait_of_a_man : Painting ;
-  Mona_Lisa : Painting
+  Portrait_Mona_Lisa : Painting
   Leonardo : Person ;
+  Mona_Lisa : Person ;
   depicting : (pe : Person) -> (pa: Painting) ->
     Depicting pe pa -> Painting ;
   authoredBy : (pe : Person) -> (pa: Painting) ->
     Authored pe pa -> Painting ;
   selfportrait : (pe : Person) -> (pa: Painting) ->
     Authored pe pa -> Depicting pe pa -> Painting ;
-  Authored_Leonardo_ML : Authored Leonardo Mona_Lisa ;
+  Authored_Leonardo_ML : Authored Leonardo Portrait_Mona_Lisa ;
   Authored_Leonardo_PAM : Authored Leonardo Portrait_of_a_man ;
   Depicting_Leonardo_PAM : Depicting Leonardo Portrait_of_a_man ;
+  Depicting_MonaLisa_PML : Depicting Mona_Lisa Portrait_Mona_Lisa ;
 ```
 
 That's right, we need both `Authored pe pa` and `Depicting pe pa`, otherwise it's not a self-portrait.
