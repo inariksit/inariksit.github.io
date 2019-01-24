@@ -6,6 +6,8 @@ categories: gf
 tags: gf
 ---
 
+*Update 2018-12-14: added [section V](#v-quick-fix-for-testing-an-oversized-grammar) & this post adapted into a [presentation](https://docs.google.com/presentation/d/1paPNB9xNgnB3sd0JnmVIZQXeOC4H6QdOSj7EdE4zGWA/edit#slide=id.g49cb42fe43_0_287)*
+
 * [I. The problem](#i-the-problem)
 * [II. Reducing the amount of concrete categories](#ii-reducing-the-amount-of-concrete-categories)
 * [III. Reducing the size of concrete categories](#iii-reducing-the-size-of-concrete-categories)
