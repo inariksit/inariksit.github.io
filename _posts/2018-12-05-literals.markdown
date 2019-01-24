@@ -135,6 +135,7 @@ Measure 3.14
 
 * GF [reference manual entry](http://www.grammaticalframework.org/doc/gf-refman.html#toc59)
 * GF [tutorial](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc132)
+* Krasimir's thesis [page 46](http://www.cse.chalmers.se/~krasimir/phd-thesis.pdf) (58 in the PDF)
 * Some grammars that use literals:
   * [Prop](https://github.com/GrammaticalFramework/gf-contrib/blob/master/cade-2011/Prop.gf#L89)
   * [Data](https://github.com/odanoburu/gf-data)

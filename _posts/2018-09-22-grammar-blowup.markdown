@@ -432,6 +432,9 @@ options:
  -trace	trace computations
 ```
 
+## Read more
+
+[Krasimir's thesis](http://www.cse.chalmers.se/~krasimir/phd-thesis.pdf) Section 2.8.4 "Hints for Efficient Grammars" is a good read. It is found on page 67 (page number), which is page 79 in the PDF.
 
 ## Footnotes
 
