@@ -1,0 +1,214 @@
+---
+layout: post
+title:  "String, Int and Float literals in GF: Part II"
+date:   2019-01-26
+categories: gf
+tags: gf
+---
+
+[Part I](../../../2018/12/05/literals.html) of this post. As you might guess from the naming scheme, it's recommended to read before Part II.
+
+## Using numerals as modifiers
+
+This time, let's take a more advanced grammar for numerals. And since the RGL already contains a nice implementation of numerals, we just extend the Numeral grammar from RGL. (If extending and opening are new concepts, see [tutorial](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc43).)
+
+```haskell
+abstract Modifiers = Numeral 
+  ** {
+  flags startcat = Clause ;
+cat
+  Kind ;
+  Clause ;
+
+  -- The categories Int, Float and String are present in all grammars
+
+  -- The categories Dig and Digits come from Numeral.
+fun
+  NItemsLiteral : Int -> Kind -> Clause ;
+  NItemsDig : Digits -> Kind -> Clause ;
+  Car : Kind ;
+
+} ;
+```
+
+We defined 2 functions just to compare the implementations: `NItemsLiteral` using the literal `Int`, and `NItemsDig` using the `Digits` category from `Numeral`. Here is an English concrete:
+
+```haskell
+concrete ModifiersEng of Modifiers = NumeralEng -- English linearisations of Digits, IIDig, IDig
+  ** open
+  SyntaxEng, -- for CN, S, mkS, mkCl, mkNP, mkCN, mkDet, aPl_Det
+  ParadigmsEng, -- for mkN
+  SymbolicEng -- for symb
+  in {
+
+lincat
+  Kind = CN;
+  Clause = S;
+
+lin
+
+  -- Hacky, and produces "1 cars"
+  NItemsLiteral int kind =
+    let sym : NP = symb int ;
+        item : NP = mkNP aPl_Det kind ; -- indefinite plural
+        symItem : NP = item ** {s = \\c => sym.s ! c ++ item.s ! c} ;
+     in mkS (mkCl symItem) ;
+
+  -- Comes from the RGL, produces "1 car"
+  NItemsDig num kind = mkS (mkCl (mkNP (mkDet num) kind)) ;
+
+  Car = mkCN (mkN "car") ;
+}
+```
+
+Let's test the grammar:
+
+```
+Modifiers> l NItemsDig (IDig D_1) Car
+there is 1 car
+Modifiers> l NItemsLiteral 1 Car
+there are 1 cars
+```
+
+That's what was bound to happen. How about other numbers?
+
+```
+My> p "there are 2 cars"
+NItemsDig (IDig D_2) Car
+NItemsLiteral 2 Car
+```
+
+For numbers 2-9 there is no difference. But when we get to 10 and
+higher, there's a small difference.  With Digits, the numbers are
+bound together by the [BIND
+token](https://www.aclweb.org/anthology/W/W15/W15-3305.pdf). If you
+linearise without the flag `-bind` in the normal GF shell, you get
+`&+` in between.
+
+```
+Modifiers> l NItemsDig (IIDig D_9 (IIDig D_9 (IDig D_9))) Car
+there are 9 &+ 9 &+ 9 cars
+0 msec
+Modifiers> l -bind NItemsDig (IIDig D_9 (IIDig D_9 (IDig D_9))) Car
+there are 999 cars
+```
+
+Furthermore, parsing in the standard GF shell doesn't work if you don't insert `&+`:
+
+```
+Modifiers> p "there are 999 cars"
+NItemsLiteral 999 Car
+```
+
+This is because the standard GF shell uses the Haskell runtime, which
+doesn't add the `&+`s automatically. However, the newer C runtime adds
+`&+`s automatically, and there are bindings from it to several
+programming languages, if you want to use a GF grammar which uses BIND
+tokens in an application.  If your GF is compiled with C runtime
+support, then you can start the GF shell with the flag `-cshell`, and
+open your grammar in a PGF format. This is already included in the
+binary versions, except for Windows.
+
+To use the C-shell, follow these steps:
+
+```
+$ gf -make ModifiersEng.gf  -- this creates Modifiers.pgf
+$ gf -cshell                -- open GF with -cshell flag
+> i Modifiers.pgf           -- import Modifiers.pgf
+Modifiers> p "there are 999 cars"
+NItemsLiteral 999 Car
+NItemsDig (IIDig D_9 (IIDig D_9 (IDig D_9))) Car
+```
+
+## Arbitrary strings as modifiers
+
+As you can see from the implementation of `NItemsLiteral`, there is no
+nice way to insert arbitrary `Int`s as a modifier; you need to bypass
+the API and access the fields of the NP, like this:
+
+```haskell
+  NItemsLiteral int kind =
+    let sym : NP = symb int ;
+        item : NP = mkNP aPl_Det kind ; -- indefinite plural
+        symItem : NP = item ** {s = \\c => sym.s ! c ++ item.s ! c} ;
+     in mkS (mkCl symItem) ;
+```
+
+This is dangerous, because one day someone might change the lincat of
+NP in the English RGL, and then code like this stops working. But with
+that disclaimer out of the way, if you *need* to do this for strings,
+you *can* do the following. Remember that `symb` is overloaded for
+`String`, `Int` and `Float`, so you can use `symb` just like
+previously:
+
+```haskell
+fun
+  LiteralKind : String -> Kind -> Clause ;
+
+lin
+  LiteralCN str kind =
+    let sym : NP = symb str ;
+        item : NP = mkNP a_Det kind ; -- indefinite singular
+        symItem : NP = item ** {s = \\c => sym.s ! c ++ item.s ! c} ;
+     in mkS (mkCl symItem) ;
+```
+
+Let's test:
+
+
+```
+Modifiers> p "there is asdasdfsdggdfs car"
+LiteralKind "asdasdfsdggdfs" Car
+```
+
+Great! Can I just say literally anything? Profanities and grammatically incorrect language?
+
+```
+Modifiers> l LiteralKind "a incorrectly grammatical" Car
+there is a incorrectly grammatical car
+```
+
+Hahaha! We just made a GF grammar say that! The power, it's intoxicating! Now let's parse that:
+
+```
+Modifiers> p "there is a incorrectly grammatical car"
+The parser failed at token 4: "incorrectly"
+```
+
+There's one more gotcha though: we cannot parse a literal that
+contains spaces. As for explanations, let me quote page 46 in [Krasimir's
+thesis](http://www.cse.chalmers.se/~krasimir/phd-thesis.pdf). 
+
+> The common in all cases is that the set of values for the literal categories is not
+> enumerated in the grammar but is hard-wired in the compiler and the interpreter.
+> The  linearization  rule  is  also  predefined,  for  example,  if  we  have  the  constant
+> 3.14 in an abstract syntax tree,  then it is automatically linearized as the record
+> `{ s = ”3.14” }`. Similarly, if we have the string ”John Smith” then its linearization
+> is the wrapping of the string in a record, i.e.
+> { s = ”John Smith” } .
+>
+> Now we have a problem because the rules in Section 2.3 are not sufficient to
+> deal with literals.  Furthermore, while usually the parser can use the grammar to
+> predict the scopes of the syntactic phrases, this is not possible for the literals since
+> we allow arbitrary unrestricted strings as values of category `String`.
+> Let say, for example, that we have a grammar which represents named entities as literals, then
+> we can represent the sentence:
+>
+"John Smith is one of the main characters in Disney’s film Pocahontas."
+>
+> as an abstract syntax tree of some sort, for instance:
+>
+> `MainCharacter ”John Smith” ”Disney” ”Pocahontas”`
+
+> This works fine for linearization because we have already isolated the literals as
+> separated values.  However, if we want to do parsing, then the parser will have
+> to consider all possible segmentations where three of the substrings in the input
+> string are considered literals. This means that the number of alternatives will grow
+> exponentially with the number of String literals.  Such exponential behaviour is
+> better to be avoided, and in most cases, it is not really necessary.
+
+So there's that. I recommend reading Krasimir's thesis. Some mornings I read Krasimir's thesis before I get out of the bed, it's so good.
+
+## Read more
+
+I might eventually put some links here. But here's a teaser: my next blog post will be about going beyond the API, and how to limit the dangers of using low-level opers in your application grammar.

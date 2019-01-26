@@ -1,10 +1,20 @@
 ---
 layout: post
-title:  "String, Int and Float literals in GF"
+title:  "String, Int and Float literals in GF: Part I"
 date:   2018-12-05
 categories: gf
 tags: gf
 ---
+
+- [Grammar](#grammar)
+- [Literals as abstract syntax categories](#literals-as-abstract-syntax-categories)
+- [`symb` and friends](#-symb--and-friends)
+- [Parsing and linearisation](#parsing-and-linearisation)
+- [Generation](#generation)
+- [Part II](#part-ii)
+- [Read more](#read-more)
+
+## Grammar
 
 Here's a simple grammar that parses expressions such as the following:
 
@@ -130,6 +140,12 @@ Call 999
 Follow "Foo" 999
 Measure 3.14
 ```
+
+## Part II
+
+
+[Part II](../../../2019/01/26/literals-2.html) of this post describes how to use arbitrary strings and numbers in more advanced settings than just independent NPs (and whether that is a good idea to do).
+
 
 ## Read more
 
