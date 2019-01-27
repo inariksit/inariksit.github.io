@@ -8,9 +8,23 @@ tags: gf
 
 [Part I](../../../2018/12/05/literals.html) of this post. As you might guess from the naming scheme, it's recommended to read before Part II.
 
+- [Using numerals as modifiers](#using-numerals-as-modifiers)
+  * [Abstract syntax](#abstract-syntax)
+  * [English concrete syntax](#english-concrete-syntax)
+  * [Output of the grammar](#output-of-the-grammar)
+  * [BIND token and the different runtimes](#bind-token-and-the-different-runtimes)
+- [Arbitrary strings as modifiers](#arbitrary-strings-as-modifiers)
+  * [String to NP](#string-to-np)
+  * [String to Det](#string-to-det)
+  * [Output of the grammar](#output-of-the-grammar-1)
+  * [Gotchas](#cannot-parse-literals-that-contain-spaces)
+- [Read more](#read-more)
+
 ## Using numerals as modifiers
 
 This time, let's take a more advanced grammar for numerals. And since the RGL already contains a nice implementation of numerals, we just extend the Numeral grammar from RGL. (If extending and opening are new concepts, see [tutorial](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc43).)
+
+### Abstract syntax
 
 ```haskell
 abstract Modifiers = Numeral 
@@ -31,7 +45,9 @@ fun
 } ;
 ```
 
-We defined 2 functions just to compare the implementations: `NItemsLiteral` using the literal `Int`, and `NItemsDig` using the `Digits` category from `Numeral`. Here is an English concrete:
+We defined 2 functions just to compare the implementations: `NItemsLiteral` using the literal `Int`, and `NItemsDig` using the `Digits` category from `Numeral`.
+
+### English concrete syntax
 
 ```haskell
 concrete ModifiersEng of Modifiers = NumeralEng -- English linearisations of Digits, IIDig, IDig
@@ -61,7 +77,10 @@ lin
 }
 ```
 
-Let's test the grammar:
+### Output of the grammar
+
+As we saw already in the definition, choosing indefinite plural will
+not work for the case n=1:
 
 ```
 Modifiers> l NItemsDig (IDig D_1) Car
@@ -93,7 +112,10 @@ Modifiers> l -bind NItemsDig (IIDig D_9 (IIDig D_9 (IDig D_9))) Car
 there are 999 cars
 ```
 
-Furthermore, parsing in the standard GF shell doesn't work if you don't insert `&+`:
+### BIND token and the different runtimes
+
+
+Parsing in the standard GF shell doesn't work if you don't insert `&+` yourself:
 
 ```
 Modifiers> p "there are 999 cars"
@@ -127,34 +149,113 @@ nice way to insert arbitrary `Int`s as a modifier; you need to bypass
 the API and access the fields of the NP, like this:
 
 ```haskell
-  NItemsLiteral int kind =
-    let sym : NP = symb int ;
-        item : NP = mkNP aPl_Det kind ; -- indefinite plural
-        symItem : NP = item ** {s = \\c => sym.s ! c ++ item.s ! c} ;
-     in mkS (mkCl symItem) ;
+NItemsLiteral int kind =
+  let sym : NP = symb int ;
+      item : NP = mkNP aPl_Det kind ; -- indefinite plural
+      symItem : NP = item ** {s = \\c => sym.s ! c ++ item.s ! c} ;
+   in mkS (mkCl symItem) ;
 ```
 
-This is dangerous, because one day someone might change the lincat of
+### String to NP
+
+`NItemsLiteral` is dangerous, because one day someone might change the lincat of
 NP in the English RGL, and then code like this stops working. But with
 that disclaimer out of the way, if you *need* to do this for strings,
 you *can* do the following. Remember that `symb` is overloaded for
 `String`, `Int` and `Float`, so you can use `symb` just like
-previously:
+previously. In fact, the code is identical, except that now we choose
+another `mkNP` instance for `item`.
+
 
 ```haskell
 fun
   LiteralKind : String -> Kind -> Clause ;
 
 lin
-  LiteralCN str kind =
-    let sym : NP = symb str ;
-        item : NP = mkNP a_Det kind ; -- indefinite singular
+  LiteralKind string kind =
+    let sym : NP = symb string ;
+        item : NP = mkNP kind ; -- MassNP, i.e. singular and no article
         symItem : NP = item ** {s = \\c => sym.s ! c ++ item.s ! c} ;
      in mkS (mkCl symItem) ;
 ```
+### String to Det
 
-Let's test:
+You might wonder, why not make the `String` literal into a `Det` and
+call a proper `mkNP` instance for `sym` (which is now Det) and the
+`kind`? Well, we can of course do that: create a new `Det` where we
+insert the string from the `String` in the right field. The
+linearisation for `LiteralKind` would look like following, with ???
+replaced by actual content.
 
+```haskell
+LiteralKind string kind =
+  let symDet : Det = ??? string ; -- Wishful thinking
+      symItem : NP = mkNP symDet kind ;
+   in mkS (mkCl symItem) ;
+```
+
+*But what if there is some `mkDet` constructor in
+ ParadigmsEng or ResEng, can't we use that?* Let's examine
+ [StructuralEng](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/StructuralEng.gf#L56)
+ to see how they make `Det`s: by using
+ [mkDeterminerSpec](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/MorphoEng.gf#L22-L28),
+ which in turn calls
+ [regGenitiveS](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/ResEng.gf#L187-L194),
+ which ultimately *pattern matches a string*. In the case of
+ `LiteralKind`, the string is a runtime string: it comes as an
+ argument to a function. So we can't use `mkDeterminerSpec`, because that would give us [unsupported token gluing](https://gist.github.com/inariksit/edde72f43d439571c79f8ef758443c11) exception.
+
+So, back to the drawing board. Let's see first what is the lincat of
+`Det` in [CatEng](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/CatEng.gf#L73):
+
+```haskell
+Det = {s : Str ;
+       sp : Gender => Bool => NPCase => Str ;
+       n : Number ; hasNum : Bool} ;
+```
+
+That's a lot of stuff! But if we look at the implementation of
+[DetCN](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/NounEng.gf#L6-L9)
+(which is the instance of [mkNP](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/api/Constructors.gf#L612-L613) that we are interested in this case),
+we see that `s` field is the most relevant one. But of course `n`, `sp` and
+`hasNum` need to be present too (as well as
+[lock_Det](https://inariksit.github.io/gf/2018/05/25/subtyping-gf.html#lock-fields)),
+otherwise the record isn't a `Det` and cannot be given as an argument
+to any function that expects a `Det`.
+
+**NB. At this point, I expect you to know about record extension in
+GF. No need to go further than [this
+blog](https://inariksit.github.io/gf/2018/05/25/subtyping-gf.html), if
+you need to brush up on that.**
+
+Anyway, it's unsafe to write stuff like this manually in an
+application grammar:
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">myHackyDet</span> <span class="o">:</span> <span class="kt">String</span> <span class="o">-&gt;</span> <span class="kt">Det</span> <span class="o">=</span> <span class="nf">\</span><span class="n">string</span> <span class="o">-&gt;</span> <span class="n">lin</span> <span class="kt">Det</span>
+  <span class="err">s = string.s ;</span>
+  <span class="err">sp = \\gend,bool,npcase => string.s ;</span>
+  <span class="err">n = ParamX.Sg ;</span>
+  <span class="err">hasNum = False</span>
+<span class="p">  } ;</span>
+</code></pre></div></div>
+
+But we can make it just tiny bit less dangerous by a simple trick: extend some known stable `Det`. You can find a bunch of them [in the synopsis](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#Det), they work for every language!
+
+So let's say that we want our determiner to be singular indefinite. Then we can extend `aSg_Det` from the API, and only change manually the `s` field. For English, that is; for any other language Xxx you want to do this for, you need to check `CatXxx` to see what is the lincat of `Det` in Xxx.
+
+
+```haskell
+LiteralKind string kind =
+  let symDet : Det = a_Det ** {s = string.s} ;
+      -- symDet : Det = a_Det ** string ; -- works equally well
+      symItem : NP = mkNP symDet kind ;
+   in mkS (mkCl symItem) ;
+```
+
+### Output of the grammar
+
+Finally we're through all the disclaimers, time to check out what the
+grammar produces!
 
 ```
 Modifiers> p "there is asdasdfsdggdfs car"
@@ -168,15 +269,17 @@ Modifiers> l LiteralKind "a incorrectly grammatical" Car
 there is a incorrectly grammatical car
 ```
 
-Hahaha! We just made a GF grammar say that! The power, it's intoxicating! Now let's parse that:
+We just made a GF grammar say that! The power, it's intoxicating! Now let's parse that:
 
 ```
 Modifiers> p "there is a incorrectly grammatical car"
 The parser failed at token 4: "incorrectly"
 ```
 
-There's one more gotcha though: we cannot parse a literal that
-contains spaces. As for explanations, let me quote page 46 in [Krasimir's
+### Cannot parse literals that contain spaces
+
+There's one more gotcha though: we can't *parse* literals that
+contain spaces. As for explanations, let me quote page 46 in [Krasimir's
 thesis](http://www.cse.chalmers.se/~krasimir/phd-thesis.pdf). 
 
 > The common in all cases is that the set of values for the literal categories is not
@@ -185,7 +288,7 @@ thesis](http://www.cse.chalmers.se/~krasimir/phd-thesis.pdf).
 > 3.14 in an abstract syntax tree,  then it is automatically linearized as the record
 > `{ s = ”3.14” }`. Similarly, if we have the string ”John Smith” then its linearization
 > is the wrapping of the string in a record, i.e.
-> { s = ”John Smith” } .
+> `{ s = ”John Smith” }` .
 >
 > Now we have a problem because the rules in Section 2.3 are not sufficient to
 > deal with literals.  Furthermore, while usually the parser can use the grammar to
@@ -207,7 +310,9 @@ thesis](http://www.cse.chalmers.se/~krasimir/phd-thesis.pdf).
 > exponentially with the number of String literals.  Such exponential behaviour is
 > better to be avoided, and in most cases, it is not really necessary.
 
-So there's that. I recommend reading Krasimir's thesis. Some mornings I read Krasimir's thesis before I get out of the bed, it's so good.
+So there's that. I recommend reading Krasimir's thesis, it has answers
+to all your problems you didn't knew you had. Some mornings I read
+Krasimir's thesis before I get out of the bed, it's so good.
 
 ## Read more
 
