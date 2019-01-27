@@ -340,7 +340,7 @@ thesis](http://www.cse.chalmers.se/~krasimir/phd-thesis.pdf).
 > better to be avoided, and in most cases, it is not really necessary.
 
 So there's that. I recommend reading Krasimir's thesis, it has answers
-to all your problems you didn't knew you had. Some mornings I read
+to all your problems you didn't know you had. Some mornings I read
 Krasimir's thesis before I get out of the bed, it's so good.
 
 ## Read more
