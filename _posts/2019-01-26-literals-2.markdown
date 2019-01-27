@@ -188,10 +188,14 @@ linearisation for `LiteralKind` would look like following, with ???
 replaced by actual content.
 
 ```haskell
-LiteralKind string kind =
-  let symDet : Det = ??? string ; -- Wishful thinking
-      symItem : NP = mkNP symDet kind ;
-   in mkS (mkCl symItem) ;
+fun
+  LiteralDetKind : String -> Kind -> Clause ;
+
+lin
+  LiteralDetKind string kind =
+    let symDet : Det = ??? string ; -- Wishful thinking
+        symItem : NP = mkNP symDet kind ;
+     in mkS (mkCl symItem) ;
 ```
 
 *But what if there is some `mkDet` constructor in
@@ -245,9 +249,10 @@ So let's say that we want our determiner to be singular indefinite. Then we can 
 
 
 ```haskell
-LiteralKind string kind =
-  let symDet : Det = a_Det ** {s = string.s} ;
-      -- symDet : Det = a_Det ** string ; -- works equally well
+
+
+LiteralDetKind string kind =
+  let symDet : Det = a_Det ** {s = a_Det.s ++ string.s} ;
       symItem : NP = mkNP symDet kind ;
    in mkS (mkCl symItem) ;
 ```
@@ -258,27 +263,51 @@ Finally we're through all the disclaimers, time to check out what the
 grammar produces!
 
 ```
-Modifiers> p "there is asdasdfsdggdfs car"
-LiteralKind "asdasdfsdggdfs" Car
+Modifiers> l LiteralKind "asdasdfsdggdfs" Car
+there is asdasdfsdggdfs car
 ```
 
-Great! Can I just say literally anything? Profanities and grammatically incorrect language?
+How about the version with `Det`? It inserts the indefinite article in there:
 
 ```
-Modifiers> l LiteralKind "a incorrectly grammatical" Car
-there is a incorrectly grammatical car
+Modifiers> l LiteralDetKind "asdasdfsdggdfs" Car
+there is an asdasdfsdggdfs car
+```
+
+Looks good! By the way, the indefinite article is even bound to be
+correct in most of the cases, because the [choice between *a* and
+*an*](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/ResEng.gf#L200-L206) is
+done on another level, using the `pre` construction
+([tutorial](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc68),
+[ref. manual](http://www.grammaticalframework.org/doc/gf-refman.html#token-lists-tokens-and-strings)).
+
+Parsing works as expected:
+
+```
+Modifiers> p "there is a qZPjp car"
+LiteralDetKind "qZPjp" Car
+
+Modifiers> p "there is vyknmj3 car"
+LiteralKind "vyknmj3" Car
+```
+
+Can I just say literally anything? Profanities and grammatically incorrect language?
+
+```
+Modifiers> l LiteralKind "incorrectly grammatical" Car
+there is incorrectly grammatical car
 ```
 
 We just made a GF grammar say that! The power, it's intoxicating! Now let's parse that:
 
 ```
-Modifiers> p "there is a incorrectly grammatical car"
+Modifiers> p "there is incorrectly grammatical car"
 The parser failed at token 4: "incorrectly"
 ```
 
 ### Cannot parse literals that contain spaces
 
-There's one more gotcha though: we can't *parse* literals that
+There's one more gotcha: we can't *parse* literals that
 contain spaces. As for explanations, let me quote page 46 in [Krasimir's
 thesis](http://www.cse.chalmers.se/~krasimir/phd-thesis.pdf). 
 
