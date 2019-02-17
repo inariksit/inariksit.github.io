@@ -1,4 +1,4 @@
----
+ L---
 layout: post
 title:  "Low-level hacks in application grammars: the better practices"
 date:   2019-02-17
@@ -27,7 +27,7 @@ So you have an application grammar with the following function:
 fun WhereIsNP : NP -> QCl ;
 ```
 
-You've written a linearisation for your application grammar in a language you don't know (we'll just call it X from now on), using the API function `mkQCl`:
+You've written a linearisation for your application grammar in a language you don't know (we'll just call it L from now on), using the API function `mkQCl`:
 
 ```haskell
 -- mkQCl : IP -> NP -> QCl    -- who is the man
@@ -37,21 +37,21 @@ lin WhereIsNP np = mkQCl where_IP np ;
 
 You show the application-specific sentence, say, *where is the money* to your informant, and they tell you that it's wrong: *money* should be in accusative.
 
-Unfortunately, your trigger-happy second-in-command shoots the informant in frustration, and you don't have access to any other X speakers in reasonable distance. What do you do?
+Unfortunately, your trigger-happy second-in-command shoots the informant in frustration, and you don't have access to any other L speakers in reasonable distance. What do you do?
 
 ### Ideal: fix the RG
 
 The ideal solution is, of course, to fix all the relevant functions in QuestionX.gf, and if so needed, update the categories of `IP` and `NP`.
 
-But you don't speak X, and your informant didn't leave enough evidence: does the accusative happen with all interrogative pronouns? Do the properties of the NP or the rest of the clause make a difference? After all, you have only witnessed that with the IP *where*, a single NP which is uncountable and definite takes an accusative case, when the sentence is active, positive and in the present tense.
+But you don't speak L, and your informant didn't leave enough evidence: does the accusative happen with all interrogative pronouns? Do the properties of the NP or the rest of the clause make a difference? After all, you have only witnessed that with the IP *where*, a single NP which is uncountable and definite takes an accusative case, when the sentence is active, positive and in the present tense.
 
 Given these circumstances, it's perfectly understandable that you don't feel comfortable touching QuestionX. Just remember to [open an issue](https://github.com/GrammaticalFramework/gf-rgl/issues) where you describe the problem, so that someone can fix it later.
 
 ### Questionable: touch the raw parameters
 
-So you've created an issue, nobody has volunteered to fix it, and you need to urgently interrogate more X speakers.
+So you've created an issue, nobody has volunteered to fix it, and you need to urgently interrogate more L speakers.
 
-You've peaked into the resource grammar of X, and you know that `NP` has an `s`
+You've peaked into the resource grammar of L, and you know that `NP` has an `s`
 field which is a table of `Case => Str`. So you go for this quick and dirty solution:
 
 ```haskell
@@ -82,7 +82,7 @@ WhereIsNP np = mkQCl where_IP npInAcc
 
 Maybe `IP -> Adv -> QCl` will do? Then look at [how to construct an Adv](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#Adv), and you find `mkAdv : Prep -> NP -> Adv`.
 
-Now the only thing you need is a `Prep` that only forces out the accusative case but doesn't add a string. If there is not one already, maybe you could add such a instance for `mkPrep` to the `ParadigmsX` module. That's not a huge commitment like changing the entire `QuestionX`, and you get to enjoy the security that your code is safe for future internal changes in the RG for X.
+Now the only thing you need is a `Prep` that only forces out the accusative case but doesn't add a string. If there is not one already, maybe you could add such a instance for `mkPrep` to the `ParadigmsX` module. That's not a huge commitment like changing the entire `QuestionX`, and you get to enjoy the security that your code is safe for future internal changes in the RG for L.
 
 ## How to make the questionable less questionable
 
@@ -126,7 +126,7 @@ lessUnsafeNP : Str -> NP = \str ->
   it_NP ** {s = \\_ => str} ;
 ```
 
-Even though `it_NP` is available for all the RGL languages, the part after `**` is still specific to English. For any other language X you want to do this for, you need to check `CatX` to see what is the lincat of `NP` in X. If `NP` in X has an `s` field with a table `Foo => Bar => Baz => Str`, then you need to write this instead:
+Even though `it_NP` is available for all the RGL languages, the part after `**` is still specific to English. For any other language L you want to do this for, you need to check `CatX` to see what is the lincat of `NP` in L. If `NP` in L has an `s` field with a table `Foo => Bar => Baz => Str`, then you need to write this instead:
 
 ```haskell
 lessUnsafeNP : Str -> NP = \str ->
@@ -139,7 +139,7 @@ This brings us to the next trick.
 
 ### Use opers that are indispensable in the RG
 
-1. Get intimate with the resource grammar for X
+1. Get intimate with the resource grammar for L
 1. Find or add opers that create and manipulate the relevant category `C`
 1. Make RGL functions with goal category `C` use these opers, such that if the category `C` is changed, the oper `mkC` is also updated.
 
