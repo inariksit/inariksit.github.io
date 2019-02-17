@@ -11,7 +11,7 @@ This post addresses the common dilemma in a grammarian's life: you're *supposed*
 * The resource grammar itself has an error, and you're not comfortable with either the language you're working with or the RGL structure itself to fix the error at the source. So you need to bypass it in your application.
 * Your abstract syntax isn't quite as abstract as you'd wished, and for some reason[^1], you can't change the abstract syntax. For example, you have `undress_V : V` in the lexicon, but the best way to translate it in your language is "take off my/your/… clothes". There's no API function to force an *inflecting* non-verby component into a `V`, because that stuff just screams "I am a VP level phenomenon".
 
-Of course, the *best* practice is that you fix or extend the RG, or change the abstract syntax of your application grammar. But in practice, we grammarians are doing it anyway, so might as well do it *better*.
+Of course, the *best* practice is that you fix or extend the RG, or change the abstract syntax of your application grammar. But in practice, we grammarians are writing dubious hacks anyway, so might as well do it *better*.
 
 - [Example](#example)
 - [How to make the questionable less questionable](#how-to-make-the-questionable-less-questionable)
