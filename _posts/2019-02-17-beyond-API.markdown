@@ -63,7 +63,7 @@ WhereIsNP np = mkQCl where_IP npInAcc
 
 You're extending the original *np* argument, so it's not the most terrible solution imaginable (elaborated later in this post), but you're still leaving your code vulnerable to any potential changes in the `s` field. If that happens, your grammar stops working and you sure won't find your money.
 
-### OK: find another RGL function
+### OK: find another RGL API function
 
 So, let's look at `WhereIsNP` again.
 
@@ -165,7 +165,8 @@ oper
 This is used in [tons](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/arabic/NounAra.gf#L25) [of](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/arabic/NounAra.gf#L43-L46) [places](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/arabic/NounAra.gf#L179-L183),
 where the modifications in the `s` and `a` fields require some more complex computation.
 
-Note that this is a practical design pattern in general, even if you're not planning on using anything outside the API in application grammars. It's just as annoying to do lots of changes in the RG when you want to change one thing.
+Note that this is a practical design pattern in general, even if you're not planning on using anything outside the API in application grammars.
+When you change a lincat in the RG, then you need to change only oper instead of changing 10 lins.
 
 When I discussed this with Aarne, he suggested to use not an empty string for the default C, but rather something that is obviously meant to be replaced. So here's an alternative implementation:
 
@@ -234,11 +235,11 @@ In contrast, none of these is used elsewhere in the Arabic RG. I'm just relying 
 Hot take: `defaultC` and `makeC` style opers are great and make everyone's life better. `forceFeature` can be a sign that someone somewhere could've designed things better, but it's way better than having to stand your grammar outputting things you don't want it to.
 
 Out of the examples, `forcePerson` is pretty fine and there are legit use cases. Say that you need to express a concept like *$AGR faints* as *it blacks out on $AGR*. All you need is to have a possibility for non-nominative subject case in `V`, and a possibility to force all inflection forms into 3rd person singular.
-If you would expect vanilla RGL to translate "I like GF" as "me gusta GF" ([it doesn't](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/spanish/README.md#known-issues), because *gustar* actually agrees with the object), then using `forcePerson` is not very controversial. We could totally do it for intransitive verbs in the Spanish RG already.
+If you expect vanilla RGL to translate "I like GF" as "me gusta GF" (too bad [it doesn't](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/spanish/README.md#known-issues), because *gustar* actually agrees with the object), then using `forcePerson` is not very controversial. We could totally do it for intransitive verbs in the Spanish RG already.
 
 Why is deviating subject case and incomplete paradigm okay, but *remove $AGR's clothes* bad? Well, consider again that we are incorporating a) an *inflecting noun* and b) a *inflecting pronoun* into a `V`. As it happens in Finnish, and certainly similar things happen in other languages, the noun gets a different case in active sentences vs. passive sentences, and in negative sentences vs. positive sentences. As it also happens, some of these things are expressed periphrastically and thus built in the `Cl` level, so we can't ensure the right case for *clothes* just by inserting it in the verb's inflection table. So hacking `VP`/`Cl` level stuff into `V` will never be supported in the common RGL API, because that must work for all languages.
 
-If `V` and `Cl` have identical inflection tables in your language, then it's safe to add anything you like, and it won't introduce ungrammatical sentences. If you know you're working on languages with very little morphology, honestly, do whatever you want. If you find that you're using such hacks all the time and it's become a standard practice, you could even add them to `ParadigmsL`[^2], because Paradigms are totally language-independent. I support anything that makes grammarians' lives easier *and* doesn't produce horribly wrong sentences. Just don't expect that all languages can copy that design, and be prepared to change lincats if you ever add more languages to your application.
+If `V` and `Cl` have identical inflection tables in your language, then it's safe to add anything you like, and it won't introduce ungrammatical sentences. If you know you're working on languages with very little morphology, honestly, do whatever you want. If you find that you're using such hacks all the time and it's become a standard practice, you could even add them to `ParadigmsL`[^2], because Paradigms are totally language-specific. I support anything that makes grammarians' lives easier *and* doesn't produce horribly wrong sentences. Just don't expect that all languages can copy that design, and be prepared to change lincats if you ever add more languages to your application.
 
 ## Footnotes
 
