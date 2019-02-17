@@ -30,6 +30,8 @@ is a `Verb`. Or in a more verbose way: `Verb` is of type `Type`, and
 `copula` is of type `Verb`. There is no reason why types cannot be *of
 type* something!
 
+## Params are of type `PType`
+
 `PType` is the same but for `param`s. Like this:
 
 ```haskell
@@ -43,6 +45,58 @@ The values `Nom`, `Acc` etc. are of type `Case`, and `Case` is of type
 and
 [here](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/ConjunctionEng.gf#L39)
 to see some `PType` in action.
+
+Another place you can see `PType` is in functors, i.e. *parameterised modules*. (If you come from another background and have learned a different meaning for functors, don't get confused, in GF it just means parameterised module.)
+
+Here's [DiffRomance](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/romance/DiffRomance.gf#L57-L60), which just tells that there is a parameter `CopulaType`, and two aliases for whatever concrete values they will get in each Romance language. These aliases called `serCopula` and `estarCopula`. Furthermore, there is a function `selectCopula`, which takes a `CopulaType` and returns an appropriate Verb.
+
+```haskell
+oper
+  CopulaType : PType ;
+  serCopula : CopulaType ;
+  estarCopula : CopulaType ;
+  selectCopula : CopulaType -> Verb ;
+```
+
+French has no copula discinctions, so [DiffFre](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/french/DiffFre.gf#L160-L163) implements `CopulaType` as an empty record[^1], and `selectCopula` as a constant function.
+
+```haskell
+oper
+  CopulaType = {} ;
+  serCopula = <> ;
+  estarCopula = <> ;
+  selectCopula = \isEstar -> copula ;
+
+```
+
+Spanish has two copulas so [DiffSpa](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/spanish/DiffSpa.gf#L137-L140) implements `CopulaType` as a Boolean:
+
+```haskell
+oper
+  CopulaType = Bool ;
+  serCopula = False ;
+  estarCopula = True ;
+  selectCopula = \isEstar -> case isEstar of {True => estar_V ; False => copula} ;
+```
+Finally, Portuguese has at least 3 copulas, and [DiffPor](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/portuguese/DiffPor.gf#L84-L93) implements this parameter as a 3-valued parameter:
+
+```haskell
+param
+  Copula = SerCop | EstarCop | FicarCop ;
+
+oper
+  CopulaType = Copula ;
+
+  serCopula = SerCop ;
+  estarCopula = EstarCop ;
+  ficarCopula = FicarCop ;
+
+  selectCopula coptyp = case coptyp of {
+    SerCop => essere_V ;
+    EstarCop => stare_V ;
+    FicarCop => ficar_V
+    } ;
+```
 
 ## Types can be arguments to functions
 
@@ -110,7 +164,7 @@ heard the concept *dependent type*. I just wanted to explain two things
 that appear in GF grammars quite often, and which probably seem weird
 if you have background in other programming languages. -->
 
-Because this post is about GF, my example of "cool stuff" will be about "make grammars produce sentences that make sense"[^1]. If you find this example too contrived
+Because this post is about GF, my example of "cool stuff" will be about "make grammars produce sentences that make sense"[^2]. If you find this example too contrived
 but are still curious about dependent types, go and read [something](https://blog.jle.im/entry/practical-dependent-types-in-haskell-1.html) [else](https://www.quora.com/Why-do-dependent-types-matter)!
 
 
@@ -121,7 +175,7 @@ My supervisor tells me that research topics should emerge from a desire to solve
 
 As you know, the GF resource grammar is purely syntactic and overgenerates a lot.
 Application grammars often use more elaborate types in the abstract syntax, such that "Monet painted flowers" is a valid sentence but "flowers painted Monet" isn't.
-We can write such a grammar easily with just any old boring types[^2], like this:
+We can write such a grammar easily with just any old boring types[^3], like this:
 
 ```haskell
 cat
@@ -274,6 +328,9 @@ programming languages, maybe pick up some
 
 ## Footnotes
 
-[^1]: The second half is adapted from my master's thesis which I wrote in 2012. I originally started this blog to get started with PhD thesis writing, so recycling text from two theses back completes the circle.
+[^1]: Why are empty records valid parameters? It's because any records with only parameters in them are valid parameters. Well, technically, any records with *no non-parameters* in them are valid parameters. So you can totally define `param Agr` as either `Ag Case Gender Number` or `{c:Case ; g:Gender ; n:Number}`.
 
-[^2]: Maybe for those coming from [other](https://en.wikipedia.org/wiki/Python_(programming_language)) [programming](https://en.wikipedia.org/wiki/Common_Lisp) [languages](https://en.wikipedia.org/wiki/Lambda_calculus), even the standard GF types are whoa.
+
+[^2]: The second half is adapted from my master's thesis which I wrote in 2012. I originally started this blog to get started with PhD thesis writing, so recycling text from two theses back completes the circle.
+
+[^3]: Maybe for those coming from [other](https://en.wikipedia.org/wiki/Python_(programming_language)) [programming](https://en.wikipedia.org/wiki/Common_Lisp) [languages](https://en.wikipedia.org/wiki/Lambda_calculus), even the standard GF types are whoa.
