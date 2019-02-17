@@ -13,19 +13,13 @@ This post addresses the common dilemma in a grammarian's life: you're *supposed*
 
 Of course, the *best* practice is that you fix or extend the RG, or change the abstract syntax of your application grammar. But in practice, we grammarians are doing it anyway, so might as well do it *better*.
 
-- [Example: `WhereIsNP`](#example---whereisnp-)
-  * [Ideal: fix the RG](#ideal--fix-the-rg)
-  * [Questionable: touch the raw parameters](#questionable--touch-the-raw-parameters)
-  * [OK: find another RGL function](#ok--find-another-rgl-function)
+- [Example](#example)
 - [How to make the questionable less questionable](#how-to-make-the-questionable-less-questionable)
   * [Record extension](#record-extension)
   * [Use opers that are indispensable in the RG](#use-opers-that-are-indispensable-in-the-rg)
-    + [`defaultC : C ;`](#-defaultc---c---)
-    + [`makeC : Str -> C`](#-makec---str----c-)
-    + [`forceFeature : Feature -> C -> C ;`](#-forcefeature---feature----c----c---)
 - [My personal opinions](#my-personal-opinions)
 
-## Example: `WhereIsNP`
+## Example
 
 So you have an application grammar with the following function:
 
