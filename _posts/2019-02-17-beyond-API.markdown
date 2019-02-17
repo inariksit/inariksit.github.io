@@ -41,11 +41,11 @@ Unfortunately, your trigger-happy second-in-command shoots the informant in frus
 
 ### Ideal: fix the RG
 
-The ideal solution is, of course, to fix all the relevant functions in QuestionX.gf, and if so needed, update the categories of `IP` and `NP`.
+The ideal solution is, of course, to fix all the relevant functions in QuestionL.gf, and if so needed, update the categories of `IP` and `NP`.
 
 But you don't speak L, and your informant didn't leave enough evidence: does the accusative happen with all interrogative pronouns? Do the properties of the NP or the rest of the clause make a difference? After all, you have only witnessed that with the IP *where*, a single NP which is uncountable and definite takes an accusative case, when the sentence is active, positive and in the present tense.
 
-Given these circumstances, it's perfectly understandable that you don't feel comfortable touching QuestionX. Just remember to [open an issue](https://github.com/GrammaticalFramework/gf-rgl/issues) where you describe the problem, so that someone can fix it later.
+Given these circumstances, it's perfectly understandable that you don't feel comfortable touching QuestionL. Just remember to [open an issue](https://github.com/GrammaticalFramework/gf-rgl/issues) where you describe the problem, so that someone can fix it later.
 
 ### Questionable: touch the raw parameters
 
@@ -82,14 +82,14 @@ WhereIsNP np = mkQCl where_IP npInAcc
 
 Maybe `IP -> Adv -> QCl` will do? Then look at [how to construct an Adv](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#Adv), and you find `mkAdv : Prep -> NP -> Adv`.
 
-Now the only thing you need is a `Prep` that only forces out the accusative case but doesn't add a string. If there is not one already, maybe you could add such a instance for `mkPrep` to the `ParadigmsX` module. That's not a huge commitment like changing the entire `QuestionX`, and you get to enjoy the security that your code is safe for future internal changes in the RG for L.
+Now the only thing you need is a `Prep` that only forces out the accusative case but doesn't add a string. If there is not one already, maybe you could add such a instance for `mkPrep` to the `ParadigmsL` module. That's not a huge commitment like changing the entire `QuestionL`, and you get to enjoy the security that your code is safe for future internal changes in the RG for L.
 
 ## How to make the questionable less questionable
 
 Despite our best efforts, it's not always possible to find a creative solution that uses only the API .
 So here are two techniques I use all the time. Just a couple of disclaimers before we get started:
 
-* If you want to just make your own lexical item and you don't find a constructor in `ParadigmsX`, you can often find it in a module called `MakeStructuralX`, e.g. this one for [English](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/MakeStructuralEng.gf)). The techniques I describe are meant for dealing with phrasal categories.
+* If you want to just make your own lexical item and you don't find a constructor in `ParadigmsL`, you can often find it in a module called `MakeStructuralL`, e.g. this one for [English](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/MakeStructuralEng.gf)). The techniques I describe are meant for dealing with phrasal categories.
 * I expect you to know about record extension in GF. No need to go further
 than [this blog](https://inariksit.github.io/gf/2018/05/25/subtyping-gf.html),
 if you need to brush up on that.
@@ -126,7 +126,7 @@ lessUnsafeNP : Str -> NP = \str ->
   it_NP ** {s = \\_ => str} ;
 ```
 
-Even though `it_NP` is available for all the RGL languages, the part after `**` is still specific to English. For any other language L you want to do this for, you need to check `CatX` to see what is the lincat of `NP` in L. If `NP` in L has an `s` field with a table `Foo => Bar => Baz => Str`, then you need to write this instead:
+Even though `it_NP` is available for all the RGL languages, the part after `**` is still specific to English. For any other language L you want to do this for, you need to check `CatL` to see what is the lincat of `NP` in L. If `NP` in L has an `s` field with a table `Foo => Bar => Baz => Str`, then you need to write this instead:
 
 ```haskell
 lessUnsafeNP : Str -> NP = \str ->
@@ -238,7 +238,7 @@ If you would expect vanilla RGL to translate "I like GF" as "me gusta GF" ([it d
 
 Why is deviating subject case and incomplete paradigm okay, but *remove $AGR's clothes* bad? Well, consider again that we are incorporating a) an *inflecting noun* and b) a *inflecting pronoun* into a `V`. As it happens in Finnish, and certainly similar things happen in other languages, the noun gets a different case in active sentences vs. passive sentences, and in negative sentences vs. positive sentences. As it also happens, some of these things are expressed periphrastically and thus built in the `Cl` level, so we can't ensure the right case for *clothes* just by inserting it in the verb's inflection table. So hacking `VP`/`Cl` level stuff into `V` will never be supported in the common RGL API, because that must work for all languages.
 
-If `V` and `Cl` have identical inflection tables in your language, then it's safe to add anything you like, and it won't introduce ungrammatical sentences. If you know you're working on languages with very little morphology, honestly, do whatever you want. If you find that you're using such hacks all the time and it's become a standard practice, you could even add them to `ParadigmsX`[^2], because Paradigms are totally language-independent. I support anything that makes grammarians' lives easier *and* doesn't produce horribly wrong sentences. Just don't expect that all languages can copy that design, and be prepared to change lincats if you ever add more languages to your application.
+If `V` and `Cl` have identical inflection tables in your language, then it's safe to add anything you like, and it won't introduce ungrammatical sentences. If you know you're working on languages with very little morphology, honestly, do whatever you want. If you find that you're using such hacks all the time and it's become a standard practice, you could even add them to `ParadigmsL`[^2], because Paradigms are totally language-independent. I support anything that makes grammarians' lives easier *and* doesn't produce horribly wrong sentences. Just don't expect that all languages can copy that design, and be prepared to change lincats if you ever add more languages to your application.
 
 ## Footnotes
 
