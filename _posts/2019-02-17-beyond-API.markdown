@@ -17,7 +17,7 @@ Of course, the *best* practice is that you fix or extend the RG, or change the a
 - [How to make the questionable less questionable](#how-to-make-the-questionable-less-questionable)
   * [Record extension](#record-extension)
   * [Use opers that are indispensable in the RG](#use-opers-that-are-indispensable-in-the-rg)
-- [My personal opinions](#my-personal-opinions)
+- [Discussion](#discussion)
 
 ## Example
 
@@ -51,7 +51,7 @@ Given these circumstances, it's perfectly understandable that you don't feel com
 
 So you've created an issue, nobody has volunteered to fix it, and you need to urgently interrogate more L speakers.
 
-You've peaked into the resource grammar of L, and you know that `NP` has an `s`
+You've peeked into the resource grammar of L, and you know that `NP` has an `s`
 field which is a table of `Case => Str`. So you go for this quick and dirty solution:
 
 ```haskell
@@ -140,8 +140,9 @@ This brings us to the next trick.
 ### Use opers that are indispensable in the RG
 
 1. Get intimate with the resource grammar for L
-1. Find or add opers that create and manipulate the relevant category `C`
-1. Make RGL functions with goal category `C` use these opers, such that if the category `C` is changed, the oper `mkC` is also updated.
+1. Find or add opers that create and manipulate the relevant category `C` in `ResL`
+1. Make RGL functions with goal category `C` use these opers, such that if the category `C` is changed, the opers `makeC` or `modifyC` are also updated.
+1. Open `(R=ResL)` in your application and use `R.makeC` and `R.modifyC` in your application grammar when necessary.
 
 For easy categories like `NP`, you're likely to find such functions already. For English, you have a `mkNP` in [ResEng](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/ResEng.gf#L174-L182) and [MakeStructuralEng](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/MakeStructuralEng.gf#L8-L9). Important for the 3rd point, these functions are [used](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/ResEng.gf#L168-L172) in the RG too.
 
@@ -166,7 +167,7 @@ This is used in [tons](https://github.com/GrammaticalFramework/gf-rgl/blob/maste
 where the modifications in the `s` and `a` fields require some more complex computation.
 
 Note that this is a practical design pattern in general, even if you're not planning on using anything outside the API in application grammars.
-When you change a lincat in the RG, then you need to change only oper instead of changing 10 lins.
+When you change a lincat in the RG, then you need to change only 1 oper instead of changing 10 lins.
 
 When I discussed this with Aarne, he suggested to use not an empty string for the default C, but rather something that is obviously meant to be replaced. So here's an alternative implementation:
 
@@ -202,9 +203,9 @@ ExistNPAdv np adv =
   predVP (indeclNP "هُنَاكَ") (AdvVP (UseComp (CompNP np)) adv) ;
 ```
 
-Using `indeclNP` in your application is safer than using `emptyNP ** {foo = …}`, because with `indeclNP` you make zero assumptions on what is inside an `NP`. It's hard to come up with a reason why a future grammarian would want to eliminate these functions from the RG, because they also make the resource grammarian's life easier, by having to change things in fewer places.
+Using `indeclNP` in your application is safer than using `emptyNP ** {foo = …}`, because with `indeclNP` you make zero assumptions on what is inside an `NP`. (Well, except that there is a string in some form.) It's hard to come up with a reason why a future grammarian would want to eliminate these functions from the RG, because they also make the resource grammarian's life easier, by having to change things in fewer places.
 
-#### `forceFeature : Feature -> C -> C ;`
+#### `modifyC : Feature -> C -> C ;`
 
 What if you don't want to make a new `C` from scratch but modify an existing one? Here's my favourite [way of](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/arabic/ResAra.gf#L170-L173) [handling](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/arabic/ResAra.gf#L715-L717) [it](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/arabic/ResAra.gf#L454-L464).
 
@@ -230,16 +231,26 @@ forcePerson : PerGenNum -> Verb -> Verb = \pgn,verb ->
 
 In contrast, none of these is used elsewhere in the Arabic RG. I'm just relying on my comments to convey to future Arabic resource grammarians why they should be kept.
 
-## My personal opinions
+## Discussion
 
-Hot take: `defaultC` and `makeC` style opers are great and make everyone's life better. `forceFeature` can be a sign that someone somewhere could've designed things better, but it's way better than having to stand your grammar outputting things you don't want it to.
+### Isn't this difficult?
+
+If you noticed, the first step was "Get intimate with the resource grammar for L". This might seem like a daunting task, but you still don't need to learn L the language to look at its resource grammar. You might be only interested in modifying one category in your application, and then it's enough to find (or create!) `defaultC`, `makeC` and `modifyC` for that one category. Shocking news really, in order to use low-level hacks and bypass the API, you need to *know* the RG of the language beyond the API.
+
+If you do explore the RG and introduce these functions, don't be shy to [replace repetitive code](https://github.com/GrammaticalFramework/gf-rgl/commit/2eefb1b74b1d0d707c1e8b299b899b75fc18ebda#diff-a6365eec7d770ccbeb3014a994bc0137) you might find in that resource grammar itself. For instance, here I have added [mkOrd](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/japanese/ResJpn.gf#L151-L159) into `ResJpn` and use it in [three](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/japanese/NounJpn.gf#L159) [functions](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/japanese/SymbolJpn.gf#L36) elsewhere. I didn't do anything else to learn Japanese, I just copied and pasted the code that was previously repeated in 2 places and called it `mkOrd`. In that case, my motivation was to fill SymbolJpn and that was just a byproduct, because I didn't want to copy and paste the code for the third time. But if I'd want to use something like that in my application, having an oper `mkOrd` is way better than writing `pred = \\st,t,p => symb.s ++ "番目" ++ mkCopula.s ! st ! t ! p` by hand.
+
+How to make sure you don't change the behaviour of a language you don't know? You can use [gftest's `-o` feature](https://github.com/GrammaticalFramework/gftest/blob/master/README.md#compare-against-an-old-version-of-the-grammar--o) to make sure you didn't break things. It's saved me from serious errors so many times, I might just write a blog post to list the most atrocious stupidities I was about to commit, if `gftest` hadn't caught them for me.
+
+### Isn't this still questionable?
+
+Here's a hot take: `defaultC` and `makeC` style opers are great and make everyone's life better, resource or application grammarians alike. `forceFeature` can be a sign that someone somewhere could've designed things better, but it's way better than having to stand your grammar outputting things you don't want it to.
 
 Out of the examples, `forcePerson` is pretty fine and there are legit use cases. Say that you need to express a concept like *$AGR faints* as *it blacks out on $AGR*. All you need is to have a possibility for non-nominative subject case in `V`, and a possibility to force all inflection forms into 3rd person singular.
 If you expect vanilla RGL to translate "I like GF" as "me gusta GF" (too bad [it doesn't](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/spanish/README.md#known-issues), because *gustar* actually agrees with the object), then using `forcePerson` is not very controversial. We could totally do it for intransitive verbs in the Spanish RG already.
 
-Why is deviating subject case and incomplete paradigm okay, but *remove $AGR's clothes* bad? Well, consider again that we are incorporating a) an *inflecting noun* and b) a *inflecting pronoun* into a `V`. As it happens in Finnish, and certainly similar things happen in other languages, the noun gets a different case in active sentences vs. passive sentences, and in negative sentences vs. positive sentences. As it also happens, some of these things are expressed periphrastically and thus built in the `Cl` level, so we can't ensure the right case for *clothes* just by inserting it in the verb's inflection table. So hacking `VP`/`Cl` level stuff into `V` will never be supported in the common RGL API, because that must work for all languages.
+Why is deviating subject case and incomplete paradigm okay, but *remove $AGR's clothes* bad? Well, consider again that we are incorporating a) an *inflecting noun* and b) a *inflecting pronoun* into a `V`. As it happens in Finnish, and certainly similar things happen in other languages, the noun gets a different case in active sentences vs. passive sentences, and in negative sentences vs. positive sentences. As it also happens, some of these things are expressed periphrastically and thus built at the `Cl` level, so we can't ensure the right case for *clothes* just by inserting it in the verb's inflection table. So hacking `VP`/`Cl` level stuff into `V` will never be supported in the common RGL API, because that must work for all languages.
 
-If `V` and `Cl` have identical inflection tables in your language, then it's safe to add anything you like, and it won't introduce ungrammatical sentences. If you know you're working on languages with very little morphology, honestly, do whatever you want. If you find that you're using such hacks all the time and it's become a standard practice, you could even add them to `ParadigmsL`[^2], because Paradigms are totally language-specific. I support anything that makes grammarians' lives easier *and* doesn't produce horribly wrong sentences. Just don't expect that all languages can copy that design, and be prepared to change lincats if you ever add more languages to your application.
+If `V` and `Cl` have identical inflection tables in your language, then it's safe to add anything you like, and it won't introduce ungrammatical sentences. If you know you're working on languages with very little morphology, honestly, do whatever you want. If you find that you're using such hacks all the time and it's become a standard practice, you could even add them to `ParadigmsL`[^2], because Paradigms are totally language-specific; then you need to import fewer modules. I support anything that makes grammarians' lives easier *and* doesn't produce horribly wrong sentences. Just don't expect that all languages can copy that design, and be prepared to change lincats if you ever add more languages to your application.
 
 ## Footnotes
 
