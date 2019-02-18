@@ -11,7 +11,7 @@ This post addresses the common dilemma in a grammarian's life: you're *supposed*
 * The resource grammar itself has an error, and you're not comfortable with either the language you're working with or the RGL structure itself to fix the error at the source. So you need to bypass it in your application.
 * Your abstract syntax isn't quite as abstract as you'd wished, and for some reason[^1], you can't change the abstract syntax. For example, you have `undress_V : V` in the lexicon, but the best way to translate it in your language is "take off my/your/… clothes". There's no API function to force an *inflecting* non-verby component into a `V`, because that stuff just screams "I am a VP level phenomenon".
 
-Of course, the *best* practice is that you fix or extend the RG, or change the abstract syntax of your application grammar. But in practice, we grammarians are writing dubious hacks anyway, so might as well do it *better*.
+Of course, the *best* practice is that you fix or extend the RG, or change the abstract syntax of your application grammar. Also remember to check [Extend](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/abstract/Extend.gf#L1) to see if the function you want isn't there already. But in practice, we grammarians are writing dubious hacks anyway, so might as well do it *better*.
 
 - [Example](#example)
 - [How to make the questionable less questionable](#how-to-make-the-questionable-less-questionable)
@@ -243,7 +243,7 @@ How to make sure you don't change the behaviour of a language you don't know? Yo
 
 ### Isn't this still questionable?
 
-Here's a hot take: `defaultC` and `makeC` style opers are great and make everyone's life better, resource or application grammarians alike. `forceFeature` can be a sign that someone somewhere could've designed things better, but it's way better than having to stand your grammar outputting things you don't want it to.
+Hot take: `defaultC` and `makeC` style opers are great and make everyone's life better, resource or application grammarians alike. `forceFeature` can be a sign that someone somewhere could've designed things better, but it's way better than having to stand your grammar outputting things you don't want it to.
 
 Out of the examples, `forcePerson` is pretty fine and there are legit use cases. Say that you need to express a concept like *$AGR faints* as *it blacks out on $AGR*. All you need is to have a possibility for non-nominative subject case in `V`, and a possibility to force all inflection forms into 3rd person singular.
 If you expect vanilla RGL to translate "I like GF" as "me gusta GF" (too bad [it doesn't](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/spanish/README.md#known-issues), because *gustar* actually agrees with the object), then using `forcePerson` is not very controversial. We could totally do it for intransitive verbs in the Spanish RG already.
