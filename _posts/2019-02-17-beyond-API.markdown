@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Low-level hacks in application grammars: the better practices"
+title:  "Low-level hacks in application grammars: better practices"
 date:   2019-02-17
 categories: gf
 tags: gf
@@ -243,7 +243,7 @@ How to make sure you don't change the behaviour of a language you don't know? Yo
 
 ### Isn't this still questionable?
 
-Hot take: `defaultC` and `makeC` style opers are great and make everyone's life better, resource or application grammarians alike. `forceFeature` can be a sign that someone somewhere could've designed things better, but it's way better than having to stand your grammar outputting things you don't want it to.
+Hot take: `defaultC` and `makeC` style opers are great and make everyone's life better, resource and application grammarians alike. `forceFeature` can be a sign that someone somewhere could've designed things better, but it's way better than having to stand your grammar outputting things you don't want it to.
 
 Out of the examples, `forcePerson` is pretty fine and there are legit use cases. Say that you need to express a concept like *$AGR faints* as *it blacks out on $AGR*. All you need is to have a possibility for non-nominative subject case in `V`, and a possibility to force all inflection forms into 3rd person singular.
 If you expect vanilla RGL to translate "I like GF" as "me gusta GF" (too bad [it doesn't](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/spanish/README.md#known-issues), because *gustar* actually agrees with the object), then using `forcePerson` is not very controversial. We could totally do it for intransitive verbs in the Spanish RG already.
