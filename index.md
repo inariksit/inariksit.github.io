@@ -3,9 +3,9 @@ layout: home
 title: About me
 ---
 
-I create and maintain language resources at [Digital Grammars](https://www.digitalgrammars.com/), a company providing reliable multilingual machine translation.
+I create and maintain language resources at [Digital Grammars](https://www.digitalgrammars.com/), a company providing reliable multilingual machine translation. I have a [PhD](https://gupea.ub.gu.se/handle/2077/59037) in computer science from the University of Gothenburg, where my research topic was applying software testing methods to computational grammars.
+In addition, I contribute actively to the [Grammatical Framework](http://www.grammaticalframework.org/) Resource Grammar Library.
 
-In March 2019, I will defend my [PhD](https://gupea.ub.gu.se/handle/2077/59037) in language technology at University of Gothenburg, under the supervision of [Koen Claessen](http://www.cse.chalmers.se/~koen/) and [Aarne Ranta](http://www.cse.chalmers.se/~aarne/). My research topic is applying software testing methods to computational grammars, especially [Grammatical Framework](http://www.grammaticalframework.org/) (GF) and [Constraint Grammar](http://visl.sdu.dk/constraint_grammar.html). In addition, I contribute actively to the GF Resource Grammar Library.
 
 ## Contact
 
