@@ -13,7 +13,7 @@ about, keep reading.
 How about if you have never wondered what's that all about? Honestly,
 that's no problem either. It may be cool to learn about PMCFG if you're
 writing a lot of GF, but only in the sense that it may be cool to
-learn some Italian if you [eat a lot of pizza](https://twitter.com/matthewconover/status/1004130435650150400).
+learn some Italian if you [eat a lot of pizza](/images/italian-pizza.png).
 So take this post as a cool extra tidbits about your favourite grammar
 formalism, not as a prerequisite for anything.
 
