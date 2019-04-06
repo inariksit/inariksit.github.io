@@ -1,0 +1,193 @@
+---
+layout: post
+title:  "Working with bidirectional text"
+date:   2019-04-06
+categories: gf
+tags: gf
+---
+
+Since last autumn I've been working with Arabic and Persian. Here's a small selection of things I've found useful while working with different scripts. For a proper introduction on bidirectionality, I recommend [rtl.wtf](https://rtl.wtf/explained/intro-bidirectional-algorithm/) which is informative and entertaining.
+
+If my setup changes, or I find other useful information, I'll update this post.
+
+- [Basics](#basics)
+- [Font choice](#font-choice)
+- [Text editors](#text-editors)
+- [Learning the alphabet](#learning-the-alphabet)
+- [Links](#links)
+
+## Basics
+
+In Perso-Arabic script, characters join to each other. Each character has up to 4 forms: independent,initial, medial and final. Check e.g. [Wikipedia](https://en.wikipedia.org/wiki/Arabic_alphabet) if you want a longer explanation, here's what you need to understand this post:
+
+* ل alone
+* ا alone
+* ال (ا followed by ل)
+* لا (ل followed by ا)
+
+Vowels and some other markers, such as gemination (=long consonant), are indicated by small diacritics above or below the character.
+
+* ّ◌  (makes the consonant long)
+* ر   (the consonant [d])
+* رّ (long [dː])
+
+## Font choice
+
+I tried several fonts, stopped at Pragmata Pro. The winning feature is that it has the smallest size difference between the different scripts, so I don't need to set my font size ridiculously big. Here's a demonstration:
+![monaco](/images/fonts-01-monaco.png "Monaco")
+![menlo](/images/fonts-02-menlo.png "Menlo")
+![andale_mono](/images/fonts-03-andale.png "Andale Mono")
+![courier](/images/fonts-04-courier.png "Courier")
+<!-- ![courier-bold](/images/fonts-06-courier-new-bold.png "Courier New in boldface")-->
+![pragmata](/images/fonts-05-pragmata.png "PragmataPro Mono")
+
+Notice especially the width, not just length. In addition, Pragmata is pretty blocky, whereas other fonts are more cursive and fancy-looking. It's not pretty but it scales down.
+Note that Pragmata costs money---out of the free ones, I'd probably go for Courier (New) and maybe boldface it.
+
+
+
+### Normalisation of several combining characters
+
+Think of a character such as ä: with the right keyboard, you can type if by pressing the Ä key, or you can combine ¨◌ with a.
+![swedish-keyboard](/images/swedish-keyboard.png "Finnish/Swedish keyboad")
+
+Either way you produce the character, they are considered [canonically equivalent](https://en.wikipedia.org/wiki/Unicode_equivalence). It would be inconvenient otherwise: suppose I have written a text in Swedish with a Swedish keyboard, by pressing the Ä key every time I need an ä. Now you're doing corpus statistics on my text using a non-Swedish keyboard, so you need to type ¨◌+a to get ä. Without the equivalence, you could grep until your fingers are sore with the ä you produced by combining ¨◌+a and it wouldn't match my ä. Sounds like an annoying world, right?
+
+Now the same thing happens with Arabic: you can have several diacritics, e.g. one for gemination and one for vowel, in either order, and you would like them to be canonically equivalent, for the same reasons.
+
+Out of the fonts I tried, Pragmata is the only one that shows a difference between the order of the combining characters:
+
+![order-actual](/images/order-01-actual.png "Actual order of the characters")
+![order-menlo](/images/order-02-menlo.png "Menlo: no difference")
+![order-pragmata](/images/order-03-pragmata.png "Pragmata")
+
+In most fonts, it shouldn't even matter which order the diacritics are, so for output reasons it should be fine. But if you e.g. want to compare the grammar's output against a gold standard, then it's nice if you can trust that two sentences are marked as different if they actually are different on a more fundamental level than رُّ and رُّ. You can try to search رُّ , it should only match the first رُّ in the previous sentence.
+
+Also beware that some browsers may normalise the text that you input in a text field or copy and paste. Try to select and copy the *second* رُّ in the previous paragraph, Ctrl+F it, and if it *doesn't match itself*, then your browser is doing something funny. This is not directly related to GF, but good to know if you e.g. rely on a web-based tool to gather data for your grammar, or copy and paste lexicon out of GitHub web page instead of checking out the repository to your computer.
+
+You can do your own normalisation in a grammar, like this:
+
+```haskell
+-- vowel : pattern Str = #("َ "|"ِ "|"ُ "|"ً "|"ٍ "|"ٌ ") ;
+-- geminate : Str = "ّ "
+case word of {
+  <x + v@vowel + g@geminate + y> => x + g + v + y ;
+  _                              => word
+}
+```
+
+or use any external normalisation library in your favourite programming language. I haven't used any, but there's the [ICU normalisation library](http://userguide.icu-project.org/transforms/normalization) for Java, C++ and C, and for other languages, you can just google [normalization arabic $LANG](https://www.google.com/search?&q=normalization+arabic+$LANG).
+
+
+### Invisible control characters
+
+#### [Left-to-right mark](https://en.wikipedia.org/wiki/Left-to-right_mark)/[Right-to-left mark](https://en.wikipedia.org/wiki/Right-to-left_mark)
+
+If you're like me and create your lexicon by copying and pasting from Wiktionary, you're likely to accidentally copy and paste a RTL mark along with the word. If RTL mark ends up in your inflection table, your text will look weird. Nowadays I run the following check regularly:
+
+```
+grep "‎" *.gf
+```
+
+It doesn't look like anything because RTL character is invisible. But you can copy that line and save it in a file, e.g. `checkRTL.sh` and then run `./checkRTL` every now and then.
+
+#### Zero-width [joiner](https://en.wikipedia.org/wiki/Zero-width_joiner) and [non-joiner](https://en.wikipedia.org/wiki/Zero-width_non-joiner)
+
+The zero-width joiner (ZWJ) forces a character in its joining form (i.e. initial or medial), even when it's followed by a space or a non-joining character. The zero-width non-joiner (ZWNJ) forces the character in its independent form.
+I'm only using the non-joiner (ZWNJ) in my grammars, but I linked the joiner just for completeness' sake.
+
+In Persian, the ZWNJ is used e.g. to mark morpheme boundaries. I handle it in [the following way](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/persian/MorphoPes.gf#L18-L22):
+
+```haskell
+oper
+  ZWNJ : Str = "‌" ;
+  zwnj : Str -> Str -> Str = \s1,s2 -> s1 + ZWNJ + s2 ;
+```
+
+Then in any [grammatical](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/persian/MorphoPes.gf#L69) [function](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/persian/MorphoPes.gf#L297-L302) that needs ZWNJ, I use the function `zwnj` instead of inserting the ZWNJ character into the code multiple times. This means that if some other grammarian wants to swap ZWNJ for a space or an empty string, they only need to change one line in the RGL, and that changes all grammatical functions that use `zwnj`.
+
+## Text editors
+
+I've only tried 3, if you don't count Google Translate textbox. (Seriously, it's a pretty good text editor for RTL text!) If I try more, I'll write about them here.
+
+### Emacs
+
+Disclaimer: Emacs is highly customisable, I'm sure that with the right spells in Emacs Lisp you can make this work beautifully. This is just how it worked out of the box for me:
+
+![emacs](/images/editors-01-emacs.png "Emacs")
+
+GF code contains strings of different directions on the same line. When I would paste Arabic text to a line with so far only Latin text, the line would flip, including `=>` to `<=`. I asked around a bit and someone suggested I put the following in my `init.el`, but it didn't help. Leaving it here in case someone else would like to try; I'm using mac so things might be weird for that reason.
+
+```
+(setq bidi-display-reordering nil)
+(setq bidi-paragraph-direction 'left-to-right)
+```
+
+### Sublime Text < 3.2
+
+Sublime has the positive property that it doesn't even try to do anything smart about bidirectionality or joining the characters. If you use a version older than 3.2, it's also ignoring the diacritics, simply showing each of them as a character in its own right. As of 3.2 it's trying to be smart about diacritics but messes it up, so if you work with vocalised Arabic, try an earlier version of Sublime.
+
+![sublime](/images/editors-02-sublime.png "Sublime Text")
+
+Features:
+* Always LTR
+* Doesn't join
+* Doesn't get slow like Atom does
+* Version 3.2 messes up diacritics, earlier versions treat them as any normal character
+
+I suppose there are also plugins for Sublime, I just didn't bother looking into it because of the following.
+
+### Atom with [alphabetter](https://github.com/DigitalGrammarsAB/alphabetter)
+
+I stopped looking into other solutions when my office mate John wrote [alphabetter](https://github.com/DigitalGrammarsAB/alphabetter), three Atom plugins to solve my problems:
+
+* Toggle RTL/LTR
+* Toggle joined/unjoined
+* Highlight invisible control characters
+
+ So here's Atom with the default setup: RTL and joined.
+
+![atom-no-alphabetter](/images/editors-03a-atom.png "Atom without Alphabetter")
+
+It looks already pretty good, but without any plugins, I had a few complaints:
+
+![atom-no-alphabetter-fail](/images/editors-03a-atom-fail.png "Atom without Alphabetter: fails with diacritics + several RTL+LTR blocks on one line")
+
+The diacritics are wonky, and despite how it looks like, line 50 has balanced parentheses. This happens when there are several RTL and LTR blocks on one line. The third, which is perhaps a feature rather than a bug, but nevertheless a feature I dislike, is that the cursor moves logically instead of visually, and selecting is difficult. So I choose to do all my development in the following mode: force everything LTR and unjoined.
+
+![atom-alphabetter](/images/editors-03b-atom.png "Atom with Alphabetter")
+
+With this setup, the offending lines render like this:
+![atom-alphabetter-success](/images/editors-03b-atom-success.png "Atom with Alphabetter: same lines that had problems without Alphabetter")
+
+The most useful thing is that I can toggle LTR/RTL and unjoined/joined. This is useful when showing the code to an informant who is used to reading the alphabet like it's supposed to, RTL and joined. After I've shown the words to the informant, I can press the button again and it flips to LTR+unjoined for my comfort.
+
+The downside of this setup is that sometimes Atom gets really slow with these plugins, especially with bigger files. If your computer is slow, you might prefer another option. And of course if you're already an established $EDITOR hacker, you'll probably enjoy finding just the right incantations that solve your problems in $EDITOR.
+
+### Vim
+
+I don't use Vim for more than Git commit messages, but another person on the Internet writes Arabic in Vim and has written a blog post about it, [check it out](https://andreasmhallberg.github.io/typing-arabic-in-vim/).
+
+## Learning the alphabet
+
+Next question is, do you need to learn to read the language in order to write a grammar for it? Not necessarily: if you just need to implement a small application grammar for a language with a good quality resource grammar, and you have native informants, you'll probably be fine. But in my case, I have to add a lot of new stuff into the RG, so I can't see how I could do my job without being able to read.
+
+<!--Learning an [alphabet](https://en.wikipedia.org/wiki/Alphabet), [abjad](https://en.wikipedia.org/wiki/Abjad) or [abugida](https://en.wikipedia.org/wiki/Abugida) isn't so hard. Syllabaries or logograms have way more characters to learn so that's harder.
+I've learned 5 different writing systems aside from Latin and IPA, and in case you think that doesn't count because I'm a massive language nerd, I know several people who are just massive nerds and still learned different writing systems just for fun. I placed this section at the end of the post so that if you are still reading this, I think you classify as a massive nerd. :-P-->
+
+But you don't need to read *well* in order to write a grammar.
+Furthermore, you can totally learn Perso-Arabic script LTR and unjoined, and never need to write it by hand. This makes reading Arabic resemble much more reading Latin: you don't need to change direction, and the characters always look the same, unlike when you read it RTL and joined.
+
+I started learning the alphabet last autumn in the traditional way, and practiced handwriting until I could read RTL and joined. After I started using Atom with alphabetter, probably 80% of the text I read is in my text editor, which shows it LTR and unjoined.
+If I see an Arabic or Persian word RTL and joined, and it's not one of the very common words (e.g. articles, personal pronouns, question particles, verbs such as *do*, *be*, *take*), I need to make conscious effort to read it. It is possible that I read a verb in vocalised Arabic and can tell immediately which verb class it belongs to, and only then I may decide that I want to actually pronounce the word too.
+
+<!-- I'd say this corresponds to my level in reading sheet music; I can look at a score and by default I do not hear it in my head, unless it's a really common music idiom, say a major chord in C. If I concentrate, I can slowly read the music, one part at a time. If it's an easy melody with common musical phrases I'm pretty confident to get it right, but if it's something unexpected, I expect to get some notes wrong. -->
+
+## Links
+
+* [Uppercase Alif](https://andreasmhallberg.github.io/). Andreas Hallberg's notes on Arabic linguistics. Contains also typographical stuff.
+* [rtl.wtf](https://rtl.wtf/explained/intro-bidirectional-algorithm/). A website especially about bidirectionality.
+* [The Absolute Minimum Every Software Developer Absolutely, Positively Must Know About Unicode and Character Sets (No Excuses!)](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/) A classic from 2003
+* [International Components for Unicode](http://site.icu-project.org/)
+* [Unicode normalisation](http://www.unicode.org/faq/normalization.html)
+* [Arabic ordering](http://www.unicode.org/reports/tr53/tr53-4.html)
