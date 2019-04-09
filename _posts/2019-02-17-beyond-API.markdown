@@ -135,7 +135,25 @@ lessUnsafeNP : Str -> NP = \str ->
 
 Record extension guards you against changes in the rest of the category you are hacking, but you're still vulnerable for changes in the field you modify manually. For instance, someone notices that most combinations of `Foo` and `Bar` don't happen, and merges them into just one parameter that spells out the combinations explicitly, then `\\_,_,_ => str` is wrong and should be changed for `\\_,_ => str`.
 
-This brings us to the next trick.
+If you want to combine `s` from one `NP` and agreement from another, then you can do it perfectly safely. Here's a concrete use case: you want to parse and linearise `<number> is <NP>`, e.g. "ten is the best grade". If you use `mkNP (mkDet num)`, you will get "ten are the best grade". So you need to force singular agreement into the `NP` constructed from the number.
+
+As long as all the languages in your grammar have a field called `s` in `NP`, this is perfectly safe and works for all languages:
+
+```haskell
+lin Num_är_NP_Cl num np =
+  let numSg_NP = it_NP ** {s = (mkNP (mkDet num)).s} ;
+   in mkCl numSg_NP np ;
+```
+
+Note that it would be much less safe the following way:
+
+```haskell
+lin Num_är_NP_Cl num np =
+  let numSg_NP = mkNP (mkDet num) ** {agr = it_NP.agr} ;
+   in mkCl numSg_NP np ;
+```
+
+It's unsafe, because unlike `s` field, we have no guarantee that all languages have a field called `agr`.
 
 ### Use opers that are indispensable in the RG
 
