@@ -140,7 +140,7 @@ If you want to combine `s` from one `NP` and agreement from another, then you ca
 As long as all the languages in your grammar have a field called `s` in `NP`, this is perfectly safe and works for all languages:
 
 ```haskell
-lin Num_är_NP_Cl num np =
+lin Num_is_NP_Cl num np =
   let numSg_NP = it_NP ** {s = (mkNP (mkDet num)).s} ;
    in mkCl numSg_NP np ;
 ```
@@ -148,7 +148,7 @@ lin Num_är_NP_Cl num np =
 Note that it would be much less safe the following way:
 
 ```haskell
-lin Num_är_NP_Cl num np =
+lin Num_is_NP_Cl num np =
   let numSg_NP = mkNP (mkDet num) ** {agr = it_NP.agr} ;
    in mkCl numSg_NP np ;
 ```
