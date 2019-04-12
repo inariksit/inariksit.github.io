@@ -112,15 +112,23 @@ I've only tried 3, if you don't count Google Translate textbox. (Seriously, it's
 
 ### Emacs
 
-Disclaimer: Emacs is highly customisable, I'm sure that with the right spells in Emacs Lisp you can make this work beautifully. This is just how it worked out of the box for me:
+Out of the box, Emacs looks like this:
 
 ![emacs](/images/editors-01-emacs.png "Emacs")
 
-GF code contains strings of different directions on the same line. When I would paste Arabic text to a line with so far only Latin text, the line would flip, including `=>` to `<=`. I asked around a bit and someone suggested I put the following in my `init.el`, but it didn't help. Leaving it here in case someone else would like to try; I'm using mac so things might be weird for that reason.
+GF code contains strings of different directions on the same line. When I would paste Arabic text to a line with so far only Latin text, the line would flip, including `=>` looking like `<=`. (If you read the first link I posted, you'll know exactly why.)
 
-```
-(setq bidi-display-reordering nil)
-(setq bidi-paragraph-direction 'left-to-right)
+Naturally, for such a popular editor, other people have come up with solutions how to make it work. [This episode of Emacs Is Great](https://www.youtube.com/watch?v=LxuNmeCNnqU) (thanks to [@odanoburu](https://odanoburu.github.io/) for the link!) presents a solution that works for me. If you don't want to bother with yet another link, here's the relevant bit you can copy and paste into your init.el. (I didn't write it, I just took it from that YouTube video.)
+
+```elisp
+(setq-default bidi-display-reordering nil)
+
+(defun bidi-reordering-toggle ()
+  "Toggle bidirectional display reordering."
+  (interactive)
+  (setq bidi-display-reordering (not bidi-display-reordering))
+  (message "bidi reordering is %s" bidi-display-reordering)
+  )
 ```
 
 ### Sublime Text < 3.2
@@ -186,7 +194,7 @@ If I see an Arabic or Persian word RTL and joined, and it's not one of the very 
 ## Links
 
 * [Uppercase Alif](https://andreasmhallberg.github.io/). Andreas Hallberg's notes on Arabic linguistics. Contains also typographical stuff.
-* [rtl.wtf](https://rtl.wtf/explained/intro-bidirectional-algorithm/). A website especially about bidirectionality.
+* [rtl.wtf](https://rtl.wtf/explained/intro-bidirectional-algorithm/). A website about bidirectionality.
 * [The Absolute Minimum Every Software Developer Absolutely, Positively Must Know About Unicode and Character Sets (No Excuses!)](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/) A classic from 2003
 * [International Components for Unicode](http://site.icu-project.org/)
 * [Unicode normalisation](http://www.unicode.org/faq/normalization.html)
