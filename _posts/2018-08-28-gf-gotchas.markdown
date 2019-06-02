@@ -507,11 +507,8 @@ combinations of `<Pron> <Verb> <Pron>`. Sure, we could write a special
 case for those instances where the two pronouns are the same, and
 replace the second pronoun by the appropriate reflexive pronoun. But
 the reflexive construction already exists in the RGL, as a completely
-separate entity. I personally think both can coexist in the RGL. Maybe
-*I like me* sounds weird in English, but in some language it could
-well sound natural. Or it could apply to an extraordinary situation,
-involving clones, time travel etc., in a way that *I like myself*
-doesn't quite capture.
+separate entity. I personally think both can coexist in the RGL: *I like me*
+has distinct uses from *I like myself*, for instance as a [hypothetical](https://twitter.com/GretchenAMcC/status/1134941280277073920) "I wouldn't like me if I was you".
 
 Now let's consider Basque, where transitive verbs agree with both
 subject and object. Except when the subject and object are both the
@@ -603,4 +600,7 @@ as the corresponding tree using `ReflVP`:
 ```haskell
 PredVP (UsePron p) (ReflVP (SlashV2a v))
 ```
-<a href="#fn-2">↩</a>
+
+In practice, it won't work in the RGL, because relevant funs are defined as `fun`, and they'd need to be defined as `data`.
+
+However, if you want to make such a thing work for your own application, here's a [pull request](https://github.com/GrammaticalFramework/gf-rgl/pull/8) that you can use in your own copy of the RGL. <a href="#fn-2">↩</a>
