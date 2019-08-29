@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Using GF grammars from an external program"
-date:   2019-09-01
+date:   2019-08-01
 categories: gf
 tags: gf
 ---
