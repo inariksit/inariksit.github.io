@@ -1,22 +1,34 @@
 ---
 layout: post
-title: CV
+title: Curriculum Vitae
 ---
-
-# Curriculum Vitae
 
 Inari Listenmaa  
 November 2019
 
 ## Contact information
+<table class="hackytable" cellpadding="0" cellspacing="0" border="0">
+<tr>
+  <td rowspan="2">🏠</td>
+       <td rowspan="2"> Underåsgatan 16A, lgh 1102 <br/> 41251 Göteborg, Sweden </td>
+</tr>
+<tr></tr>
+<tr>
+  <td>📞</td>️
+       <td> +46 31 772 61 15  </td>
+</tr>
+<tr>
+  <td> 📧 </td>
+       <td> inari@digitalgrammars.com </td>
+</tr>
+</table>
 
-```
+<!-- ```
 🚪 Underåsgatan 16A, lgh 1102  
    41251 Göteborg, Sweden  
 📞️ +46 31 772 61 15  
 📧 inari@digitalgrammars.com
-```
-
+``` -->
 ## Education
 
 ### Doctor of Philosophy, 2019
