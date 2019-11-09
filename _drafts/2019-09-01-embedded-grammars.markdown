@@ -61,7 +61,7 @@ You can find other arguments to `-f` if you run `gf -h`.
 
 ## PGF: file format & library
 
-A GF file is compiled into a PGF[^1], short for Portable Grammar Format. If we want to use a GF grammar from another program, most often we need to compile it into PGF first. (Sometimes we don't need PGF: see [tutorial](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc159) for compiling the grammar directly to JavaScript.)
+A GF file is compiled into a Portable Grammar Format[^1], shortened PGF. If we want to use a GF grammar from another program, most often we need to compile it into PGF first. (Sometimes we can skip the PGF level: see [tutorial](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc159) for compiling the grammar directly to JavaScript.)
 
 PGF is also the name of a [Haskell library](https://hackage.haskell.org/package/gf-3.10/docs/PGF.html), which contains functions for reading and manipulating PGF files.
 
@@ -73,7 +73,7 @@ _______
 
 If you **haven't installed GF yet**, do it now. [The options](http://www.grammaticalframework.org/download/index.html) are: a) download a binary, b) install from Hackage, and c) compile from source.
 
-* If you want to use Python and you have Mac or Ubuntu[^2], the easiest way is to [download the binary](http://www.grammaticalframework.org/download/index.html).
+* If you want to use Python and you have Mac or Ubuntu, the easiest way is to [download the binary](http://www.grammaticalframework.org/download/index.html).
 * If you want to use Haskell and have any system at all, the easiest way is to install from Hackage: `cabal install gf`.
   * If you don't (want to) have a system-wide GHC, you can install GF the executable from source using Stack: there is a [stack file](https://github.com/GrammaticalFramework/gf-core/blob/master/stack.yaml) in the [gf-core repository](https://github.com/GrammaticalFramework/gf-core).
 
@@ -88,9 +88,9 @@ Now follows installation instructions for the `PGF` library in Python and Haskel
 
 ### 0) Check if it's already installed
 
-Depending on how you installed GF, you might already have the Python bindings. If you downloaded the Mac or Ubuntu binary, then you should have it.
-You can test it by typing `import pgf` in a Python shell:
+Depending on how you installed GF, you might already have the Python bindings. If you downloaded the Mac or Ubuntu binary, then you should have them. (Of course, if you have Mac or Ubuntu but you installed GF in another way, you can still download the binary just for the sake of the libraries and ignore everything else that comes with it!)
 
+To test if you have the Python bindings, open a Python shell and type `import pgf`:
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>python
 <span class="nv">&lt;information about your python&gt;</span>
@@ -115,13 +115,12 @@ I have no experience on installing the libraries in Windows, so I recommend that
 <!-- If it does work, please let me know ([inari.listenmaa@gmail.com](mailto:inari.listenmaa@gmail.com)) so that I can update this post! -->
 
 
+
 ### 1) Install the C runtime
 
-If your GF comes from source, Hackage or Windows binary, then you need to install the C runtime and the Python bindings separately. (Of course, if you have Mac or Ubuntu, you can also download the binary just for the sake of the libraries and ignore everything else that comes with it.)
+If you can't or don't want to download the binary for Mac or Ubuntu (e.g. not having Mac or Ubuntu are pretty solid reasons!), then you need to install the C runtime and the Python bindings separately.
 
-
-You need to download the source at [gf-core](https://github.com/GrammaticalFramework/gf-core) and go to the directory `gf-core/src/runtime/c`, where you find [installation instructions](https://github.com/GrammaticalFramework/gf-core/blob/master/src/runtime/c/INSTALL).
-
+You need to download the source code at [gf-core](https://github.com/GrammaticalFramework/gf-core). Then, go to the directory `gf-core/src/runtime/c`, where you find [installation instructions](https://github.com/GrammaticalFramework/gf-core/blob/master/src/runtime/c/INSTALL). Follow them to install the C runtime.
 
 ### 2) Install the Python bindings
 
@@ -134,7 +133,7 @@ $ sudo python setup.py install
 
 If you have several versions of Python on your computer, make sure that you use the right one when installing. If desired, substitute `python` in the above commands for `python3` or the path to your custom Python binary.
 
-Now open Python shell (with the same Python that you used to build+install in the previous step) and type `import pgf`---if it works, now you can skip to [Embedding grammars](#embedding-grammars).
+Now open a Python shell (with the same Python that you used to build+install in the previous step) and type `import pgf`---if it works, now you can skip to [Embedding grammars](#embedding-grammars).
 
 ## Haskell
 
@@ -151,22 +150,17 @@ Open your `ghci` and type `import PGF`. If it succeeds, you have successfully in
 
 If you have installed GF by other means, or you don't want to have a system-wide GHC, read further.
 
-<!--You can either a) use Stack, which creates an isolated environment where the right libraries are installed, or b) install the library globally with your normal GHC.-->
-
 ### 1a) Use Stack
 
-In my repository [embedded-grammars-tutorial](TODO), you'll find a [Stack file](TODO).
-Clone the repository and do `stack install`, then skip to [Embedding grammars](#embedding-grammars).
+In my repository [embedded-grammars-tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial), you'll find a [Stack file](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/stack.yaml), which downloads all relevant libraries for you in an isolated location.
+Clone the repository and skip to [Embedding grammars](#embedding-grammars), where one of your first tasks is to run `stack build`.
 
 ### 1b) Non-stack options
 
-You have ended up in the current branch of this choose-your-adventure, if you followed one of the bold routes in this flowchart:
+You have ended up in the current branch of this choose-your-adventure, if you followed one of the red routes in this flowchart:
 
-* didn't install GF from Hackage nor compiled from source
-* want to use Haskell, and
-* don't want to use Stack.
-
-(TODO: draw this in a flowchart)
+<img src="/images/flowchart.jpg" alt="You didn't install GF from Hackage nor compiled from source; you want to use Haskell, and
+ don't want to use Stack." />
 
 Let's see. Are you **sure** you don't want to use Stack?
 
@@ -189,10 +183,11 @@ Let me quote [docs.haskellstack.org](https://docs.haskellstack.org/en/stable/REA
 
 When you install a program with Stack, it will not affect your previous Haskell ecosystem in any way. The downside is that it will download another version of GHC and libraries, which takes more space, but this is a trade-off for guaranteeing reproducibile builds. If you use Stack just once for this project, you can still keep using Cabal only for all other projects in the past and future. So unless disk space is absolutely critical, I recommend this option.
 
-First, [install stack](https://docs.haskellstack.org/en/stable/README/#how-to-install) and then `stack install` in the repository I linked. Then you can skip to [Embedding grammars](#embedding-grammars).
+First, [install stack](https://docs.haskellstack.org/en/stable/README/#how-to-install). This is a simple process involving running one command on your terminal. After that, the rest of the process involves one extra `stack build` and then typing `stack run <program>` instead of `runghc <program>`. If you want to run a ghci with the libraries that are installed locally, you need to write `stack ghci` instead of `ghci`
+
+ and then you can skip to [Embedding grammars](#embedding-grammars),
 
 <!-- So just read the docs at [docs.haskellstack.org](https://docs.haskellstack.org/en/stable/README/). -->
-
 
 #### Seriously, no Stack please
 
@@ -200,8 +195,9 @@ If you haven't installed GF: GOTO [install GF](#installation) and choose either 
 
 If your current GF is the downloaded binary, you could do one of the following:
 
-1. Clone the [gf-core repository](https://github.com/GrammaticalFramework/gf-core), comment out all executables from the Cabal file, and `cabal install` only the libraries.
-1. Create another GF installation from Hackage: `cabal install gf`. This reinstalls the GF executable (hopefully to different place where your binary is) but doesn't include the RGL, so you likely don't need to change your `$GF_LIB_PATH` or any other environment variables you might have.
+* Stop using the binary and install a fresh GF from Hackage or by [compiling from source](https://github.com/GrammaticalFramework/gf-core); **OR**
+* Clone the [gf-core repository](https://github.com/GrammaticalFramework/gf-core), comment out all executables from the Cabal file, and `cabal install` only the libraries; **OR**
+* Keep using the binary (e.g. if you use the Python bindings!), but create another GF installation from Hackage: `cabal install gf`. This reinstalls the GF executable (hopefully to different place where your binary is) but doesn't include the RGL, so you likely don't need to change your `$GF_LIB_PATH` or any other environment variables you might have.
 <!-- If you choose this option, you could as well just stop using the downloaded binary and use the newly cabal-installed GF, then it doesn't matter if Cabal rewrites some path. -->
 
 If something weird happens from having multiple GF installations, you can open an issue at [GF's GitHub](https://github.com/GrammaticalFramework/gf-core/issues).
@@ -210,16 +206,115 @@ If something weird happens from having multiple GF installations, you can open a
 
 From this point on, I assume that you have managed to install the PGF library for Python or Haskell.
 
-## Reading PGF files
+**If you have followed the Python path so far, here's what to do:**
+
+1. Clone my repository [embedded-grammars-tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial)
+1. Create the PGF file by running `gf -make MiniLangEng.gf`
+1. Run the [Jupyter Notebook](https://raw.githubusercontent.com/inariksit/gf-embedded-grammars-tutorial/master/ReflTransfer.ipynb) on your own computer.
+
+If you haven't used Jupyter notebooks before, here's a [tutorial](https://compsci697l.github.io/notes/jupyter-tutorial/). GitHub formats the `.ipynb` file with the output from running the file on my computer, so you can read it just fine as a [standard non-interactive tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/ReflTransfer.ipynb), but it'll be more fun and useful if you can run it yourself and modify the code, or add new features!
+
+The rest of this post will be about Haskell, so unless you want to learn how to embed grammars bilingually, you're done now!
+
+**If you have followed the Haskell path so far, read on!**
+
+## Preliminaries (Haskell)
+
+The first steps are:
+
+1. Clone my repository [embedded-grammars-tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial)
+1. In the main directory (i.e. called `embedded-grammars-tutorial`), run `gf -make -f haskell MiniLangEng.gf`. This creates the PGF file `MiniLang.pgf` and the Haskell file `MiniLang.hs`.
+1. **If you don't have system-wide GHC:** run `stack build`, still in the main directory.
+
+If you have system-wide GHC and want to use it, you can ignore both the Stack and the Cabal files in the repository, just `runchg Main.hs` will be enough later on.
+
+## Reading PGF files in Haskell
+
+Open a Haskell shell (e.g. `ghci` or `stack ghci`) and import the PGF library.
+
+```
+$ stack ghci
+…
+Ok, two modules loaded.
+*Main MiniLang> import PGF
+*Main MiniLang PGF> gr <- readPGF "MiniLang.pgf"
+*Main MiniLang PGF> :t gr
+gr :: PGF
+*Main MiniLang PGF> startCat gr
+DTyp [] Utt []
+
+```
+
+Now you have a grammar, and
 
 ## Manipulating trees
 
 
-* Translation from GF grammar into Haskell
-* `app` and `unApp`
 
-https://github.com/inariksit/gf-contrib/tree/ReflTransfer/mini/newmini
+### Example of syntactic transfer
 
+This is a minimal example of semantic-preserving syntactic transfer.
+
+I added a function called `ReflV2` into the old miniresource [abstract syntax](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/MiniGrammar.gf#L42):
+
+```haskell
+ComplV2   : V2  -> NP -> VP ;  -- love it  ---s
+ReflV2    : V2 -> VP ;         -- see itself
+```
+
+And the [implementation](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/MiniGrammarEng.gf#L56-L65) is in MiniGrammarEng.
+
+```haskell
+ReflV2 v2 = {
+  verb = verb2gverb v2 ;
+  compl = table {
+    Agr Sg Per1 => "myself" ;
+    Agr Sg Per2 => "yourself" ;
+    Agr Sg Per3 => "itself" ; -- simplification, no human referent
+    Agr Pl Per1 => "ourselves" ;
+    Agr Pl Per2 => "yourselves" ;
+    Agr Pl Per3 => "themselves" }
+} ;
+```
+
+## Transfer
+
+We want to transform sentences with the same subject and object into reflexive. For example:
+```
+> I like me
+I like myself
+> John sees John
+John sees himself
+```
+
+The best way is to export the GF grammar into another format and access it from another program.
+In this example, we use Haskell.
+
+The code is found in [Main.hs](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/Main.hs).
+In order to make it work, you need to generate the files `MiniLang.pgf` and `MiniLang.hs`. Run the following command to generate both:
+
+```
+gf -make --output-format=haskell MiniLangEng.gf
+```
+
+After generating the files, you can run the program, alternatively by `runghc Main.hs`, or `stack run ReflTransfer`, if you don't have a system-wide GHC.
+
+```
+EITHER
+  $ runghc Main.hs
+OR
+  $ stack run ReflTransfer
+Write your sentence here, I will transform it into reflexive, if it has the same subject and object.
+Write quit to exit.
+> I see me
+I see myself
+> a car
+a car
+> John sleeps and the water drinks the water
+John sleeps and the water drinks itself
+> quit
+bye
+```
 
 ## Links
 
@@ -227,11 +322,7 @@ https://github.com/inariksit/gf-contrib/tree/ReflTransfer/mini/newmini
 
 Pitch about https://github.com/kwarc/gf_kernel
 
-## Author's notes
 
-I tried to write this tutorial over the course of 1000 years (TODO put a correct amount of time when this is finished) and I got so stressed out from the choose-your-own-adventure part that I just couldn't finish the actual part earlier.
-
-<!--Next time I'll blog about something blogger-friendly, like how I spend a significant amount of my paid time imagining different combinations of prepositions, object pronouns, reflexive and impersonal markers in Somali and googling them to see if they exist, and then pasting the bits of text to Google translate and trying to guess if that word is actually what I imagine it to be or if a Somali cat was walking on the keyboard.-->
 
 ## Footnotes
 
