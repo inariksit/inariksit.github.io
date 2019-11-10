@@ -15,7 +15,19 @@ The topic is introduced in [Lesson 7](http://www.grammaticalframework.org/doc/tu
 
 Not all things are *missing* from the tutorial per se, but they are explained in different places. In contrast, I aim to make this post as self-contained as possible. If you have already installed GF and the PGF library in the language of your choice, you can go directly to [Embedding grammars](#embedding-grammars).
 
-It is also possible to embed GF grammars into C#, JavaScript/TypeScript and Java, but I will not cover them in this tutorial. This is enough of a complex choose-your-adventure already.  
+It is also possible to embed GF grammars into C#, JavaScript/TypeScript and Java, but I will not cover them in this tutorial. This is enough of a complex choose-your-adventure already.
+
+- [GF ecosystem](#gf-ecosystem)
+- [Installation](#installation)
+- [Embedding grammars](#embedding-grammars)
+  * [Python](#python)
+  * [Haskell](#haskell)
+    + [Reading PGF files in Haskell](#reading-pgf-files-in-haskell)
+    + [Manipulating trees](#manipulating-trees)
+    + [Example of syntactic transfer](#example-of-syntactic-transfer)
+    + [Transfer](#transfer)
+- [Links](#links)
+- [Footnotes](#footnotes)
 
 # GF ecosystem
 
@@ -81,10 +93,10 @@ ______
 
 Now follows installation instructions for the `PGF` library in Python and Haskell. **To follow this tutorial, it is enough to choose only one.**
 
-* [Python](#python) (further in this post)
-* [Haskell](#haskell) (further in this post)
+* [Python](#installation-in-python) (further in this post)
+* [Haskell](#installation-in-haskell) (further in this post)
 
-## Python
+## Installation in Python
 
 ### 0) Check if it's already installed
 
@@ -135,7 +147,7 @@ If you have several versions of Python on your computer, make sure that you use 
 
 Now open a Python shell (with the same Python that you used to build+install in the previous step) and type `import pgf`---if it works, now you can skip to [Embedding grammars](#embedding-grammars).
 
-## Haskell
+## Installation in Haskell
 
 If you want to use Haskell, the first question is which library to use, `PGF` or `PGF2`? Remember, `PGF` is a native Haskell library, and `PGF2` is Haskell bindings to a C library. For most purposes, they are equally good, and on the scale of small or medium-sized grammars, there is no significant difference in speed. For this post, I chose `PGF` for two reasons: 1) it's installed by default if you get GF from Hackage or compile it from source and 2) the API is better documented than `PGF2`.
 
@@ -204,21 +216,40 @@ If something weird happens from having multiple GF installations, you can open a
 
 # Embedding grammars
 
-From this point on, I assume that you have managed to install the PGF library for Python or Haskell.
+From this point on, I assume that you have managed to install the PGF library for Python or Haskell. Again, you can choose to follow the instructions for [Python](#python) or [Haskell](#haskell) further in this post.
 
-**If you have followed the Python path so far, here's what to do:**
+## Python
+
+### Preliminaries
 
 1. Clone my repository [embedded-grammars-tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial)
-1. Create the PGF file by running `gf -make MiniLangEng.gf`
-1. Run the [Jupyter Notebook](https://raw.githubusercontent.com/inariksit/gf-embedded-grammars-tutorial/master/ReflTransfer.ipynb) on your own computer.
+1. In the main directory (i.e. called `embedded-grammars-tutorial`), run `gf -make -f haskell MiniLangEng.gf`. This creates the PGF file `MiniLang.pgf`.
 
-If you haven't used Jupyter notebooks before, here's a [tutorial](https://compsci697l.github.io/notes/jupyter-tutorial/). GitHub formats the `.ipynb` file with the output from running the file on my computer, so you can read it just fine as a [standard non-interactive tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/ReflTransfer.ipynb), but it'll be more fun and useful if you can run it yourself and modify the code, or add new features!
+
+### Static tutorial
+
+The repository contains a Jupyter notebook named `ReflTransfer.ipynb`. It's meant to be opened with Jupyter, but if you don't have the possibility to install Jupyter on the machine you're reading this, you can still view the notebook on GitHub, where it just looks like a standard non-interactive tutorial. Here's the link: [ReflTransfer.ipynb on GitHub](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/ReflTransfer.ipynb).
+
+### Interactive tutorial
+
+If you do have a chance to use Jupyter on your own computer, I recommend it: you can modify the code and add new features. If you haven't used Jupyter notebooks before, here's a [tutorial and installation instructions](https://compsci697l.github.io/notes/jupyter-tutorial/).
+
+Once you have installed Jupyter, go to the main directory of my repository (i.e. the one called `embedded-grammars-tutorial`) and run the command `jupyter notebook`.
+
+```
+$ jupyter notebook
+```
+This will open your browser with the following view. Click the file ReflTransfer.ipynb.
+
+<img src="/images/jupyter-notebook-1.png" alt="Picture of Jupyter Notebook server, showing the file ReflTransfer.ipynb and others." />
+
+Now you can use the notebook as an interactive tutorial. You can modify anything in the cells or write new cells and run them.
 
 The rest of this post will be about Haskell, so unless you want to learn how to embed grammars bilingually, you're done now!
 
-**If you have followed the Haskell path so far, read on!**
+## Haskell
 
-## Preliminaries (Haskell)
+### Preliminaries
 
 The first steps are:
 
@@ -228,7 +259,7 @@ The first steps are:
 
 If you have system-wide GHC and want to use it, you can ignore both the Stack and the Cabal files in the repository, just `runchg Main.hs` will be enough later on.
 
-## Reading PGF files in Haskell
+### Reading PGF files
 
 Open a Haskell shell (e.g. `ghci` or `stack ghci`) and import the PGF library.
 
@@ -247,7 +278,7 @@ DTyp [] Utt []
 
 Now you have a grammar, and
 
-## Manipulating trees
+### Manipulating trees
 
 
 
