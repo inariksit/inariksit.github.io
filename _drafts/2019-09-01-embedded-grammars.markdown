@@ -255,30 +255,68 @@ The first steps are:
 
 1. Clone my repository [embedded-grammars-tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial)
 1. In the main directory (i.e. called `embedded-grammars-tutorial`), run `gf -make -f haskell MiniLangEng.gf`. This creates the PGF file `MiniLang.pgf` and the Haskell file `MiniLang.hs`.
-1. **If you don't have system-wide GHC:** run `stack build`, still in the main directory.
+1. **If you use Stack:** run `stack build`, still in the main directory.
 
-If you have system-wide GHC and want to use it, you can ignore both the Stack and the Cabal files in the repository, just `runchg Main.hs` will be enough later on.
+If you are not using Stack, you can ignore both the Stack and the Cabal files in the repository, just `runghc Main.hs` will be enough later on.
+
+### PGF API
+
+The PGF library is documented at [Hackage](https://hackage.haskell.org/package/gf-3.10/docs/PGF.html). The standard GF tutorial lists some of [the most important functions](https://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc146), if you want to see fewer things at once. I will explain the functions I use in my code, but once you're familiar with the small examples from the GF tutorial and this tutorial, do browse the full API at Hackage!
 
 ### Reading PGF files
 
-Open a Haskell shell (e.g. `ghci` or `stack ghci`) and import the PGF library.
+Open a Haskell shell (e.g. `ghci` or `stack ghci`) and import the PGF library. Do this in the main directory of my repository, same where you compiled `MiniLangEng.gf` into PGF and Haskell files.
 
 ```
 $ stack ghci
 …
 Ok, two modules loaded.
-*Main MiniLang> import PGF
-*Main MiniLang PGF> gr <- readPGF "MiniLang.pgf"
-*Main MiniLang PGF> :t gr
+> import PGF
+```
+
+Now you can open `MiniLang.pgf` in the shell as follows.
+
+```
+PGF> gr <- readPGF "MiniLang.pgf"
+PGF> :t gr
 gr :: PGF
-*Main MiniLang PGF> startCat gr
-DTyp [] Utt []
+PGF> languages gr
+[MiniLangEng]
+PGF> categories gr
+[A,AP,Adv,CN,Cl,Conj, … ,VP]
 
 ```
 
-Now you have a grammar, and
+In order to parse or linearise, you need a concrete language as well. Here's one way to do it:
+
+```
+PGF> let eng = head $ languages gr
+PGF> parse gr eng (startCat gr) "I sleep"
+[EApp (EFun UttS) (EApp (EApp (EFun UsePresCl) (EFun PPos)) (EApp (EApp (EFun PredVP) (EApp (EFun UsePron) (EFun i_Pron))) (EApp (EFun UseV) (EFun sleep_V))))]
+```
+
+If you want to see trees that look like from GF, you need to use `showExpr` from the PGF library, like this:
+
+```
+PGF> let trees = parse gr eng (startCat gr) "I sleep"
+PGF> map (showExpr []) trees
+["UttS (UsePresCl PPos (PredVP (UsePron i_Pron) (UseV sleep_V)))"]
+```
+
+The original GF tutorial shows a simple [translation application](https://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc147). The example program in my repository is bigger and does more things, so if you prefer to study a simpler piece of code, that program is a good choice.
+
+You're welcome to read the rest of the original GF tutorial's [chapter 7](https://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc143), if you want. It's not a prerequisite for the rest of my tutorial, but it might just be useful to read about the same concept written by different people and from different perspectives. You can also read it after my tutorial.
 
 ### Manipulating trees
+
+Now, I expect you have read the first example in the GF tutorial, about the simple translator. More specifically, I expect that you understand that the Haskell program reads the user's input, gives that input to the GF grammar, and finally prints the output from the GF grammar back to the user.
+
+So far we have involved just the PGF library, for parsing and linearising. The next example involves more linguistic manipulation of trees, and here we are going to introduce another way of interacting with the GF trees.
+
+#### GF abstract syntax in Haskell
+
+Remember the flag `-f haskell` when we compiled the GF grammar? It produced a file called `MiniLang.hs`, and now we are going to use that.
+
 
 
 
@@ -289,8 +327,8 @@ This is a minimal example of semantic-preserving syntactic transfer.
 I added a function called `ReflV2` into the old miniresource [abstract syntax](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/MiniGrammar.gf#L42):
 
 ```haskell
-ComplV2   : V2  -> NP -> VP ;  -- love it  ---s
-ReflV2    : V2 -> VP ;         -- see itself
+ComplV2   : V2 -> NP -> VP ;  -- love it  ---s
+ReflV2    : V2 -> VP ;        -- see itself
 ```
 
 And the [implementation](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/MiniGrammarEng.gf#L56-L65) is in MiniGrammarEng.
