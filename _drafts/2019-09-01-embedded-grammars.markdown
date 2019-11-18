@@ -42,6 +42,8 @@ A GF grammar consists of an abstract syntax and a number of concrete syntaxes. T
 
 ### 1) Run your grammar in a GF shell
 
+Assuming that you have a file called `LangEng.gf` in the same directory, you can run the following command.
+
 ```
 $ gf LangEng.gf
 Lang> p -cat=Cl "I am an apple"
@@ -164,14 +166,14 @@ If you have installed GF by other means, or you don't want to have a system-wide
 
 ### 1a) Use Stack
 
-In my repository [embedded-grammars-tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial), you'll find a [Stack file](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/stack.yaml), which downloads all relevant libraries for you in an isolated location.
+In my repository [gf-embedded-grammars-tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial), you'll find a [Stack file](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/stack.yaml), which downloads all relevant libraries for you in an isolated location.
 Clone the repository and skip to [Embedding grammars](#embedding-grammars), where one of your first tasks is to run `stack build`.
 
 ### 1b) Non-stack options
 
 You have ended up in the current branch of this choose-your-adventure, if you followed one of the red routes in this flowchart:
 
-<img src="/images/flowchart.jpg" alt="You didn't install GF from Hackage nor compiled from source; you want to use Haskell, and
+<img src="/images/flowchart.jpg" alt="You didn't install GF from Hackage nor compile from source; you want to use Haskell, and
  don't want to use Stack." />
 
 Let's see. Are you **sure** you don't want to use Stack?
@@ -193,19 +195,17 @@ Let me quote [docs.haskellstack.org](https://docs.haskellstack.org/en/stable/REA
 > * Building your project.
 > * …
 
-When you install a program with Stack, it will not affect your previous Haskell ecosystem in any way. The downside is that it will download another version of GHC and libraries, which takes more space, but this is a trade-off for guaranteeing reproducibile builds. If you use Stack just once for this project, you can still keep using Cabal only for all other projects in the past and future. So unless disk space is absolutely critical, I recommend this option.
+When you install a program with Stack, it will not affect your previous Haskell ecosystem in any way. The downside is that it will download another version of GHC and libraries, which takes more space, but this is a trade-off for guaranteeing reproducible builds. If you use Stack just once for this project, you can still keep using Cabal only for all other projects in the past and future. So unless disk space is absolutely critical, I recommend this option.
 
-First, [install stack](https://docs.haskellstack.org/en/stable/README/#how-to-install). This is a simple process involving running one command on your terminal. After that, the rest of the process involves one extra `stack build` and then typing `stack run <program>` instead of `runghc <program>`. If you want to run a ghci with the libraries that are installed locally, you need to write `stack ghci` instead of `ghci`
+First, [install Stack](https://docs.haskellstack.org/en/stable/README/#how-to-install). This is a simple process involving running one command on your terminal. After that, the rest of the process involves one extra `stack build` and then typing `stack run <program>` instead of `runghc <program>`. If you want to run a ghci with the libraries that are installed locally, you need to write `stack ghci` instead of `ghci`. That's pretty much the concrete noticeable differences that affect your daily life. If you want to learn more, you can read the documentation at [docs.haskellstack.org](https://docs.haskellstack.org/en/stable/README/).
 
- and then you can skip to [Embedding grammars](#embedding-grammars),
-
-<!-- So just read the docs at [docs.haskellstack.org](https://docs.haskellstack.org/en/stable/README/). -->
+If you decided to give Stack a try, you can skip to [Embedding grammars](#embedding-grammars). Otherwise, read on.
 
 #### Seriously, no Stack please
 
 If you haven't installed GF: GOTO [install GF](#installation) and choose either from Hackage or compile from source.
 
-If your current GF is the downloaded binary, you could do one of the following:
+If your current GF is the downloaded binary, you could do **one of** the following:
 
 * Stop using the binary and install a fresh GF from Hackage or by [compiling from source](https://github.com/GrammaticalFramework/gf-core); **OR**
 * Clone the [gf-core repository](https://github.com/GrammaticalFramework/gf-core), comment out all executables from the Cabal file, and `cabal install` only the libraries; **OR**
@@ -222,8 +222,8 @@ From this point on, I assume that you have managed to install the PGF library fo
 
 ### Preliminaries
 
-1. Clone my repository [embedded-grammars-tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial)
-1. In the main directory (i.e. called `embedded-grammars-tutorial`), run `gf -make -f haskell MiniLangEng.gf`. This creates the PGF file `MiniLang.pgf`.
+1. Clone my repository [gf-embedded-grammars-tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial)
+1. In the main directory (i.e. called `gf-embedded-grammars-tutorial`), run `gf -make resource/MiniLangEng.gf`. This creates the PGF file `MiniLang.pgf`.
 
 
 ### Static tutorial
@@ -232,7 +232,7 @@ The repository contains a Jupyter notebook named `ReflTransfer.ipynb`. It's mean
 
 ### Interactive tutorial
 
-If you do have a chance to use Jupyter on your own computer, I recommend it: you can modify the code and add new features. If you haven't used Jupyter notebooks before, here's a [tutorial and installation instructions](https://compsci697l.github.io/notes/jupyter-tutorial/).
+If you have a chance to use Jupyter on your own computer, I recommend it: you can modify the code and add new features. If you haven't used Jupyter notebooks before, here's a [tutorial and installation instructions](https://compsci697l.github.io/notes/jupyter-tutorial/).
 
 Once you have installed Jupyter, go to the main directory of my repository (i.e. the one called `embedded-grammars-tutorial`) and run the command `jupyter notebook`.
 
@@ -253,11 +253,11 @@ The rest of this post will be about Haskell, so unless you want to learn how to 
 
 The first steps are:
 
-1. Clone my repository [embedded-grammars-tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial)
-1. In the main directory (i.e. called `embedded-grammars-tutorial`), run `gf -make -f haskell MiniLangEng.gf`. This creates the PGF file `MiniLang.pgf` and the Haskell file `MiniLang.hs`.
+1. Clone my repository [gf-embedded-grammars-tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial)
+1. In the main directory (i.e. called `gf-embedded-grammars-tutorial`), run `gf -make -f haskell resource/MiniLangEng.gf`. This creates the PGF file `MiniLang.pgf` and the Haskell file `MiniLang.hs`.
 1. **If you use Stack:** run `stack build`, still in the main directory.
 
-If you are not using Stack, you can ignore both the Stack and the Cabal files in the repository, just `runghc Main.hs` will be enough later on.
+If you are not using Stack, you can ignore both the Stack and the Cabal files in the repository, just `runghc ReflTransfer.hs` will be enough later on.
 
 ### PGF API
 
@@ -303,13 +303,38 @@ PGF> map (showExpr []) trees
 ["UttS (UsePresCl PPos (PredVP (UsePron i_Pron) (UseV sleep_V)))"]
 ```
 
-The original GF tutorial shows a simple [translation application](https://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc147). The example program in my repository is bigger and does more things, so if you prefer to study a simpler piece of code, that program is a good choice.
+### Simple translator
 
-You're welcome to read the rest of the original GF tutorial's [chapter 7](https://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc143), if you want. It's not a prerequisite for the rest of my tutorial, but it might just be useful to read about the same concept written by different people and from different perspectives. You can also read it after my tutorial.
+To get started, here's a simple translation application. It's also included in my repository with the name `Translator.hs`.
+
+```haskell
+import PGF
+
+main :: IO ()
+main = do
+  gr <- readPGF "MiniLang.pgf" -- Open the PGF file
+  putStrLn "Write your sentence here to translate it."
+  s <- getLine -- Get sentence from user when program runs
+  putStrLn (translate gr s)
+  putStrLn "Thanks for using the great GF translator!"
+
+translate :: PGF -> String -> String
+translate gr s = case parseAllLang gr (startCat gr) s of
+  (lg,t:_):_
+    -> unlines [ linearize gr l t
+               | l <- languages gr
+               , l /= lg ]
+  _ -> "NO PARSE"
+```
+
+In the main function, we first read the PGF file `MiniLang.pgf`. (If you want to read the name of the PGF file from command line instead, see the [tutorial](https://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc147).)
+
+
+Now if you look at the original GF tutorial, you see a very similar [translation application](https://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc147). You're welcome to read the rest of the original GF tutorial's [chapter 7](https://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc143), if you want. It's not a prerequisite for the rest of my tutorial, but it might just be useful to read about the same concept written by different people and from different perspectives. You can also read it after my tutorial.
 
 ### Manipulating trees
 
-Now, I expect you have read the first example in the GF tutorial, about the simple translator. More specifically, I expect that you understand that the Haskell program reads the user's input, gives that input to the GF grammar, and finally prints the output from the GF grammar back to the user.
+Now, I expect you to have read the first example in the GF tutorial, about the simple translator. More specifically, I expect that you understand how the Haskell program reads the user's input, gives that input to the GF grammar, and finally prints the output from the GF grammar back to the user.
 
 So far we have involved just the PGF library, for parsing and linearising. The next example involves more linguistic manipulation of trees, and here we are going to introduce another way of interacting with the GF trees.
 
