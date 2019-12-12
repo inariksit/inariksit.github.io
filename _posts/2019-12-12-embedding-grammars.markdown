@@ -424,7 +424,16 @@ class Gf a where
 
 The type `Expr` comes from the PGF library. In place of `a`, we will put the Haskell data types just defined, such as `GAdv` or `GCl`.
 
-By making a datatype into an instance of the typeclass `Gf`, we need to provide a translation to and from the PGF datatype `Expr`. Let's start from translation *to*:
+By making a datatype into an instance of the typeclass `Gf`, we need to provide a translation to and from the PGF datatype `Expr`. (I will skip the details here; you can see them in the generated `MiniLang.hs` file if you are interested.) Thanks to the functions `gf` and `fg`, we can now have a workflow as follows:
+
+1. Parse a sentence into an `Expr`, using the PGF library.
+1. Turn the PGF expression into a Haskell expression, using `fg : Expr -> a` for some suitable `a` (e.g. `GCl`).
+1. Transform the Haskell expression into a new Haskell expression, using some function that you wrote yourself.
+1. Turn the new Haskell expression back into a PGF expression, using `gf : a -> Expr`.
+1. Linearise the transformed PGF expression, using the PGF library.
+
+<!--
+Let's start from translation *to*:
 
 ```haskell
 instance Gf GA where
@@ -462,12 +471,7 @@ instance Gf GCl where
   gf (GPredVP x1 x2) = mkApp (mkCId "PredVP") [gf x1, gf x2]
 ```
 
-So, thanks to the functions `gf` and `fg`, we can now have a workflow as follows:
-
-1. Parse a sentence into an `Expr`, using the functions from the PGF library.
-1. Turn the PGF expression into a Haskell datatype, using `fg : Expr -> a` for some suitable `a` (e.g. `GCl`).
-1. Transform the sentence operating on the Haskell datatypes---`GNP`, `GVP`, `GCl` etc.
-1. Turn the Haskell expression back into a PGF exprerssion, using `gf : a -> Expr`.
+-->
 
 
 ### The program
