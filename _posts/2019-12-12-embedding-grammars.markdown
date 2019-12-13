@@ -18,7 +18,8 @@ Not all things are *missing* from the tutorial per se, but they are explained in
 It is also possible to embed GF grammars into C#, JavaScript/TypeScript and Java, but I will not cover them in this tutorial. This is enough of a complex choose-your-adventure already.
 
 - [GF ecosystem](#gf-ecosystem)
-- [Installation](#installation)
+- [Installation of GF](#installation-of-gf)
+- [Installation of the libraries](#installation-of-the-libraries)
   * [Python](#installation-in-python)
   * [Haskell](#installation-in-haskell)
 - [Embedding grammars](#embedding-grammars)
@@ -78,17 +79,28 @@ PGF is also the name of a [Haskell library](https://hackage.haskell.org/package/
 
 How about if you don't want to use Haskell? Not a problem, there's [another library called PGF](http://www.grammaticalframework.org/doc/runtime-api.html), written in C. The recommended usage of the C library is through bindings to another programming language. Currently there are 4 options: Python, Java, C# and Haskell again (in which case it is called `PGF2`, to distinguish from the native Haskell library called `PGF`). In this post, we will use Python.
 
-# Installation
+# Installation of GF
 
-_______
+If you **haven't installed GF yet**, you most likely want to do it now.
+The options are: a) download a binary, b) install from Hackage, and c) compile from source.
 
-If you **haven't installed GF yet**, do it now. [The options](http://www.grammaticalframework.org/download/index.html) are: a) download a binary, b) install from Hackage, and c) compile from source.
+## I want to use Python
 
-* If you want to use Python and you have Mac or Ubuntu, the easiest way is to [download the binary](http://www.grammaticalframework.org/download/index.html).
-* If you want to use Haskell and have any system at all, the easiest way is to install from Hackage: `cabal install gf`.
-  * If you don't (want to) have a system-wide GHC, you can install GF the executable from source using Stack: there is a [stack file](https://github.com/GrammaticalFramework/gf-core/blob/master/stack.yaml) in the [gf-core repository](https://github.com/GrammaticalFramework/gf-core).
+If you have **Mac or Ubuntu**, the easiest way is to [download the binary](http://www.grammaticalframework.org/download/index.html). Python bindings are included in the binary.
 
-______
+If you don't have Mac or Ubuntu, you can install GF in any way you like---see instructions on the [download page](http://www.grammaticalframework.org/download/index.html)---but it won't include the Python bindings, so you will need to set them up separately.
+
+## I want to use Haskell
+
+For **any system**, the easiest way is to install GF and the libraries from Hackage: type `cabal install gf`.
+
+If you don't (want to) have a system-wide GHC, you have two options:
+
+1. You want to **only work with ready-made PGFs** and never compile GF files yourself. Skip all the way to [Embedding grammars](#embedding-grammars), and run my tutorial using Stack---it downloads the PGF library for you! *The instructions include compiling a GF file into PGF and Haskell file, but I have cheated and put them under version control just so that you can run this tutorial.*
+1. You want to **compile GF files into PGF**. Unfortunately GF isn't in Stackage, but you can install GF the executable from source using Stack. Clone the [gf-core repository](https://github.com/GrammaticalFramework/gf-core) and type `stack install`.
+
+
+# Installation of the libraries
 
 Now follows installation instructions for the `PGF` library in Python and Haskell. **To follow this tutorial, it is enough to choose only one.**
 
@@ -121,9 +133,11 @@ If the import succeeeds, you have the library, and you can skip all the way to [
 
 ______
 
-Note that for Mac, the library is installed only for the system Python, so if you have installed another Python from e.g. Homebrew and you'd prefer to use that for your GF+Python programming, then you need to go further to step 1.
+*Note that for Mac, the library is installed only for the system Python, so if you have installed another Python from e.g. Homebrew and you'd prefer to use that for your GF+Python programming, then you need to go further to step 1.*
 
-I have no experience on installing the libraries in Windows, so I recommend that you just try to follow these instructions---modify them if needed or use your favourite unix-like compatibility layer. If it doesn't work, we would appreciate if you open an issue at [GF's GitHub](https://github.com/GrammaticalFramework/gf-core/issues) describing your problem.
+*I have no experience on installing the libraries in Windows, so I recommend that you just try to follow these instructions---modify them if needed or use your favourite unix-like compatibility layer. If it doesn't work, we would appreciate if you open an issue at [GF's GitHub](https://github.com/GrammaticalFramework/gf-core/issues) describing your problem.*
+
+______
 <!-- If it does work, please let me know ([inari.listenmaa@gmail.com](mailto:inari.listenmaa@gmail.com)) so that I can update this post! -->
 
 
@@ -157,8 +171,8 @@ If you want to use Haskell, the first question is which library to use, `PGF` or
 <!--For most purposes, they are equally good, and on the scale of small or medium-sized grammars, there is no significant difference in speed. -->
 For this post, I chose `PGF` for three reasons:
 
-1. It's installed by default if you get GF from Hackage or compile it from source
-1. The API is better documented than `PGF2`
+1. It's installed by default if you get GF from Hackage or compile it from source.
+1. The API is better documented than `PGF2`.
 1. It works smoothly with the abstract syntax compiled into Haskell.
 
 <!--When would you like to use PGF2 then? If you have a large grammar, PGF2 is faster. Once you're familiar with `PGF`, switching to `PGF2` is just a minor change---a couple of functions have a slightly different type signature and that's it.-->
@@ -320,6 +334,9 @@ PGF> map (showExpr []) trees
 ["UttS (UsePresCl PPos (PredVP (UsePron i_Pron) (UseV sleep_V)))"]
 ```
 
+<!--To see a bit more complex program, you can check out the [Simple translator](https://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc147) from the GF tutorial.-->
+
+<!--
 ### Simple translator
 
 To get started, here's a simple translation application (a bare-bones version of the application presented in the GF [tutorial](https://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc147)). It's also included in my repository with the name `Translator.hs`.
@@ -347,19 +364,32 @@ translate gr s = case parseAllLang gr (startCat gr) s of
 In the main function, we first read the PGF file `MiniLang.pgf`. (What do you need to do to make it read from command line?) Then we read input from the user, and apply the Haskell function `translate` to that input.
 The function `translate` tries to parse the string in all the concrete languages in the grammar. When it finds a language in which the string can be parsed, it then parses the sentence in that language, and linearises the resulting tree in all other languages in the grammar.
 
-<!--This is a bare-bones version of the [translation application](https://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc147) in the GF tutorial. You're welcome to read the rest of the original GF tutorial's [chapter 7](https://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc143), if you want. It's not a prerequisite for the rest of my tutorial, but it might just be useful to read about the same concept written by different people and from different perspectives. You can also read it after my tutorial.-->
 
+-->
 
 ### Syntactic transfer
 
 Before we go further into the technologies, let us have a concrete goal to keep it interesting! We want to do **semantics-preserving syntactic transfer**.
 
-I added a function called `ReflV2` into the good old miniresource [abstract syntax](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/resource/MiniGrammar.gf#L42):
+I added a function called `ReflV2` into the good old miniresource abstract syntax. The enhanced miniresource is found in the tutorial repository, [MiniGrammar](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/resource/MiniGrammar.gf#L42).
 
-```haskell
-ComplV2   : V2 -> NP -> VP ;  -- love it
-ReflV2    : V2 -> VP ;        -- see itself
-```
+
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">UseV</span>      <span class="c1">:</span> <span class="c1">V</span>   <span class="c1">-&gt;</span> <span class="c1">VP</span> <span class="c1">;</span>             <span class="c1">-- sleep</span>
+<span class="c1">ComplV2</span>   <span class="c1">:</span> <span class="c1">V2</span>  <span class="c1">-&gt;</span> <span class="c1">NP</span> <span class="c1">-&gt;</span> <span class="c1">VP</span> <span class="c1">;</span>       <span class="c1">-- love it</span>
+<span class="kt">ReflV2</span>    <span class="o">:</span> <span class="kt">V2</span> <span class="o">-&gt;</span> <span class="kt">VP</span> <span class="o">;</span>              <span class="o">-- use itself</span>
+<span class="c1">UseAP</span>     <span class="c1">:</span> <span class="c1">AP</span>  <span class="c1">-&gt;</span> <span class="c1">VP</span> <span class="c1">;</span>             <span class="c1">-- be small</span>
+<span class="c1">AdvVP</span>     <span class="c1">:</span> <span class="c1">VP</span> <span class="c1">-&gt;</span> <span class="c1">Adv</span> <span class="c1">-&gt;</span> <span class="c1">VP</span> <span class="c1">;</span>       <span class="c1">-- sleep here</span>
+</code></pre></div></div>
+
+<!-- ```haskell
+-- Verb
+    UseV      : V   -> VP ;             -- sleep
+    ComplV2   : V2  -> NP -> VP ;       -- love it
+    ReflV2    : V2 -> VP ;              -- use itself
+    UseAP     : AP  -> VP ;             -- be small
+    AdvVP     : VP -> Adv -> VP ;       -- sleep here
+``` -->
 
 And the implementation is in [MiniGrammarEng](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/resource/MiniGrammarEng.gf#L56-L65).
 
@@ -480,7 +510,8 @@ instance Gf GCl where
 
 ### The program
 
-In case you forgot in the sea of datatypes, let us recap the goal again! We want to transform sentences with the same subject and object into reflexive, for example *I like me* -> *I like myself*. The first sentence is parsed as follows in the miniresource:
+<!-- In case you forgot in the sea of datatypes, let us recap the goal again!  -->
+Now let's get back to the goal! We want to transform sentences with the same subject and object into reflexive, for example *I like me* -> *I like myself*. The first sentence is parsed as follows in the miniresource:
 
 <img src="/images/i-see-me.png" alt="Tree for I see me." height="400" />
 
@@ -496,13 +527,41 @@ The identical argument in question is `UsePron i_Pron`: there are two instances 
 
 <img src="/images/i-see-myself.png" alt="Tree for I see myself." margin-left="100" height="300" />
 
-At this point, just go and see the actual Haskell program! The code is found in [ReflTransfer.hs](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/ReflTransfer.hs).
+At this point, just go and see the actual Haskell program! The full code is found in [ReflTransfer.hs](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/ReflTransfer.hs), and the relevant parts are pasted below.
+
+```haskell
+transfer :: Tree -> Tree
+transfer = gf . toReflexive . fg
+
+-- Wrapper for the more interesting trasfer functions.
+-- Need this because Utt is the start category;
+-- the strings we input are parsed as Utt by default.
+toReflexive :: GUtt -> GUtt
+toReflexive (GUttNP x) = GUttNP x -- NPs can't be made reflexive
+toReflexive (GUttS s) = GUttS (toReflexiveS s)
+
+-- Another layer of wrapper
+toReflexiveS :: GS -> GS
+toReflexiveS s = case s of
+  GCoordS conj s1 s2 -> GCoordS conj (toReflexiveS s1) (toReflexiveS s2)
+  GUsePresCl pol cl -> GUsePresCl pol (toReflexiveCl cl)
+
+-- The relevant transfer function is Cl -> Cl
+toReflexiveCl :: GCl -> GCl
+toReflexiveCl cl@(GPredVP subj vp) = -- PredVP is the only constructor for Cl in the mini resource
+  case vp of
+    GComplV2 v2 obj
+      -> if show subj == show obj -- GNP has no Eq instance, need to compare string
+          then GPredVP subj (GReflV2 v2)
+          else cl
+    _ -> cl -- Any other way to form VP: keep it unchanged
+```
 
 ### Run the program
 
-You have certainly compiled your `MiniLangEng.gf` into `MiniLang.pgf` and `MiniLang.hs`. (If those files have rusted away in the time it took to read from the beginning to here, go back to the [preliminaries](#haskell) to see how to regenerate them!)
+<!--You have certainly compiled your `MiniLangEng.gf` into `MiniLang.pgf` and `MiniLang.hs`. (If those files have rusted away in the time it took to read from the beginning to here, go back to the [preliminaries](#haskell) to see how to regenerate them!)-->
 
-Now you can run the program, alternatively by `runghc ReflTransfer.hs`, or `stack run ReflTransfer`, if you don't have a system-wide GHC. This is what it should look like:
+Now you can run the program, alternatively by `runghc ReflTransfer.hs`, or `stack run ReflTransfer`. This is what it should look like:
 
 ```
 EITHER
@@ -525,6 +584,8 @@ If you are unable to repeat these steps, please let me know! This time it's not 
 
 # Links
 
-* Do you like GF and Python? Wish you could write GF in a more familiar environment? Here's a Jupyter notebook for writing GF grammars and running GF shell: [https://github.com/kwarc/gf_kernel](https://github.com/kwarc/gf_kernel)
+* Do you like GF and Python? Wish you could write GF in a more familiar environment? Here's a Jupyter kernel for writing GF grammars and running GF shell in a Jupyter notebook: [github.com/kwarc/gf_kernel](https://github.com/kwarc/gf_kernel)
 
 * This post has concentrated on PGF the library. But maybe you're curious about PGF the file format and the compilation? You can get the gist of it in [my blog](https://inariksit.github.io/gf/2018/06/13/pmcfg.html), and a thorough description in [Krasimir's PhD thesis](http://www.cse.chalmers.se/~krasimir/phd-thesis.pdf).
+
+* At some point, I'm planning to write a follow-up post comparing the two Haskell options: `PGF` (native Haskell library) vs. `PGF2` (Haskell bindings to the C library). When such a post exists, I'll link it here.
