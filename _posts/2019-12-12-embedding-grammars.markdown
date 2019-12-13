@@ -225,11 +225,11 @@ If you decided to give Stack a try, you can skip to [Embedding grammars](#embedd
 
 #### Seriously, no Stack please
 
-If you haven't installed GF: GOTO [install GF](#installation) and choose either from Hackage or compile from source.
+If you haven't installed GF: GOTO [install GF](#installation-of-gf) and choose either from Hackage or compile from source.
 
 If your current GF is the downloaded binary, you could do **one of** the following:
 
-* Stop using the binary and install a fresh GF from Hackage or by [compiling from source](https://github.com/GrammaticalFramework/gf-core); **OR**
+* Stop using the binary and install a fresh GF from Hackage or source; **OR**
 * Clone the [gf-core repository](https://github.com/GrammaticalFramework/gf-core), comment out all executables from the Cabal file, and `cabal install` only the libraries; **OR**
 * Keep using the binary (e.g. if you use the Python bindings!), but create another GF installation from Hackage: `cabal install gf`. This reinstalls the GF executable (hopefully to different place where your binary is) but doesn't include the RGL, so you likely don't need to change your `$GF_LIB_PATH` or any other environment variables you might have.
 <!-- If you choose this option, you could as well just stop using the downloaded binary and use the newly cabal-installed GF, then it doesn't matter if Cabal rewrites some path. -->
@@ -244,10 +244,13 @@ From this point on, I assume that you have managed to install the PGF library fo
 
 ### Preliminaries
 
-* Clone my repository [gf-embedded-grammars-tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial).
+* Clone my tutorial repository:
+
+  > `git clone https://github.com/inariksit/gf-embedded-grammars-tutorial.git`
 
 * In the main directory (i.e. called `gf-embedded-grammars-tutorial`), run
- > `gf -make resource/MiniLangEng.gf`
+
+  > `gf -make resource/MiniLangEng.gf`
 
   This creates the PGF file `MiniLang.pgf`.
 
@@ -279,7 +282,9 @@ The rest of this post will be about Haskell, so unless you want to learn how to 
 
 The first steps are:
 
-* Clone my repository [gf-embedded-grammars-tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial)
+* Clone my tutorial repository:
+
+  > `git clone https://github.com/inariksit/gf-embedded-grammars-tutorial.git`
 
 * In the main directory (i.e. called `gf-embedded-grammars-tutorial`), run
 
@@ -421,7 +426,7 @@ Remember the flag `-f haskell` when we compiled the GF grammar? It produced a fi
 
 #### Why
 
-So first of all, why do we do this? Our overall goal is to manipulate trees, and this is much simpler using pure Haskell datatypes, than using the PGF functions. I'm not even going to bother show how to do it in pure PGF expressions---check out the [Python tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/ReflTransfer.ipynb) if you want to see awkward and type-unsafe programming.
+So first of all, why do we do this? Our overall goal is to manipulate trees, and this is much simpler using pure Haskell datatypes, than using the PGF functions. I'm not even going to bother show how to do it in pure PGF expressions---check out the [Python tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/ReflTransfer.ipynb) if you like your code awkward and type-unsafe.
 
 Our goal is to go from PGF expressions to the GF abstract syntax in Haskell, do our transformations operating on the Haskell datatypes, and then go back to the PGF expressions.
 
@@ -460,11 +465,11 @@ The type `Expr` comes from the PGF library. In place of `a`, we will put the Has
 
 By making a datatype into an instance of the typeclass `Gf`, we need to provide a translation to and from the PGF datatype `Expr`. (I will skip the details here; you can see them in the generated `MiniLang.hs` file if you are interested.) Thanks to the functions `gf` and `fg`, we can now have a workflow as follows:
 
-1. Parse a sentence into an `Expr`, using the PGF library.
-1. Turn the PGF expression into a Haskell expression, using `fg : Expr -> a` for some suitable `a` (e.g. `GCl`).
+1. Parse a string into an `Expr`, using the PGF library.
+1. Turn the PGF expression into a Haskell expression, using `fg`.  <!--  : Expr -> GUtt`.* Why `GUtt`, when `fg` is a polymorphic function? Because `GUtt` is the start category! -->
 1. Transform the Haskell expression into a new Haskell expression, using some function that you wrote yourself.
-1. Turn the new Haskell expression back into a PGF expression, using `gf : a -> Expr`.
-1. Linearise the transformed PGF expression, using the PGF library.
+1. Turn the new Haskell expression back into a PGF expression, using `gf`.  <!-- : GUtt -> Expr`. -->
+1. Linearise the transformed PGF expression into a string, using the PGF library.
 
 <!--
 Let's start from translation *to*:
