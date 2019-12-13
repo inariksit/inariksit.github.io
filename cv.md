@@ -65,32 +65,32 @@ Research assistant at University of Helsinki, Department of Modern Languages.
 
 ### 2019
 
-Listenmaa, Inari (2019). *Formal Methods for Testing Grammars*. PhD thesis. Chalmers University of Technology and University of Gothenburg. Gothenburg, Sweden.
+* Listenmaa, Inari (2019). *Formal Methods for Testing Grammars*. PhD thesis. Chalmers University of Technology and University of Gothenburg. Gothenburg, Sweden. [[Link](https://gupea.ub.gu.se/handle/2077/59037)]
 
 ### 2018
 
-Listenmaa, Inari and Claessen, Koen (2018) **Automatic test suite generation for PMCFG grammars**. Proceedings of the Fifth Workshop on Natural Language and Computer Science.
+* Listenmaa, Inari and Claessen, Koen (2018) **Automatic test suite generation for PMCFG grammars**. Proceedings of the Fifth Workshop on Natural Language and Computer Science. [<a href="https://easychair.org/publications/preprint/5ZSM">Link</a>]
 
 ### 2017
 
-* Kokke, Wen and Listenmaa, Inari (2017). **Exploring the Expressivity of Constraint Grammar**. Proceedings of the NoDaLiDa 2017 Workshop on Constraint Grammar - Methods, Tools and Applications.
-* Listenmaa, Inari and Arriola, Jose Maria and Aduriz, Itziar and Bick, Eckhard. **Cleaning up the Basque grammar: a work in progress**. Proceedings of the NoDaLiDa 2017 Workshop on Constraint Grammar - Methods, Tools and Applications.
+* Kokke, Wen and Listenmaa, Inari (2017). **Exploring the Expressivity of Constraint Grammar**. Proceedings of the NoDaLiDa 2017 Workshop on Constraint Grammar - Methods, Tools and Applications. [<a href="http://www.ep.liu.se/ecp/140/004/ecp17140004.pdf">Link</a>]
+* Listenmaa, Inari and Arriola, Jose Maria and Aduriz, Itziar and Bick, Eckhard. **Cleaning up the Basque grammar: a work in progress**. Proceedings of the NoDaLiDa 2017 Workshop on Constraint Grammar - Methods, Tools and Applications. [<a href="http://www.ep.liu.se/ecp/140/003/ecp17140003.pdf">Link</a>]
 
 ### 2016
 
-* Listenmaa, Inari (2016). *Analysing Constraint Grammar with SAT*. Licentiate thesis. Chalmers University of Technology and University of Gothenburg. Gothenburg, Sweden.
-* Listenmaa, Inari and Claessen, Koen (2016) **Analysing Constraint Grammars with a SAT-solver**. Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC 2016).
+* Listenmaa, Inari (2016). *Analysing Constraint Grammar with SAT*. Licentiate thesis. Chalmers University of Technology and University of Gothenburg. Gothenburg, Sweden. [<a href="http://listenmaa.fi/lic.pdf">Link</a>]
+* Listenmaa, Inari and Claessen, Koen (2016) **Analysing Constraint Grammars with a SAT-solver**. Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC 2016). [<a href="http://www.lrec-conf.org/proceedings/lrec2016/summaries/799.html">Link</a>]
 
 ### 2015
 
-* Listenmaa, Inari and Claessen, Koen (2015) **Constraint Grammar as a SAT-problem**. Proceedings of the Constraint Grammar workshop at NoDaLiDa, the 20th Nordic Conference of Computational Linguistics.
-* Listenmaa, Inari and Tyers, Francis (2015) **Automatic conversion of colloquial Finnish to standard Finnish**. Proceedings of the 20th Nordic Conference of Computational Linguistics.
+* Listenmaa, Inari and Claessen, Koen (2015) **Constraint Grammar as a SAT-problem**. Proceedings of the Constraint Grammar workshop at NoDaLiDa, the 20th Nordic Conference of Computational Linguistics. [<a href="http://www.ep.liu.se/ecp/113/004/ecp15113004.pdf">Link</a>]
+* Listenmaa, Inari and Tyers, Francis (2015) **Automatic conversion of colloquial Finnish to standard Finnish**. Proceedings of the 20th Nordic Conference of Computational Linguistics. [<a href="http://aclweb.org/anthology/W/W15/W15-1827.pdf">Link</a>]
 
 ### 2014
 
-* Enache, Ramona and Listenmaa, Inari and Kolachina, Prasanth (2014) **Handling non-compositionality in multilingual CNLs**. Proceedings of the 4th Workshop on Controlled Natural Language.
+* Enache, Ramona and Listenmaa, Inari and Kolachina, Prasanth (2014) **Handling non-compositionality in multilingual CNLs**. Proceedings of the 4th Workshop on Controlled Natural Language. [<a href="http://arxiv.org/abs/1406.3976">Link</a>]
 
-* Listenmaa, Inari and Kaljurand, Kaarel (2014) **Computational Estonian Grammar in Grammatical Framework**. Proceedings of the SALTMIL Workshop at LREC 2014.
+* Listenmaa, Inari and Kaljurand, Kaarel (2014) **Computational Estonian Grammar in Grammatical Framework**. Proceedings of the SALTMIL Workshop at LREC 2014. [<a href="http://ixa2.si.ehu.es/~jipsagak/SALTMIL/LREC_2014_Workshop_Proceedings_Saltmil.pdf">Link</a>]
 
 ## Teaching
 
