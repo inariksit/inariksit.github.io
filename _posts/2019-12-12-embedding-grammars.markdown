@@ -153,9 +153,15 @@ How about if you have followed the steps until here, and it doesn't work? Please
 
 ## Installation in Haskell
 
-If you want to use Haskell, the first question is which library to use, `PGF` or `PGF2`? Remember, `PGF` is a native Haskell library, and `PGF2` is Haskell bindings to a C library. For most purposes, they are equally good, and on the scale of small or medium-sized grammars, there is no significant difference in speed. For this post, I chose `PGF` for two reasons: 1) it's installed by default if you get GF from Hackage or compile it from source and 2) the API is better documented than `PGF2`.
+If you want to use Haskell, the first question is which library to use, `PGF` or `PGF2`? Remember, `PGF` is a native Haskell library, and `PGF2` is Haskell bindings to a C library.
+<!--For most purposes, they are equally good, and on the scale of small or medium-sized grammars, there is no significant difference in speed. -->
+For this post, I chose `PGF` for three reasons:
 
-Once you're familiar with `PGF`, switching to `PGF2` is just a minor change---a couple of functions have a slightly different type signature and that's it.
+1. It's installed by default if you get GF from Hackage or compile it from source
+1. The API is better documented than `PGF2`
+1. It works smoothly with the abstract syntax compiled into Haskell.
+
+<!--When would you like to use PGF2 then? If you have a large grammar, PGF2 is faster. Once you're familiar with `PGF`, switching to `PGF2` is just a minor change---a couple of functions have a slightly different type signature and that's it.-->
 
 
 ### 0) Check if it's already installed
@@ -168,12 +174,10 @@ If you have installed GF by other means, or you don't want to have a system-wide
 
 ### 1a) Use Stack
 
-In my repository [gf-embedded-grammars-tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial), you'll find a [Stack file](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/master/stack.yaml), which downloads all relevant libraries for you in an isolated location.
+In my repository [gf-embedded-grammars-tutorial](https://github.com/inariksit/gf-embedded-grammars-tutorial), you'll find a Stack file, which downloads all relevant libraries for you in an isolated location.
 Clone the repository and skip to [Embedding grammars](#embedding-grammars), where one of your first tasks is to run `stack build`.
 
 ### 1b) Non-stack options
-
-<!-- shown below.-->
 
 Let's see. Are you **sure** you don't want to use Stack?
 
