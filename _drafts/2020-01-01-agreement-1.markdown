@@ -1,12 +1,15 @@
 ---
 layout: post
 title:  "Generalising agreement"
-date:   2020-01-01
+date:   2010-01-01
 categories: gf
 tags: "gf linguistics"
 ---
 
-Lately I've been writing blog posts I anticipate to be useful for someone else. Also lately my blogging speed is like two posts a year, and I hate every word I write. So I'm trying a new strategy: a 100% theoretical post where all I do is nitpick about definitions that have no practical impact on anything! (I think this means I'm ready to return to academia, after being a developer for 1.5 years.)
+Lately I've been thinking about verbal agreement in various GF resource grammars.
+
+This will be a series of posts, I don't know yet how many.
+
 
 ## Agreement in linguistics
 
@@ -219,6 +222,37 @@ oper
                              Pl3 => "..." }
     } ;
 ```
+
+# Agreement 201
+
+## Addressee and other implicit arguments
+
+Aside from an explicit vocative and imperative, we don't really model the addressee as an argument. Yet it is there; usually a speech act is directed to some audience. So this is a thing that happens in some languages:
+
+1. I ate-∅ some bread. (written in a blog post)
+1. I ate-SG2 your bread.
+1. I ate-SG2 some bread. (addressed to someone)
+
+The verb form for *eat* may or may not agree with *I* and *bread*---but in addition to the explicit arguments, it agrees with *you*.  How should we model such forms in the RGL? Let us take two examples and I'll share my opinions.
+
+### Politeness
+
+Let me quote a passage from [Surely You're Joking, Mr. Feynman](https://books.google.se/books?id=Z7g-BAAAQBAJ&pg=PA245&dq=%22May+I+see+your+garden%22), about learning Japanese. Basically, Feynman learns that in order to translate the verb *see*, you have to know the whole context:
+
+* Do you want to see *my* garden -> "Would you like to glance at my lousy garden?"
+* May I see *your* (standard level of politeness) garden -> "May I observe your gorgeous garden?"
+* May I see *your* (extra polite) -> 'May I hang my eyes on your most exquisite gardens?'
+
+
+
+### Basque allocutives
+
+
+
+## Oblique agreement
+
+Here all the rambling about how an orthographical word depends on various elements in the tree.
+
 
 ## Read more
 
