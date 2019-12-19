@@ -21,7 +21,7 @@ So, today I'm talking about verbal agreement: one or more of the verb's argument
 **Transitive**   |I drink-**∅** water | the cat drink**s** water
 -----------------|----------------|---------------------------
 
-Both verbs, *sleep* and *drink*, only show marking for the subject/agent[^1]: null morpheme for *I*, and -s for *the cat*. *Water*, which is the object (or "patient") of *drink*, doesn't contribute to the conjugation. Contrast this with Hungarian [[Wikipedia](https://en.wikipedia.org/wiki/Hungarian_verbs#Definite_and_indefinite_conjugations)]:
+Both verbs, *sleep* and *drink*, only show marking for the subject: null morpheme for *I*, and -s for *the cat*. *Water*, which is the object of *drink*, doesn't contribute to the conjugation. Contrast this with Hungarian [[Wikipedia](https://en.wikipedia.org/wiki/Hungarian_verbs#Definite_and_indefinite_conjugations)]:
 
 <img src="/images/hungarian-agreement.png" alt="Screenshot of Wikipedia. The text reads: In Hungarian, verbs not only show agreement with their subjects but also carry information on the definiteness of their direct objects. This results in two types of conjugations: definite (used if there is a definite object) and indefinite (if there is no definite object" />
 
@@ -51,7 +51,7 @@ lin
 
 ### 1-dimensional person marking
 
-Next possibility, the verb can mark one of its core arguments, agent or patient. Let's use English as an example of agent marking:
+Next possibility, the verb can mark one of its core arguments, subject or object. Let's use English as an example of subject marking:
 
 ```haskell
 param
@@ -89,8 +89,8 @@ lin
   PredVP np vp = {s = np.s ++ vp.s ! np.a} ;
 ```
 
-Now, let's implement the missing categories and functions for a language that marks only patient, not agent.  According to WALS, this is quite rare but not unheard of; 24 languages of the sample of 378 do that.
-To keep it simple, let's assume that there is a language just like English but patient marking.
+Now, let's implement the missing categories and functions for a language that marks only object, not subject.  According to WALS, this is quite rare but not unheard of; 24 languages of the sample of 378 do that.
+To keep it simple, let's assume that there is a language just like English but object marking.
 
 |Transitive         |Sg1 subject | Sg3 subject  |
 |:-----------------:|:----------:|:--------------------------:|
@@ -98,7 +98,7 @@ To keep it simple, let's assume that there is a language just like English but p
 |**Sg3 object**   |I drink-**s** water | the cat drink-**s** water |
 |-----------------|----------------|---------------------------|
 
-<span title="If you want to shout E R G A T I V I T Y, be patient.">Now, the WALS data doesn't tell me what do these 24 languages mark in an intransitive verb, so I decide that in Like-English-but-patient-marking, intransitives have no person marking. (There are other options---more on those later!)</span>
+<span title="If you want to shout E R G A T I V I T Y, be patient.">Now, the WALS data doesn't tell me what do these 24 languages mark in an intransitive verb, so I decide that in Like-English-but-object-marking, intransitives have no person marking. (There are other options---more on those later!)</span>
 
 
 | Intransitive    |Sg1 subject | Sg3 subject |
@@ -109,7 +109,7 @@ To keep it simple, let's assume that there is a language just like English but p
 <!-- Let's ignore for now the concrete values of `Agr` and the strings in `drink_V` and `sleep_V`---only look at the categories and the syntactic functions.  -->
 
 
-#### Like-English-but-patient-marking
+#### Like-English-but-object-marking
 
 ```haskell
 lincat
@@ -129,14 +129,14 @@ lin
   PredVP np vp = {s = np.s ++ vp.s} ;
 ```
 
-Let's look at the lexical categories, `V` and `V2`. The easy case first: `V2` is still an inflection table `Agr => Str`, only this time `Agr` marks the patient. In contrast, the lincat for `V` doesn't need a table, just a string!
+Let's look at the lexical categories, `V` and `V2`. The easy case first: `V2` is still an inflection table `Agr => Str`, only this time `Agr` marks the object. In contrast, the lincat for `V` doesn't need a table, just a string!
 
-This change is reflected in `VP`. It's clear when you look how to construct a VP: either from a `V`, which never inflected, or from a `V2` and a patient---just what is needed to pick out the correct form from the `V2`. In turn, `PredVP` is just trivial concatenation, because the subject doesn't contribute anything to the verb inflection.
+This change is reflected in `VP`. It's clear when you look how to construct a VP: either from a `V`, which never inflected, or from a `V2` and a object---just what is needed to pick out the correct form from the `V2`. In turn, `PredVP` is just trivial concatenation, because the subject doesn't contribute anything to the verb inflection.
 
 <!--
 In English, `VP` needs to retain its potential for agreement, and only `PredVP` can pick out a string, because that's when the subject is added. In Like-English-but-…, we get rid of the incertainty already at `ComplV2`, and adding subject is just trivial concatenation. -->
 
-<!-- Compare `ComplV2` and `PredVP` in English and Like-English-but-patient-marking:
+<!-- Compare `ComplV2` and `PredVP` in English and Like-English-but-object-marking:
 
 ```haskell
 -- English
@@ -160,6 +160,18 @@ Have we exhausted the possible 1-dimensional inflection? Well of course not! Let
 
 #### Ergative English
 
+So far I've used the term *subject* for two things: the only argument of an intransitive verb (*__subject__ sleeps*), and the doer argument of a transitive verb (*__subject__ eats object*).
+
+Now, let us narrow the definitions a bit. With "<font color="green">subject</font>", we refer to the only argument of an intransitive verb, whereas transitive verbs have an "<font color="purple">agent</font>" and a "<font color="blue">patient</font>". Like this:
+
+<ul>
+<li><span title="SUBJECT"><font color="green">the cat</font></span>:S sleeps</li>
+<li><span title="AGENT"><font color="purple">the cat</font></span>:A eats <span title="PATIENT (or OBJECT)"><font color="blue">the mouse</font></span>:P</li>
+</ul>
+
+(How about the word "object"? Doesn't matter all that much: *agent* vs. *subject* is an important distinction regarding argument marking, but "object" and "patient" can be used interchangeably for the non-agent argument of a transitive verb.)
+
+TODO: explain nominative-accusative vs. absolutive-ergative.
 
 
 ### 2-dimensional marking
@@ -237,11 +249,17 @@ The verb form for *eat* may or may not agree with *I* and *bread*---but in addit
 
 ### Politeness
 
-Let me quote a passage from [Surely You're Joking, Mr. Feynman](https://books.google.se/books?id=Z7g-BAAAQBAJ&pg=PA245&dq=%22May+I+see+your+garden%22), about learning Japanese. Basically, Feynman learns that in order to translate the verb *see*, you have to know the whole context:
+Let me quote a passage from [Surely You're Joking, Mr. Feynman](https://books.google.se/books?id=Z7g-BAAAQBAJ&pg=PA245&dq=%22May+I+see+your+garden%22), about learning Japanese. Basically, Feynman learns that in order to translate the verb *see*, you have to know the whole context, who is talking to whom:
 
-* Do you want to see *my* garden -> "Would you like to glance at my lousy garden?"
+
+ &nbsp;                       | *my* garden | *your* (polite) garden | *your* (extra polite) garden
+------------------------------|-------------|------------------------|------------------------------
+__*I*&nbsp;see…&nbsp;__                 |             | "May I observe your gorgeous garden?" | "May I hang my eyes on your most exquisite gardens?" |
+__*You*&nbsp;see…&nbsp;__                    | "Would you like to glance at my lousy garden?" | | |
+
+<!-- * Do you want to see *my* garden -> "Would you like to glance at my lousy garden?"
 * May I see *your* (standard level of politeness) garden -> "May I observe your gorgeous garden?"
-* May I see *your* (extra polite) -> 'May I hang my eyes on your most exquisite gardens?'
+* May I see *your* (extra polite) -> 'May I hang my eyes on your most exquisite gardens?' -->
 
 
 
@@ -259,16 +277,3 @@ Here all the rambling about how an orthographical word depends on various elemen
 * The whole WALS article about person marking: [wals.info/chapter/102](https://wals.info/chapter/102)
 
 ## Footnotes
-
-[^1]:
-###  Subject vs. Agent
-Terminology note: In a lot of linguistic literature, the term "<font color="green">subject</font>" refers to the only argument of an intransitive verb (such as *sleep*, *walk* etc.), whereas transitive verbs have an "<font color="b lue">agent</font>" and a "<font color="blue">patient</font>". Like this:
-
-<ul>
-<li><span title="SUBJECT"><font color="green">the cat</font></span>:S sleeps</li>
-<li><span title="AGENT"><font color="purple">the cat</font></span>:A eats <span title="PATIENT (or OBJECT)"><font color="blue">the mouse</font></span>:P</li>
-</ul>
-
-How about the word "object"? Doesn't matter all that much: *agent* vs. *subject* is an important distinction regarding argument marking, but "object" and "patient" can be used interchangeably for the non-agent argument of a transitive verb.
-
-[^2]: If you want to shout "ergativity" at me, please be patient---I'm trying to be pedagogical by introducing only one new concept at a time.
