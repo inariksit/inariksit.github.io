@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Generalising agreement"
+title:  "Generalising agreement: Part I"
 date:   2010-01-01
 categories: gf
 tags: "gf linguistics"
@@ -8,12 +8,13 @@ tags: "gf linguistics"
 
 Lately I've been thinking about verbal agreement in various GF resource grammars.
 
-This will be a series of posts, I don't know yet how many.
+This will be a series of posts, I'm thinking 3 unless I think of more things to say.
+The first post is an introduction to verbal agreement in general. If you're a seasoned GF grammarian and have any familiarity with linguistics, the first post won't be all that new information. But I will get to more interesting things in later posts! If you're new to GF, or you've never heard of words like *ergative* and *oblique*[^1], then do read the first post.
 
 
 ## Agreement in linguistics
 
-So, today I'm talking about verbal agreement: one or more of the verb's arguments are marked in the verb form. If you're not familiar with other languages than Standard Average European, you've probably only seen subject agreement:
+Verbal agreement means that one or more of the verb's arguments are marked in the verb form. If you're not familiar with other languages than Standard Average European, you've probably only seen subject agreement:
 
  &nbsp;          |1st person singular | 3rd person singular
 -----------------|----------------|---------------------------
@@ -25,7 +26,7 @@ Both verbs, *sleep* and *drink*, only show marking for the subject: null morphem
 
 <img src="/images/hungarian-agreement.png" alt="Screenshot of Wikipedia. The text reads: In Hungarian, verbs not only show agreement with their subjects but also carry information on the definiteness of their direct objects. This results in two types of conjugations: definite (used if there is a definite object) and indefinite (if there is no definite object" />
 
-In fact, multiple agreement is pretty common in languages around the world. The map below is taken from [World Atlas of Language Structures](https://wals.info/feature/102A#1/17/149): red dot means "like English", yellow dot means (roughly) "like Hungarian".
+In fact, multiple agreement is pretty common in languages around the world. The map below is taken from [World Atlas of Language Structures](https://wals.info/feature/102A#1/17/149) (WALS): red dot means "like English", yellow dot means "like Hungarian".
 
 <img src="/images/person-marking-wals.png" />
 
@@ -41,12 +42,12 @@ The simplest person marking is no person marking. Let's start easy and do Chines
 
 ```haskell
 lincat
-  V,V2 = Str ;
+  V,V2 = {s : Str} ;
 
 lin
-  sleep_V  = "sleep_in_chinese" ;
+  sleep_V  = {s = "sleep_in_chinese"} ;
 
-  drink_V2 = "drink_in_chinese" ;
+  drink_V2 = {s = "drink_in_chinese"} ;
 ```
 
 ### 1-dimensional person marking
@@ -68,7 +69,7 @@ lin
                           Other => "drink" }} ;
 ```
 
-So far we have only created an inflection table---nothing in the code says that we have *agent* marking, just that we have one-dimensional table. But when we add lincats and linearisations for VP and Cl, it will become apparent which argument the verb marks. The following GF code models English (and other red dots on the WALS map):
+So far we have only created an inflection table---nothing in the code says that we have *subject* marking, just that we have one-dimensional table. But when we add lincats and linearisations for VP and Cl, it will become apparent which argument the verb marks. The following GF code models English (and other red dots on the WALS map):
 
 #### English
 
@@ -89,11 +90,13 @@ lin
   PredVP np vp = {s = np.s ++ vp.s ! np.a} ;
 ```
 
+#### Object marking
+
 Now, let's implement the missing categories and functions for a language that marks only object, not subject.  According to WALS, this is quite rare but not unheard of; 24 languages of the sample of 378 do that.
 To keep it simple, let's assume that there is a language just like English but object marking.
 
 |Transitive         |Sg1 subject | Sg3 subject  |
-|:-----------------:|:----------:|:--------------------------:|
+|:-----------------:|:----------|:--------------------------|
 |**Sg1 object**   |I drink-**∅** me | the cat drink-**∅** me |
 |**Sg3 object**   |I drink-**s** water | the cat drink-**s** water |
 |-----------------|----------------|---------------------------|
@@ -105,9 +108,6 @@ To keep it simple, let's assume that there is a language just like English but o
 |:---------------:|:----------|:--------------------------|
 | &nbsp;          | I sleep-**∅** | the cat sleep-**∅** |
 |-----------------|----------------|---------------------------|
-
-<!-- Let's ignore for now the concrete values of `Agr` and the strings in `drink_V` and `sleep_V`---only look at the categories and the syntactic functions.  -->
-
 
 #### Like-English-but-object-marking
 
@@ -156,70 +156,163 @@ PredVP np vp = {s = np.s ++ vp.s} ;
 
 Pretty cool right? -->
 
-Have we exhausted the possible 1-dimensional inflection? Well of course not! Let's do something slightly less trivial, and introduce ergativity.
 
-#### Ergative English
+#### Like-English-but-object-marking'  --- the other option for intransitive
+
+Previously we just had zero marking for intransitive verbs. But there is another strategy that appears in some languages:
+* For transitive verbs, mark the object.
+* For intransitive verbs, mark the subject *in the same way* the object is marked for transitive verbs.
+
+(There is a name for this and I will introduce it soon. Let's just finish our Like-English-but series!)
+
+We established already how transitive verbs work:
+
+ |Transitive       |Sg1 subject         | Sg3 subject                     |
+ |:---------------:|:-------------------|:--------------------------------|
+ |**Sg1 object**   |I drink-**∅** me    | the cat drink-**∅** me          |
+ |**Sg3 object**   |I drink-**s** water | the cat drink-**s** water       |
+ |-----------------|--------------------|---------------------------------|
+
+ Now let's add intransitive verbs. Remember, 1st person singular patient (*me*) is unmarked, so *me* as a subject should also be unmarked. A 3rd person singular patient (*water*) is marked by an __-s__, so it should be marked also as a subject. So this would be an option:
+
+ | Intransitive    | Sg1 subject   | Sg3 subject         |   |
+ |:---------------:|:--------------|:--------------------|:-:|
+ | &nbsp;          | I sleep-**∅** | the cat sleep-**s** | ? |
+ |-----------------|---------------|---------------------|---|   
+
+Now, in this post I'm mostly concerned about verb agreement, but for a proper "mark the subject in the same way as the object" strategy, we should also keep in mind the case marking. *I* is reserved only for the doer of a transitive verb, *me* is both the object of a transitive verb and the subject of an intransitive verb. So this looks more consistent:
+
+| Intransitive    |Sg1 subject | Sg3 subject |
+|:---------------:|:----------|:--------------------------|
+| &nbsp;          | Me sleep-**∅** | the cat sleep-**s** |
+|-----------------|----------------|---------------------------|
+
+
+
+## Interlude: Nominative-accusative vs. Absolutive-ergative
 
 So far I've used the term *subject* for two things: the only argument of an intransitive verb (*__subject__ sleeps*), and the doer argument of a transitive verb (*__subject__ eats object*).
 
-Now, let us narrow the definitions a bit. With "<font color="green">subject</font>", we refer to the only argument of an intransitive verb, whereas transitive verbs have an "<font color="purple">agent</font>" and a "<font color="blue">patient</font>". Like this:
+Now, let's make the definitions a bit narrower. With "<font color="green">subject</font>", we refer to the only argument of an intransitive verb, whereas transitive verbs have an "<font color="purple">agent</font>" and a "<font color="blue">patient</font>". Like this:
 
 <ul>
 <li><span title="SUBJECT"><font color="green">the cat</font></span>:S sleeps</li>
 <li><span title="AGENT"><font color="purple">the cat</font></span>:A eats <span title="PATIENT (or OBJECT)"><font color="blue">the mouse</font></span>:P</li>
 </ul>
 
-(How about the word "object"? Doesn't matter all that much: *agent* vs. *subject* is an important distinction regarding argument marking, but "object" and "patient" can be used interchangeably for the non-agent argument of a transitive verb.)
+____
 
-TODO: explain nominative-accusative vs. absolutive-ergative.
+*How about the word "object"? Doesn't matter all that much: <font color="purple">agent</font> vs. <font color="green">subject</font> is an important distinction regarding argument marking, but "object" and "patient" can be used interchangeably for the non-agent argument of a transitive verb. For (what I hope to be) clarity, I'll use "patient" in contexts where subject/agent distinction is important, and "object" when it doesn't matter. The scope of this decision is this series about agreement; in other posts other rules apply.*
 
+____
+
+With these 3 roles, we have 4 strategies of marking them all:
+<ol>
+  <li>All same:
+    <ul>
+    <li><span title="SUBJECT"><font color="green">subject</font></span> sleep</li>
+    <li><span title="AGENT"><font color="green">agent</font></span> eat <span title="PATIENT (or OBJECT)"><font color="green">patient</font></span></li>
+    </ul>
+  </li>
+  <li>Subject and agent same:
+    <ul>
+    <li><span title="SUBJECT"><font color="green">subject</font></span> sleep</li>
+    <li><span title="AGENT"><font color="green">agent</font></span> eat <span title="PATIENT (or OBJECT)"><font color="blue">patient</font></span></li>
+    </ul>
+  </li>
+  <li>Subject and patient same:
+    <ul>
+    <li><span title="SUBJECT"><font color="blue">subject</font></span> sleep</li>
+    <li><span title="AGENT"><font color="green">agent</font></span> eat <span title="PATIENT (or OBJECT)"><font color="blue">patient</font></span></li>
+    </ul>
+  </li>
+  <li>All different:
+    <ul>
+    <li><span title="SUBJECT"><font color="green">subject</font></span> sleeps</li>
+    <li><span title="AGENT"><font color="purple">agent</font></span> eats <span title="PATIENT (or OBJECT)"><font color="blue">patient</font></span></li>
+    </ul>
+  </li>
+</ol>
+
+Technically there's a 5th alternative; subject is different but agent and patient are the same. But it would be very strange to spend some precious morphemes on just the case where it doesn't make a difference (subject vs. others) and then not spend them where it is actually important---one would want to know whether <font color="green">you</font> see <font color="blue">me</font> or <font color="green">I</font> see <font color="blue">you</font>.
+
+__TODO: explain nominative-accusative vs. absolutive-ergative.__
+
+Some terminology notes:
+
+* The short name for "the strategy of marking subject and patient with absolutive case, and agent with ergative case" is called *ergativity*.
+* Such a language is called an *ergative* language.
+* A language can be ergative even if it doesn't have case marking; it's enough if it's visible in the verb inflection, like all examples in this post.
+* A bit more exact names are *absolutive-ergative system* and *nominative-accusative system*.
+
+
+
+
+
+#### Like-English-but-agent-marking-and-ergative
+
+The missing combination, Like-English-but-agent-marking-and-ergative, is left for homework assignment. Send your solution to [inari.listenmaa@gmail.com](mailto:inari.listenmaa@gmail.com) if you want feedback!
+<!-- This offer does not expire; as long as this paragraph is still online, I'll be happy to get answers. -->
 
 ### 2-dimensional marking
 
 
-Next, let's do Hungarian (within the sample shown previously, that is, ignoring the 2nd person object suffix):
+Next, let's do Hungarian (within the sample shown previously, that is, ignoring the 2nd person object suffix).
+Hungarian is nominative-accusative, so for consistency I'm talking about subjects and objects again.
 
 ```haskell
 param
-  Agent = Sg1 | Sg2 | Sg3 | Pl1 | Pl2 | Pl3 ;
+  Subject = Sg1 | Sg2 | Sg3 | Pl1 | Pl2 | Pl3 ;
   Object = DefObj | IndefObj ;
 
-oper
-  V  =           Agent => Str ;
-  V2 = Object => Agent => Str ;
+lincat
+  V  = {s :           Subject => Str} ;
+  V2 = {s : Object => Subject => Str} ;
 
-  sleep_V = table { Sg1 => "..." ;
+lin
+  sleep_V = {s =
+    table { Sg1 => "..." ;
                     ...
-                    Pl3 => "..." } ;
-
-  drink_V2 =
+                    Pl3 => "..." }
+  } ;
+  drink_V2 = {s =
     table { DefObj   => table { Sg1 => "..." ;
                                 ...
                                 Pl3 => "..." } ;
             IndefObj => table { Sg1 => "..." ;
                                 ...
                                 Pl3 => "..." }
-    } ;
+          }
+  } ;
 ```
+
+### 3-dimensional marking
 
 And why stop at direct object? If you've read my blog before, you knew this was coming---Basque ditransitive auxiliary agrees with agent, patient and indirect object.
 
-Before we get to the GF code, I need to introduce a new concept, namely, *ergativity*.
+Basque happens to be ergative, so we talk about subject, agent and patient again.
 
 
-
-The patient agreement is restricted to singular vs. plural (in reality, not my simplification!), and I'm ignoring allocutive forms (don't google it now, I will introduce it when it's time). Within these restrictions, we can model Basque verbs as follows:
+The patient agreement in transitive verbs covers all persons and numbers, but in ditransitive, it's restricted to singular vs. plural. (If someone who knows Basque is reading this and wondering, I'm ignoring second person familiar forms and allocutive for now, but I will introduce them in the next post.) Within these restrictions, we can model Basque verbs as follows:
 
 ```haskell
 param
   Agr = Sg1 | Sg2 | Sg3 | Pl1 | Pl2 | Pl3 ;
-  ObjAgr = SgObj | PlObj ;
+  DtPat = SgPat | PlPat ;
 
-oper
-  IntransVerb : Type =                  Agr => Str ;
-  TransVerb   : Type =           Agr => Agr => Str ;
-  DitransVerb : Type = ObjAgr => Agr => Agr => Str ;
+lincat
+  V  = {s :                 Agr => Str } ;
+  V2 = {s :          Agr => Agr => Str } ;
+  V3 = {s : DtPat => Agr => Agr => Str } ;
+```
 
+Let's start from the order of the arguments.
+
+Also, the fact that Basque is absolutive-ergative is actually not at all interesting from verb inflection perspective. We need to mark both, so the argument marking strategy doesn't bring anything new to the verbs, unlike Like-English-but-patient-marking-and-ergative, which was an exciting and novel way of inflecting English verbs.
+
+We do notice ergativity in Basque in nominal cases.
+
+```haskell
   sleep : IntransVerb =
     table { Sg1 => "..." ;
             ...
@@ -235,39 +328,147 @@ oper
     } ;
 ```
 
-# Agreement 201
-
-## Addressee and other implicit arguments
+# Agreement, part II: Addressee and other implicit arguments
 
 Aside from an explicit vocative and imperative, we don't really model the addressee as an argument. Yet it is there; usually a speech act is directed to some audience. So this is a thing that happens in some languages:
 
-1. I ate-∅ some bread. (written in a blog post)
-1. I ate-SG2 your bread.
-1. I ate-SG2 some bread. (addressed to someone)
+1. I ate-X some bread. (written in a personal diary, nobody sees it.)
+1. I ate-X-SG2 your bread.
+1. I ate-X-SG2 some bread. (addressed to someone)
 
-The verb form for *eat* may or may not agree with *I* and *bread*---but in addition to the explicit arguments, it agrees with *you*.  How should we model such forms in the RGL? Let us take two examples and I'll share my opinions.
+The verb form for *eat* may or may not agree with *I* and *bread*---we mark that with the morpheme X. But crucially, in addition to the explicit arguments, it agrees with *you*.  How should we model such forms in the RGL? Let us take two examples and I'll share my opinions.
 
-### Politeness
+## Politeness
 
-Let me quote a passage from [Surely You're Joking, Mr. Feynman](https://books.google.se/books?id=Z7g-BAAAQBAJ&pg=PA245&dq=%22May+I+see+your+garden%22), about learning Japanese. Basically, Feynman learns that in order to translate the verb *see*, you have to know the whole context, who is talking to whom:
+There's a funny passage from [Surely You're Joking, Mr. Feynman](https://books.google.se/books?id=Z7g-BAAAQBAJ&pg=PA245&dq=%22May+I+see+your+garden%22), about learning Japanese. (You can read the whole thing in the link.) Basically, Feynman learns that in order to translate the verb *see*, you have to know the whole context, who is talking to whom:
 
 
  &nbsp;                       | *my* garden | *your* (polite) garden | *your* (extra polite) garden
 ------------------------------|-------------|------------------------|------------------------------
-__*I*&nbsp;see…&nbsp;__                 |             | "May I observe your gorgeous garden?" | "May I hang my eyes on your most exquisite gardens?" |
-__*You*&nbsp;see…&nbsp;__                    | "Would you like to glance at my lousy garden?" | | |
+__*I*&nbsp;see…&nbsp;__                 |             | "May I *observe* your *gorgeous* garden?" | "May I *hang my eyes on* your *most exquisite* gardens?" |
+__*You*&nbsp;see…&nbsp;__                    | "Would you like to *glance at* my *lousy* garden?" | | |
 
 <!-- * Do you want to see *my* garden -> "Would you like to glance at my lousy garden?"
 * May I see *your* (standard level of politeness) garden -> "May I observe your gorgeous garden?"
 * May I see *your* (extra polite) -> 'May I hang my eyes on your most exquisite gardens?' -->
 
+Now, what does this mean in terms of GF? My take: if the politeness forms are different lexemes, then we shouldn't make them a part of the RGL. We'd simply have a design as follows:
+
+```haskell
+fun
+  glance_at_V2 : V2 ;
+  observe_V2 : V2 ;
+  hang_eyes_on_V2 : V2 ;
+```
+
+However, if the difference is morphological, then a good rule of thumb is to see them as one verb, and put all politeness forms in the same inflection table.
+
+```haskell
+fun
+  see_V2 : V2 ;
+lincat
+  V2 = {s : Politeness => Str} ;
+param
+  Politeness = Plain | Polite | Polite+ ;
+lin
+  see_V2 = {
+    s = table {
+          Plain => "see.PLAIN" ;  -- "glance at"
+          Polite => "see.POL" ;   -- "observe"
+          Polite+ => "see.POL+" ; -- "hang one's eyes on"
+        } ;
+  }
+```
+
+<!-- Of course, this is just a rule of thumb---inflection tables don't need to contain things that are morphologically related, nor is it a crime to separate them. *Kill* and *die* are related, but we don't want to put them in the same inflection table. -->
+
+But inflection table is just the first step. We need to decide how to get those forms out---which GF constructors higher up in the tree select which forms? We have two alternatives:
+<!-- How predictable is politeness from mere words or other constructors in the tree? Here are some ways to formulate rules: -->
+
+1. Politeness is determined by combinations of words and other constructors in the tree. Extremely simplified example rules:
+  * If object contains a polite word, such as `youPol_Pron` or `emperor_N`, choose `Polite+`. (Note that it doesn't have to be a direct object: a possessor is enough, like in *your garden*.)
+  * If subject contains `i_Pron` and object contains `you_Pron`, choose `Polite`.
+  * If object contains `i_Pron`, choose `Plain`. <!--(even as a possessor, like in *my garden*)-->
+1. Politeness is determined by factors beyond mere words and the common RGL constructors. It is best to keep all categories open for `Politeness` until `Utt`. In the common core of the RGL, `PhrUtt` will choose the most neutral one, and to access the others, we need to define the following functions in a language-specific extra module:
+  * `PlainPhr,`
+  * `PolitePhr,`
+  * `Polite+Phr : Utt -> Phr  ;`
+
+If the RGL had been designed with Japanese in mind, it would certainly have these distinctions as abstract syntax functions in the common core. But as long as the different forms are available to application grammarians through *some* means---`ExtraJpn` or `Extend`---it's not a problem. RGL isn't meant to produce translation equivalents
+
+<!--
 
 
-### Basque allocutives
+I tried to replicate Feynman's example sentences in the Japanese RG, but it seems that the distinction isn't included for all verbs, only for `VV` and `V3`. So here's how it works for `want_VV`:
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Lang&gt; p "I want to see Paris" | l -lang=Jpn
+私       は パリ を 見<span class="o">たい です</span>
+<span class="c1">watashi wa pari o mitai desu</span>
+
+Lang&gt; p "she wants to see Paris" | l -lang=Jpn
+彼女    は パリ を 見<span class="o">たがって います</span>
+<span class="c1">kanojo wa pari o mitagatte imasu</span>
+</code></pre></div></div>
+-->
+<!-- ```
+Lang> p "I want to see Paris" | l -lang=Jpn
+私 は パリ を 見 たい です
+
+Lang> p "he wants to see Paris" | l -lang=Jpn
+彼 は パリ を 見 たがって います
+``` -->
+
+
+<!--
+In the Japanese RG, written by Liza Zimina ([link to paper](https://link.springer.com/chapter/10.1007/978-3-642-33983-7_16)), the solution is as follows---heavily simplified, apologies to the author for omitting all other points but the speaker distinction.-->
+
+<!-- ```haskell
+param
+  Speaker = Me | SomeoneElse ;
+  Style = Plain | Resp ;
+
+lincat
+  NP = {s : Style => Str ; speaker : Speaker ; … } ;
+  VP = {s : Speaker => Style => OtherParams => Str ; … } ;
+  Cl = {s :            Style => OtherParams => Str ; … } ;
+
+lin
+
+  PredVP np vp = {
+    s = \\style,… => np.s ! style ++
+                     vp.s ! np.speaker ! style ! …
+    } ;
+``` -->
+
+<!--
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">param</span>
+  <span class="kt">Speaker</span> <span class="o">=</span> <span class="kt">Me</span> <span class="o">|</span> <span class="kt">SomeoneElse</span> <span class="p">;</span>
+  <span class="kt">Style</span> <span class="o">=</span> <span class="kt">Plain</span> <span class="o">|</span> <span class="kt">Resp</span> <span class="p">;</span>
+
+<span class="n">lincat</span>
+  <span class="kt">NP</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span> <span class="o">:</span> <span class="kt">Style</span> <span class="o">=&gt;</span> <span class="kt">Str</span> <span class="p">;</span> <span class="n">speaker</span> <span class="o">:</span> <span class="kt">Speaker</span> <span class="p">;</span> <span class="c1">…</span> <span class="p">}</span> <span class="p">;</span>
+  <span class="kt">VP</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span> <span class="o">:</span> <span class="kt">Speaker</span> <span class="o">=&gt;</span> <span class="kt">Style</span> <span class="o">=&gt;</span> <span class="c1">…</span> <span class="o">=&gt;</span> <span class="kt">Str</span> <span class="p">;</span> <span class="c1">…</span> <span class="p">}</span> <span class="p">;</span>
+  <span class="kt">Cl</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span> <span class="o">:</span>            <span class="kt">Style</span> <span class="o">=&gt;</span> <span class="c1">…</span> <span class="o">=&gt;</span> <span class="kt">Str</span> <span class="p">;</span> <span class="c1">…</span> <span class="p">}</span> <span class="p">;</span>
+
+<span class="n">lin</span>
+
+  <span class="kt">PredVP</span> <span class="n">np</span> <span class="n">vp</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="o">\\</span><span class="n">style</span><span class="p">,</span><span class="c1">…</span> <span class="o">=&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">s</span> <span class="o">!</span> <span class="n">style</span> <span class="o">++</span>
+                     <span class="n">vp</span><span class="o">.</span><span class="n">s</span> <span class="o">!</span> <span class="n">np</span><span class="o">.</span><span class="n">speaker</span> <span class="o">!</span> <span class="n">style</span> <span class="o">!</span> <span class="c1">…</span>
+    <span class="p">}</span> <span class="p">;</span>
+</code></pre></div></div>
+
+
+Luckily, it's fairly easy to know if a NP is *me* or *someone else*---i.e. is the NP `UsePron i_Pron` or any other NP. The `Style` parameter can also be encoded in some things that are already in the RGL: there is `youSg_Pron`, `youPl_Pron` and `youPol_Pron`. Of course, there are a million other things that are not handled in the RGL---maybe we could infer that all NPs made out of `emperor_N` are respectful, but this is very much not the case for nouns in general. Quite the contrary: nouns have several variants, depending on who is talking. Consider that even in English, you would rather call your own mother "mommy" and someone else's mother "that person's mother", not vice versa. Now let's just grammaticalise this idea, make it depend on politeness in general, and have it affect all words!
+
+So style should rather be a variable in both NPs and VPs.
+-->
+
+## Basque allocutives
 
 
 
-## Oblique agreement
+# Agreement, part III: Oblique agreement
 
 Here all the rambling about how an orthographical word depends on various elements in the tree.
 
@@ -277,3 +478,5 @@ Here all the rambling about how an orthographical word depends on various elemen
 * The whole WALS article about person marking: [wals.info/chapter/102](https://wals.info/chapter/102)
 
 ## Footnotes
+
+[^1]: I considered adding a similar heuristic to my previous post about knowing Haskell, along the lines "you know enough Haskell to follow this tutorial if you've sometime in your life seen a partially applied function, but you don't need to be able to use `>>=` correctly without a reference manual." I decided against it because I thought that people would just get anxious whether they know enough Haskell, when really all they need to do is to see the actual code I'm using and see if they understand. But somehow I don't have the assumption that people have an impostor syndrome about linguistics. If you haven't heard the word "ergative" before, you just read the definition and then you know it.
