@@ -1,0 +1,145 @@
+---
+layout: post
+title:  "Generalising agreement: part II"
+date:   2020-02-01
+categories: gf
+tags: "gf linguistics"
+---
+
+# Agreement, part II: Addressee and other implicit arguments
+
+Aside from an explicit vocative and imperative, we don't really model the addressee as an argument. Yet it is there; usually a speech act is directed to some audience. So this is a thing that happens in some languages:
+
+1. I ate-X some bread. (written in a personal diary, nobody sees it.)
+1. I ate-X-SG2 your bread.
+1. I ate-X-SG2 some bread. (addressed to someone)
+
+The verb form for *eat* may or may not agree with *I* and *bread*---we mark that with the morpheme X. But crucially, in addition to the explicit arguments, it agrees with *you*.  How should we model such forms in the RGL? Let us take two examples and I'll share my opinions.
+
+## Politeness
+
+There's a funny passage from [Surely You're Joking, Mr. Feynman](https://books.google.se/books?id=Z7g-BAAAQBAJ&pg=PA245&dq=%22May+I+see+your+garden%22), about learning Japanese. (You can read the whole thing in the link.) Basically, Feynman learns that in order to translate the verb *see*, you have to know the whole context, who is talking to whom:
+
+
+ &nbsp;                       | *my* garden | *your* (polite) garden | *your* (extra polite) garden
+------------------------------|-------------|------------------------|------------------------------
+__*I*&nbsp;see…&nbsp;__                 |             | "May I *observe* your *gorgeous* garden?" | "May I *hang my eyes on* your *most exquisite* gardens?" |
+__*You*&nbsp;see…&nbsp;__                    | "Would you like to *glance at* my *lousy* garden?" | | |
+
+<!-- * Do you want to see *my* garden -> "Would you like to glance at my lousy garden?"
+* May I see *your* (standard level of politeness) garden -> "May I observe your gorgeous garden?"
+* May I see *your* (extra polite) -> 'May I hang my eyes on your most exquisite gardens?' -->
+
+Now, what does this mean in terms of GF? My take: if the politeness forms are different lexemes, then we shouldn't make them a part of the RGL. We'd simply have a design as follows:
+
+```haskell
+fun
+  glance_at_V2 : V2 ;
+  observe_V2 : V2 ;
+  hang_eyes_on_V2 : V2 ;
+```
+
+However, if the difference is morphological, then a good rule of thumb is to see them as one verb, and put all politeness forms in the same inflection table.
+
+```haskell
+fun
+  see_V2 : V2 ;
+lincat
+  V2 = {s : Politeness => Str} ;
+param
+  Politeness = Plain | Polite | Polite+ ;
+lin
+  see_V2 = {
+    s = table {
+          Plain => "see.PLAIN" ;  -- "glance at"
+          Polite => "see.POL" ;   -- "observe"
+          Polite+ => "see.POL+" ; -- "hang one's eyes on"
+        } ;
+  }
+```
+
+<!-- Of course, this is just a rule of thumb---inflection tables don't need to contain things that are morphologically related, nor is it a crime to separate them. *Kill* and *die* are related, but we don't want to put them in the same inflection table. -->
+
+But inflection table is just the first step. We need to decide how to get those forms out---which GF constructors higher up in the tree select which forms? We have two alternatives:
+<!-- How predictable is politeness from mere words or other constructors in the tree? Here are some ways to formulate rules: -->
+
+1. Politeness is determined by combinations of words and other constructors in the tree. Extremely simplified example rules:
+  * If object contains a polite word, such as `youPol_Pron` or `emperor_N`, choose `Polite+`. (Note that it doesn't have to be a direct object: a possessor is enough, like in *your garden*.)
+  * If subject contains `i_Pron` and object contains `you_Pron`, choose `Polite`.
+  * If object contains `i_Pron`, choose `Plain`. <!--(even as a possessor, like in *my garden*)-->
+1. Politeness is determined by factors beyond mere words and the common RGL constructors. It is best to keep all categories open for `Politeness` until `Utt`. In the common core of the RGL, `PhrUtt` will choose the most neutral one, and to access the others, we need to define the following functions in a language-specific extra module:
+  * `PlainPhr,`
+  * `PolitePhr,`
+  * `Polite+Phr : Utt -> Phr  ;`
+
+If the RGL had been designed with Japanese in mind, it would certainly have these distinctions as abstract syntax functions in the common core. But as long as the different forms are available to application grammarians through *some* means---`ExtraJpn` or `Extend`---it's not a problem. RGL isn't meant to produce translation equivalents
+
+<!--
+
+
+I tried to replicate Feynman's example sentences in the Japanese RG, but it seems that the distinction isn't included for all verbs, only for `VV` and `V3`. So here's how it works for `want_VV`:
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Lang&gt; p "I want to see Paris" | l -lang=Jpn
+私       は パリ を 見<span class="o">たい です</span>
+<span class="c1">watashi wa pari o mitai desu</span>
+
+Lang&gt; p "she wants to see Paris" | l -lang=Jpn
+彼女    は パリ を 見<span class="o">たがって います</span>
+<span class="c1">kanojo wa pari o mitagatte imasu</span>
+</code></pre></div></div>
+-->
+<!-- ```
+Lang> p "I want to see Paris" | l -lang=Jpn
+私 は パリ を 見 たい です
+
+Lang> p "he wants to see Paris" | l -lang=Jpn
+彼 は パリ を 見 たがって います
+``` -->
+
+
+<!--
+In the Japanese RG, written by Liza Zimina ([link to paper](https://link.springer.com/chapter/10.1007/978-3-642-33983-7_16)), the solution is as follows---heavily simplified, apologies to the author for omitting all other points but the speaker distinction.-->
+
+<!-- ```haskell
+param
+  Speaker = Me | SomeoneElse ;
+  Style = Plain | Resp ;
+
+lincat
+  NP = {s : Style => Str ; speaker : Speaker ; … } ;
+  VP = {s : Speaker => Style => OtherParams => Str ; … } ;
+  Cl = {s :            Style => OtherParams => Str ; … } ;
+
+lin
+
+  PredVP np vp = {
+    s = \\style,… => np.s ! style ++
+                     vp.s ! np.speaker ! style ! …
+    } ;
+``` -->
+
+<!--
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">param</span>
+  <span class="kt">Speaker</span> <span class="o">=</span> <span class="kt">Me</span> <span class="o">|</span> <span class="kt">SomeoneElse</span> <span class="p">;</span>
+  <span class="kt">Style</span> <span class="o">=</span> <span class="kt">Plain</span> <span class="o">|</span> <span class="kt">Resp</span> <span class="p">;</span>
+
+<span class="n">lincat</span>
+  <span class="kt">NP</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span> <span class="o">:</span> <span class="kt">Style</span> <span class="o">=&gt;</span> <span class="kt">Str</span> <span class="p">;</span> <span class="n">speaker</span> <span class="o">:</span> <span class="kt">Speaker</span> <span class="p">;</span> <span class="c1">…</span> <span class="p">}</span> <span class="p">;</span>
+  <span class="kt">VP</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span> <span class="o">:</span> <span class="kt">Speaker</span> <span class="o">=&gt;</span> <span class="kt">Style</span> <span class="o">=&gt;</span> <span class="c1">…</span> <span class="o">=&gt;</span> <span class="kt">Str</span> <span class="p">;</span> <span class="c1">…</span> <span class="p">}</span> <span class="p">;</span>
+  <span class="kt">Cl</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span> <span class="o">:</span>            <span class="kt">Style</span> <span class="o">=&gt;</span> <span class="c1">…</span> <span class="o">=&gt;</span> <span class="kt">Str</span> <span class="p">;</span> <span class="c1">…</span> <span class="p">}</span> <span class="p">;</span>
+
+<span class="n">lin</span>
+
+  <span class="kt">PredVP</span> <span class="n">np</span> <span class="n">vp</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="o">\\</span><span class="n">style</span><span class="p">,</span><span class="c1">…</span> <span class="o">=&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">s</span> <span class="o">!</span> <span class="n">style</span> <span class="o">++</span>
+                     <span class="n">vp</span><span class="o">.</span><span class="n">s</span> <span class="o">!</span> <span class="n">np</span><span class="o">.</span><span class="n">speaker</span> <span class="o">!</span> <span class="n">style</span> <span class="o">!</span> <span class="c1">…</span>
+    <span class="p">}</span> <span class="p">;</span>
+</code></pre></div></div>
+
+
+Luckily, it's fairly easy to know if a NP is *me* or *someone else*---i.e. is the NP `UsePron i_Pron` or any other NP. The `Style` parameter can also be encoded in some things that are already in the RGL: there is `youSg_Pron`, `youPl_Pron` and `youPol_Pron`. Of course, there are a million other things that are not handled in the RGL---maybe we could infer that all NPs made out of `emperor_N` are respectful, but this is very much not the case for nouns in general. Quite the contrary: nouns have several variants, depending on who is talking. Consider that even in English, you would rather call your own mother "mommy" and someone else's mother "that person's mother", not vice versa. Now let's just grammaticalise this idea, make it depend on politeness in general, and have it affect all words!
+
+So style should rather be a variable in both NPs and VPs.
+-->
+
+## Basque allocutives

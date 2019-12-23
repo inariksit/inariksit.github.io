@@ -1,0 +1,10 @@
+---
+layout: post
+title:  "Generalising agreement: part II"
+date:   2020-03-01
+categories: gf
+tags: "gf linguistics"
+
+# Agreement, part III: Oblique agreement
+
+Here all the rambling about how an orthographical word depends on various elements in the tree.
