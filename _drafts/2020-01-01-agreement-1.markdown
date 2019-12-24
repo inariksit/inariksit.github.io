@@ -30,7 +30,7 @@ Both verbs, *sleep* and *drink*, only show marking for the subject: null morphem
 
 In fact, multiple agreement is pretty common in languages around the world. The map below is taken from [World Atlas of Language Structures](https://wals.info/) (WALS): red dot means "like English", orange dot means "like Hungarian".
 
-<a id="person-marking-wals" href="https://wals.info/combinations/102A?v3=cffc&v1=cd00&v0=cfff&v2=cff0&v4=cfc0#2/16.7/148.6"><img src="/images/person-marking-wals.png" /></a>
+<a id="person-marking-wals" href="https://wals.info/feature/102A?v3=cff0&v1=cfff&v0=cfff&v2=cd00&v4=cffc&v5=cfc0#2/30.8/170.6"><img src="/images/person-marking-wals.png" /></a>
 
 <!-- > Verbal person marking of just the A [agent] is most common in Eurasia. It is characteristic of most of the Indo-European languages of Europe, the Uralic languages of Russia, Finland, Estonia and Hungary, the Turkic languages, and the Dravidian languages of India. It is also found in eastern Africa, especially among the Afro-Asiatic languages, in the north of South America and in New Guinea. By contrast, it is extremely rare in North America and there is no instance of it among the languages in the sample in Australia. Verbal person marking of just the P [patient] is an infrequent phenomenon everywhere. -->
 
@@ -77,10 +77,13 @@ lin
 
 So far we have only created an inflection table---nothing in the code says that we have *subject* marking, just that we have one-dimensional table. But when we add lincats and linearisations for `VP` and `Cl`, it will become apparent which argument the verb marks. The following GF code models English (and other red dots on the WALS map):
 
-#### English
+#### GF grammar for English
 
 ```haskell
+-- English
 lincat
+  V,
+  V2,
   VP = {s : Agr => Str} ;
   NP = {s : Str ; a : Agr} ;
   Cl = {s : Str} ;
@@ -90,7 +93,7 @@ lin
   UseV v = v ;
 
   -- ComplV2 : V2 -> NP -> VP
-  ComplV2 v2 np = {s = \\agr => v2 ! agr ++ np.s} ;
+  ComplV2 v2 np = {s = \\agr => v2.s ! agr ++ np.s} ;
 
   -- PredVP : NP -> VP -> Cl
   PredVP np vp = {s = np.s ++ vp.s ! np.a} ;
@@ -98,7 +101,7 @@ lin
 
 ### Object marking
 
-Now, let's implement the missing categories and functions for a language that marks only object, not subject.  According to WALS, this is quite rare but not unheard of; 24 languages of the sample of 378 do that. (They are shown as yellow dots on [the map](#person-marking-wals).)
+Now, let's implement the missing categories and functions for a language that marks only object, not subject.  According to WALS, this is quite rare but not unheard of; 24 languages of the sample of 378 do that. (They are shown as yellow dots on [the previous map](#person-marking-wals).)
 
 To keep it simple, let's assume that there is a language just like English but object marking.
 
@@ -118,9 +121,10 @@ Now, the WALS data doesn't tell me what do these 24 languages mark in an intrans
 | &nbsp;          | I sleep-**∅** | the cat sleep-**∅** |
 |-----------------|----------------|---------------------------|
 
-#### Like-English-but-object-marking
+#### GF grammar for Like-English-but-object-marking
 
 ```haskell
+-- Like English but object-marking
 lincat
   V, VP = {s : Str} ;
   V2 = {s : Agr => Str} ;
@@ -132,7 +136,7 @@ lin
   UseV v = v ;
 
   -- ComplV2 : V2 -> NP -> VP
-  ComplV2 v2 np = {s = v2.s ! agr ++ np.s} ;
+  ComplV2 v2 np = {s = v2.s ! np.a ++ np.s} ;
 
   -- PredVP : NP -> VP -> Cl
   PredVP np vp = {s = np.s ++ vp.s} ;
@@ -166,16 +170,13 @@ PredVP np vp = {s = np.s ++ vp.s} ;
 Pretty cool right? -->
 
 
-#### Like-English-but-object-marking'  --- the other option for intransitive
+### Object marking: another option for intransitive verbs
 
 Previously we just had zero marking for intransitive verbs. But there is another strategy that appears in some languages[^1]:
-* For transitive verbs, mark the object.
+* For transitive verbs, mark the object in the verb.
 * For intransitive verbs, mark the subject *in the same way* the object is marked for transitive verbs.
 
-
-
-(There is a name for this and I will introduce it soon. Let's just finish our Like-English-but series!)
-
+(There is a name for this and I will introduce it soon. Let's just finish our Like-English-but-… series!)
 
 We established already how transitive verbs work:
 
@@ -185,21 +186,87 @@ We established already how transitive verbs work:
  |**Sg3 object**   |I drink-**s** water | the cat drink-**s** water       |
  |-----------------|--------------------|---------------------------------|
 
- Now let's add intransitive verbs. Remember, 1st person singular patient (*me*) is unmarked, so *me* as a subject should also be unmarked. A 3rd person singular patient (*water*) is marked by an __-s__, so it should be marked also as a subject. So this would be an option:
+Now let's add intransitive verbs. As you can see, a 3rd person singular object (*water*, *the cat*, …) is marked with an __-s__ in the verb. Logically, when a 3rd person singular NP is a subject of an intransitive verb, then the verb should also be marked with __-s__.
+
+Similarly, the 1st person singular patient (*me*) is unmarked as an object, so *me* as a subject should also be unmarked. Yes, the subject case for an intransitive verb is now *me*---*I* is reserved for transitive verbs.
+
 
  | Intransitive    | Sg1 subject   | Sg3 subject         |
  |:---------------:|:--------------|:--------------------|
- | &nbsp;          | I sleep-**∅** | the cat sleep-**s** |
+ | &nbsp;          | me sleep-**∅** | the cat sleep-**s** |
  |-----------------|---------------|---------------------|
 
+However, I have ignored NP case so far in my GF examples, and I continue ignoring it. (Apologies if you got excited about weird subject cases!) One thing at a time, and now we're looking at verbal agreement.
 
-Now, in this post I'm mostly concerned about verb agreement, but for a proper "mark the subject in the same way as the object" strategy, we should also keep in mind the case marking. *I* is reserved only for the doer of a transitive verb, *me* is both the object of a transitive verb and the subject of an intransitive verb. So this looks more consistent:
+
+<!-- Now, in this post I'm mostly concerned about verbal agreement, but for a proper "mark the subject in the same way as the object" strategy, we should also keep in mind the case marking. In a typical language that uses such a strategy, *I* is reserved only for the doer of a transitive verb, and *me* is both the object of a transitive verb and the subject of an intransitive verb. So this looks more consistent:
 
 | Intransitive    | Sg1 subject    | Sg3 subject         |
 |:---------------:|:---------------|:--------------------|
 | &nbsp;          | me sleep-**∅** | the cat sleep-**s** |
-|-----------------|----------------|---------------------|
+|-----------------|----------------|---------------------| -->
 
+#### GF grammar for Like-English-but-object-marking-ERG
+
+I realise that the names of my invented languages are getting quite unwieldy. So let's just call them LEBOM (Like-English-but-object-marking) and LEBOM-ERG, for reasons that will become obvious soon.
+
+```haskell
+-- LEBOM-ERG
+lincat
+  V, V2, VP = {s : Agr => Str} ;
+  NP = {s : Str ; a : Agr} ;
+  Cl = {s : Str} ;
+
+lin
+  -- UseV : V -> VP
+  UseV v = v ;
+
+  -- ComplV2 : V2 -> NP -> VP
+  ComplV2 v2 np = {s = \\_ => v2.s ! agr ++ np.s} ;
+
+  -- PredVP : NP -> VP -> Cl
+  PredVP np vp = {s = np.s ++ vp.s ! np.a} ;
+```
+
+We're back to `{s : Agr => Str}` for all verbal categories. Unlike LEBOM, where intransitive verbs had always zero marking, in LEBOM-ERG all verbs have some marking, it just varies *for which argument*. So both `V` and `V2` need an inflection table.
+
+Because `V` needs a subject to know the correct form, `VP` needs to be an inflection table too. Just looking at `UseV` and `PredVP`, things seem exactly like in [ordinary English](#gf-grammar-for-english).
+
+In contrast, `ComplV2` has a different behaviour: it picks out the right form of the `V2` already when forming a `VP`, using the object's agreement. But `VP` still needs a table, that's how GF works. So we put the chosen form in a dummy inflection table: all left-hand sides lead to that form.
+
+### Subject *or* object marking
+
+Who says you need to do your argument marking based on its *role*? Instead, you can mark based on something inherent in the argument.
+
+For instance, if a transitive verb has one animate and one inanimate argument, mark the verb based on the animate argument, regardless or their roles. In the following examples, the verb *write* agrees with its animate argument whenever it has one.
+
+|  Animate > Inanimate      |Sg1 subject            | Sg3 subject                     |
+|:---------------:|:----------------------|:--------------------------------|
+|**Sg1 object**   |I write-**∅** me       | the blog write-**∅** me         |
+|**Sg3 object**   |I write-**∅** the blog | the blog write-**s** the blog   |
+|-----------------|-----------------------|---------------------------------|
+
+
+If there are two animate arguments, they can be ordered by person hierarchy, such as 1st > 2nd > 3rd. Here's an example, where *love* agrees with the argument that is highest in the person hierarchy:
+
+| P1 > P2 > P3    | P2 subject         | P3 subject          |
+|:---------------:|:-------------------|:--------------------|
+|**P2 object**    |you love-**∅** you  | he love-**∅** you   |
+|**P3 object**    |you love-**∅** him  | he love-**s** him   |
+|-----------------|--------------------|---------------------|
+
+
+I think you've seen enough GF code that you should be able to do this on your own! Here is a complete abstract syntax, a small lexicon and the concrete syntaxes for English, LEBOM and LEBOM-ERG. Your task is to implement Like-English-but-alternate-marking. **TODO:link**
+
+Some instructions:
+
+* Intransitive verbs mark their only argument.
+* You will need to modify the `NP` category (and obviously all verbal categories). However, you can still ignore case in NP: *you love he* and *the blog write I* are acceptable output, if you only want to concentrate on person marking in the verb.
+* You don't need to use animacy or person hierarchy---you can make your system as wild as you want, as long as you can encode it in GF.
+
+If you want feedback, make your solution available to me! You can make a pull request on GitHub or send your code to [inari.listenmaa@gmail.com](mailto:inari.listenmaa@gmail.com).
+
+<!-- This offer does not expire; as long as this paragraph is still online, I'll be happy to get answers. -->
 
 
 ## Interlude: Nominative-accusative vs. Absolutive-ergative
@@ -219,7 +286,7 @@ ____
 
 ____
 
-With these 3 roles, we have 4 strategies of marking them all:
+With these 3 roles, we have 4 strategies of marking them all[^2]:
 <ol>
   <li>All same:
     <ul>
@@ -247,7 +314,6 @@ With these 3 roles, we have 4 strategies of marking them all:
   </li>
 </ol>
 
-Technically there's a 5th alternative; subject is different but agent and patient are the same. But it would be very strange to spend some precious morphemes on just the case where it doesn't make a difference (subject vs. others) and then not spend them where it is actually important---one would want to know whether <font color="green">you</font> see <font color="purple">me</font> or <font color="green">I</font> see <font color="purple">you</font>.
 
 __TODO: explain nominative-accusative vs. absolutive-ergative.__
 
@@ -260,7 +326,8 @@ Some terminology notes follow. I personally think that the terminology is unnece
 
 
 * A bit more exact names are *absolutive-ergative system* and *nominative-accusative system*. Absolutive and nominative are usually the unmarked cases in their respective systems, ergative and accusative are the marked cases. *Nominative-accusative* is such a well-established order, so *absolutive-ergative* follows the pattern.
-* For the record, there are also languages where the subject and agent are marked the same way,  case is marked, but are not absolutive-ergative. How do we know the difference? Simple: compare agents and subjects, are they both marked in the same way? If yes, then you have a nominative-accusative system where nominative is the marked one and accusative is the unmarked one. We could call this something else, like nominative-absolutive
+* For the record, there are also nominative-accusative languages with a marked nominative.
+languages where the subject and agent are marked the same way,  case is marked, but are not absolutive-ergative. How do we know the difference? Simple: compare agents and subjects, are they both marked in the same way? If yes, then you have a nominative-accusative system where nominative is the marked one and accusative is the unmarked one. We could call this something else, like nominative-absolutive
 
 Infographic:
 
@@ -269,12 +336,6 @@ SUBJECT
 
 
 
-
-
-#### Like-English-but-agent-marking-and-ergative
-
-The missing combination, Like-English-but-agent-marking-and-ergative, is left for homework assignment. Send your solution to [inari.listenmaa@gmail.com](mailto:inari.listenmaa@gmail.com) if you want feedback!
-<!-- This offer does not expire; as long as this paragraph is still online, I'll be happy to get answers. -->
 
 ## 2-dimensional marking
 
@@ -358,4 +419,6 @@ We do notice ergativity in Basque in nominal cases.
 
 ## Footnotes
 
-[^1]: In case you're wondering what "some languages" means, here's another WALS map. Pink shapes are different varieties of the strategy *mark transitive object same as intransitive subject*.<a href="https://wals.info/combinations/100A?v1=cfff&v0=dfff&v5=cf6f&v3=df6f&v2=ff6f&v4=sf6f#1/17/149"><img src="/images/alignments-wals.png" alt="Another world map from WALS" /></a>
+[^1]: In case you're wondering what "some languages" means, here's a WALS map. Pink shapes are different varieties of the strategy *mark transitive object same as intransitive subject* (at least some of the time).<a href="https://wals.info/feature/100A?v1=dffc&v0=dfff&v5=tf6f&v3=ff6f&v2=cfff&v4=sf6f&v6=cf6f#2/16.6/148.9"><img src="/images/alignments-wals.png" alt="Another world map from WALS" /></a>
+
+[^2]: Technically there's a 5th alternative; subject is different but agent and patient are the same. But it would be strange to spend precious morphemes on just the case where it doesn't make a difference (intransitive subject vs. both transitive arguments) and then not spend them where it is actually important---one would want to know whether <font color="green">you</font> see <font color="purple">me</font> or <font color="green">I</font> see <font color="purple">you</font>.
