@@ -20,11 +20,11 @@ Verbal agreement means that one or more of the verb's arguments are marked in th
 
  &nbsp;          |1st person singular | 3rd person singular
 -----------------|----------------|---------------------------
-**Intransitive** |I sleep-**∅**       | the cat sleep**s**
-**Transitive**   |I drink-**∅** water | the cat drink**s** water
+**Intransitive** |<font color="green">I</font> sleep-<strong><font color="green">∅</font></strong>       | <font color="green">the cat</font> sleep<strong><font color="green">s</font></strong>
+**Transitive**   |<font color="green">I</font> drink-<strong><font color="green">∅</font></strong> water | <font color="green">the cat</font> drink<strong><font color="green">s</font></strong> water
 -----------------|----------------|---------------------------
 
-Both verbs, *sleep* and *drink*, only show marking for the subject: null morpheme for *I*, and -s for *the cat*. *Water*, which is the object of *drink*, doesn't contribute to the conjugation. Contrast this with Hungarian [[Wikipedia](https://en.wikipedia.org/wiki/Hungarian_verbs#Definite_and_indefinite_conjugations)]:
+Both verbs, *sleep* and *drink*, only show marking for the subject: null morpheme (marked as -∅) for *I*, and -s for *the cat*. *Water*, which is the object of *drink*, doesn't contribute to the conjugation. Contrast this with Hungarian [[Wikipedia](https://en.wikipedia.org/wiki/Hungarian_verbs#Definite_and_indefinite_conjugations)]:
 
 <img src="/images/hungarian-agreement.png" alt="Screenshot of Wikipedia. The text reads: In Hungarian, verbs not only show agreement with their subjects but also carry information on the definiteness of their direct objects. This results in two types of conjugations: definite (used if there is a definite object) and indefinite (if there is no definite object" />
 
@@ -36,7 +36,7 @@ In fact, multiple agreement is pretty common in languages around the world. The 
 
 Now I'll present different options for argument marking, and how to do them in GF.
 
-For simplicity, I'm only showing positive present indicative forms. You can freely assume, in addition to person marking, some form of tense, aspect, mood etc.
+For simplicity, I'm only showing positive present indicative forms. You can freely assume, in addition to person marking, some form of tense, aspect, mood, polarity etc.
 
 ## No person marking
 
@@ -47,14 +47,14 @@ lincat
   V,V2 = {s : Str} ;
 
 lin
-  sleep_V  = {s = "sleep_in_chinese"} ;
+  sleep_V  = {s = "睡觉"} ;
 
-  drink_V2 = {s = "drink_in_chinese"} ;
+  drink_V2 = {s = "喝"} ;
 ```
 
 ## 1-dimensional person marking
 
-Next possibility, the verb can mark one of its core arguments, subject or object. (Technically, I guess there could be a language that only marked an indirect object, but I've never heard of one. If you're inspired, do make a conlang like that and write a GF grammar for it.)
+Next possibility, the verb can mark one of its core arguments, subject or object.
 
 ### Subject marking
 
@@ -107,8 +107,8 @@ To keep it simple, let's assume that there is a language just like English but o
 
 |Transitive         |Sg1 subject | Sg3 subject  |
 |:-----------------:|:----------|:--------------------------|
-|**Sg1 object**   |I drink-**∅** me | the cat drink-**∅** me |
-|**Sg3 object**   |I drink-**s** water | the cat drink-**s** water |
+|**Sg1 object**   |I drink-<strong><font color="purple">∅</font></strong> <font color="purple">me</font> | the cat drink-<strong><font color="purple">∅</font></strong> <font color="purple">me</font> |
+|**Sg3 object**   |I drink<strong><font color="purple">s</font></strong> <font color="purple">water</font> | the cat drink<strong><font color="purple">s</font></strong> <font color="purple">water</font> |
 |-----------------|----------------|---------------------------|
 
 You see, "I drink<strong>s</strong> water" would be ungrammatigal in ordinary English, where verbs mark the subject. In contrast, Like-English-but-object-marking puts the -s in *I drinks water* because of *water*, not because of *I*.
@@ -118,7 +118,7 @@ Now, the WALS data doesn't tell me what do these 24 languages mark in an intrans
 
 | Intransitive    |Sg1 subject | Sg3 subject |
 |:---------------:|:----------|:--------------------------|
-| &nbsp;          | I sleep-**∅** | the cat sleep-**∅** |
+| &nbsp;          | I sleep-<strong>∅</strong> | the cat sleep-<strong>∅</strong> |
 |-----------------|----------------|---------------------------|
 
 #### GF grammar for Like-English-but-object-marking
@@ -182,28 +182,30 @@ We established already how transitive verbs work:
 
  |Transitive       |Sg1 subject         | Sg3 subject                     |
  |:---------------:|:-------------------|:--------------------------------|
- |**Sg1 object**   |I drink-**∅** me    | the cat drink-**∅** me          |
- |**Sg3 object**   |I drink-**s** water | the cat drink-**s** water       |
+ |**Sg1 object**   |I drink-<strong><font color="purple">∅</font></strong> <font color="purple">me</font>    | the cat drink-<strong><font color="purple">∅</font></strong> <font color="purple">me</font>          |
+ |**Sg3 object**   |I drink<strong><font color="purple">s</font></strong> <font color="purple">water</font> | the cat drink<strong><font color="purple">s</font></strong> <font color="purple">water</font>     |
  |-----------------|--------------------|---------------------------------|
 
-Now let's add intransitive verbs. As you can see, a 3rd person singular object (*water*, *the cat*, …) is marked with an __-s__ in the verb. Logically, when a 3rd person singular NP is a subject of an intransitive verb, then the verb should also be marked with __-s__.
+Now let's add intransitive verbs. As you can see, a transitive verb is marked with an __-s__, when its object is a 3rd person singular NP. Logically then, an intransitive verb will be marked with __-s__, when its *subject* is a 3rd person singular NP.
 
-Similarly, the 1st person singular patient (*me*) is unmarked as an object, so *me* as a subject should also be unmarked. Yes, the subject case for an intransitive verb is now *me*---*I* is reserved for transitive verbs.
+The same logic holds for 1st person. A transitive verb is unmarked, when its object is a 1st person singular NP (*me*). When *me* is a subject of an intransitive verb like *sleep*, then that verb should also be unmarked.
+
+Yes, the subject case for an intransitive verb is now *me*---*I* is reserved for transitive verbs.
 
 
  | Intransitive    | Sg1 subject   | Sg3 subject         |
  |:---------------:|:--------------|:--------------------|
- | &nbsp;          | me sleep-**∅** | the cat sleep-**s** |
+ | &nbsp;          | <font color="purple">me</font> sleep-<strong><font color="purple">∅</font></strong> | <font color="purple">the cat</font> sleep<strong><font color="purple">s</font></strong> |
  |-----------------|---------------|---------------------|
 
-However, I have ignored NP case so far in my GF examples, and I continue ignoring it. (Apologies if you got excited about weird subject cases!) One thing at a time, and now we're looking at verbal agreement.
+However, I have ignored NP case so far in my GF examples, and I continue ignoring it. (Apologies if you got excited about novel subject cases!) One thing at a time, and now we're looking at verbal agreement.
 
 
 <!-- Now, in this post I'm mostly concerned about verbal agreement, but for a proper "mark the subject in the same way as the object" strategy, we should also keep in mind the case marking. In a typical language that uses such a strategy, *I* is reserved only for the doer of a transitive verb, and *me* is both the object of a transitive verb and the subject of an intransitive verb. So this looks more consistent:
 
 | Intransitive    | Sg1 subject    | Sg3 subject         |
 |:---------------:|:---------------|:--------------------|
-| &nbsp;          | me sleep-**∅** | the cat sleep-**s** |
+| &nbsp;          | me sleep-<strong><font color="green">∅</font></strong> | the cat sleep-<strong><font color="purple">s</font></strong> |
 |-----------------|----------------|---------------------| -->
 
 #### GF grammar for Like-English-but-object-marking-ERG
@@ -230,11 +232,11 @@ lin
 
 We're back to `{s : Agr => Str}` for all verbal categories. Unlike LEBOM, where intransitive verbs had always zero marking, in LEBOM-ERG all verbs have some marking, it just varies *for which argument*. So both `V` and `V2` need an inflection table.
 
-Because `V` needs a subject to know the correct form, `VP` needs to be an inflection table too. Just looking at `UseV` and `PredVP`, things seem exactly like in [ordinary English](#gf-grammar-for-english).
+Because `V` needs a subject to know the correct form, `VP` needs to be an inflection table too. Just looking at `UseV` and `PredVP`, they are exactly like in [ordinary English](#gf-grammar-for-english).
 
 In contrast, `ComplV2` has a different behaviour: it picks out the right form of the `V2` already when forming a `VP`, using the object's agreement. But `VP` still needs a table, that's how GF works. So we put the chosen form in a dummy inflection table: all left-hand sides lead to that form.
 
-### Subject *or* object marking
+### Subject *or* object: Differential argument marking
 
 Who says you need to do your argument marking based on its *role*? Instead, you can mark based on something inherent in the argument.
 
@@ -242,21 +244,24 @@ For instance, if a transitive verb has one animate and one inanimate argument, m
 
 |  Animate > Inanimate      |Sg1 subject            | Sg3 subject                     |
 |:---------------:|:----------------------|:--------------------------------|
-|**Sg1 object**   |I write-**∅** me       | the blog write-**∅** me         |
-|**Sg3 object**   |I write-**∅** the blog | the blog write-**s** the blog   |
-|-----------------|-----------------------|---------------------------------|
+|**Sg1 object**   |<font color="999898">I write-∅ me</font>       | the blog write-<strong><font color="purple">∅</font></strong> <font color="purple">me</font>         |
+|**Sg3 object**   |<font color="green">I</font>  write-<strong><font color="green">∅</font></strong> the blog | <font color="999898">the blog write<b>s</b> the blog</font>   |
 
 
 If there are two animate arguments, they can be ordered by person hierarchy, such as 1st > 2nd > 3rd. Here's an example, where *love* agrees with the argument that is highest in the person hierarchy:
 
 | P1 > P2 > P3    | P2 subject         | P3 subject          |
 |:---------------:|:-------------------|:--------------------|
-|**P2 object**    |you love-**∅** you  | he love-**∅** you   |
-|**P3 object**    |you love-**∅** him  | he love-**s** him   |
-|-----------------|--------------------|---------------------|
+|**P2 object**    |<font color="999898">you love-<b>∅</b> you</font>  | he love-<strong><font color="purple">∅</font></strong> <font color="purple">you</font>    |
+|**P3 object**    |<font color="green">you</font> love-<strong><font color="green">∅</font></strong> him  | <font color="999898">he love<b>s</b> him</font>   |
 
 
-I think you've seen enough GF code that you should be able to do this on your own! Here is a complete abstract syntax, a small lexicon and the concrete syntaxes for English, LEBOM and LEBOM-ERG. Your task is to implement Like-English-but-alternate-marking. **TODO:link**
+Now, I think you've seen enough GF code that you should be able to do this on your own!
+
+I have created a repository at [github.com/inariksit/gf-agreement-tutorial](https://github.com/inariksit/gf-agreement-tutorial), which contains examples to this post and the following posts.
+
+In the directory [like-english-but](https://github.com/inariksit/gf-agreement-tutorial/tree/master/like-english-but#readme),
+you find a complete abstract syntax and finished concrete syntaxes for English, LEBOM and LEBOM-ERG. However, Like-English-but-differential-argument-marking (LEBDAM) is just a dummy concrete syntax, so you have a chance to implement it properly.
 
 Some instructions:
 
@@ -268,6 +273,11 @@ If you want feedback, make your solution available to me! You can make a pull re
 
 <!-- This offer does not expire; as long as this paragraph is still online, I'll be happy to get answers. -->
 
+_____
+
+And we're done with 1-dimensional agreement! If I have missed something, please let me know. If it's about, say, case or clitics or adpositions or word order or wearing a cowboy hat to mark an argument, I'll be even more interested in it for the 3rd post.
+
+Soon we will go on to 2-dimensional agreement. But before that, I need to introduce properly "the other strategy" for the alignment of verbal person marking, which was used in LEBOM-ERG.
 
 ## Interlude: Nominative-accusative vs. Absolutive-ergative
 
@@ -315,6 +325,7 @@ With these 3 roles, we have 4 strategies of marking them all[^2]:
 </ol>
 
 
+<img src="/images/Agreement-GF-acc.png" />
 __TODO: explain nominative-accusative vs. absolutive-ergative.__
 
 Some terminology notes follow. I personally think that the terminology is unnecessarily confusing---all these terms conflate a lot of features, whereas in the real world, they can appear in all kinds of combinations.
@@ -326,14 +337,8 @@ Some terminology notes follow. I personally think that the terminology is unnece
 
 
 * A bit more exact names are *absolutive-ergative system* and *nominative-accusative system*. Absolutive and nominative are usually the unmarked cases in their respective systems, ergative and accusative are the marked cases. *Nominative-accusative* is such a well-established order, so *absolutive-ergative* follows the pattern.
-* For the record, there are also nominative-accusative languages with a marked nominative.
-languages where the subject and agent are marked the same way,  case is marked, but are not absolutive-ergative. How do we know the difference? Simple: compare agents and subjects, are they both marked in the same way? If yes, then you have a nominative-accusative system where nominative is the marked one and accusative is the unmarked one. We could call this something else, like nominative-absolutive
-
-Infographic:
-
-AGENT  ---  PATIENT
-SUBJECT
-
+* For the record, there are also nominative-accusative languages with a marked nominative. You might see them called "nominative-absolutive" (or maybe I'm just reading overly confusing grammars at my spare time.) But if we're just interested in alignment, the relevant test is to compare agents and subjects: are they both marked in *the same way*? If yes, then you have a nominative-accusative system where nominative is the marked one and accusative is the unmarked one.
+* The same goes if you see a combination like "ergative-genitive". 
 
 
 
