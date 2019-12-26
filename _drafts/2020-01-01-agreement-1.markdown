@@ -324,8 +324,9 @@ With these 3 roles, we have 4 strategies of marking them all[^2]:
   </li>
 </ol>
 
+<img src="/images/nom-acc-common-features.png" />
+<img src="/images/abs-erg-common-features.png" />
 
-<img src="/images/Agreement-GF-acc.png" />
 __TODO: explain nominative-accusative vs. absolutive-ergative.__
 
 Some terminology notes follow. I personally think that the terminology is unnecessarily confusing---all these terms conflate a lot of features, whereas in the real world, they can appear in all kinds of combinations.
@@ -338,7 +339,7 @@ Some terminology notes follow. I personally think that the terminology is unnece
 
 * A bit more exact names are *absolutive-ergative system* and *nominative-accusative system*. Absolutive and nominative are usually the unmarked cases in their respective systems, ergative and accusative are the marked cases. *Nominative-accusative* is such a well-established order, so *absolutive-ergative* follows the pattern.
 * For the record, there are also nominative-accusative languages with a marked nominative. You might see them called "nominative-absolutive" (or maybe I'm just reading overly confusing grammars at my spare time.) But if we're just interested in alignment, the relevant test is to compare agents and subjects: are they both marked in *the same way*? If yes, then you have a nominative-accusative system where nominative is the marked one and accusative is the unmarked one.
-* The same goes if you see a combination like "ergative-genitive". 
+* The same goes if you see a combination like "ergative-genitive".
 
 
 
