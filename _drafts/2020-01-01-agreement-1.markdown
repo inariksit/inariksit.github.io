@@ -32,7 +32,7 @@ In fact, multiple agreement is pretty common in languages around the world. The 
 
 <a id="person-marking-wals" href="https://wals.info/feature/102A?v3=cff0&v1=cfff&v0=cfff&v2=cd00&v4=cffc&v5=cfc0#2/30.8/170.6"><img src="/images/person-marking-wals.png" /></a>
 
-<!-- > Verbal person marking of just the A [agent] is most common in Eurasia. It is characteristic of most of the Indo-European languages of Europe, the Uralic languages of Russia, Finland, Estonia and Hungary, the Turkic languages, and the Dravidian languages of India. It is also found in eastern Africa, especially among the Afro-Asiatic languages, in the north of South America and in New Guinea. By contrast, it is extremely rare in North America and there is no instance of it among the languages in the sample in Australia. Verbal person marking of just the P [patient] is an infrequent phenomenon everywhere. -->
+<!-- > Verbal person marking of just the A [agent] is most common in Eurasia. It is characteristic of most of the Indo-European languages of Europe, the Uralic languages of Russia, Finland, Estonia and Hungary, the Turkic languages, and the Dravidian languages of India. It is also found in eastern Africa, especially among the Afro-Asiatic languages, in the north of South America and in New Guinea. By contrast, it is extremely rare in North America and there is no instance of it among the languages in the sample in Australia. Verbal person marking of just the P [object] is an infrequent phenomenon everywhere. -->
 
 Now I'll present different options for argument marking, and how to do them in GF.
 
@@ -111,7 +111,7 @@ To keep it simple, let's assume that there is a language just like English but o
 |**Sg3 object**   |I drink<strong><font color="purple">s</font></strong> <font color="purple">water</font> | the cat drink<strong><font color="purple">s</font></strong> <font color="purple">water</font> |
 |-----------------|----------------|---------------------------|
 
-You see, "I drink<strong>s</strong> water" would be ungrammatigal in ordinary English, where verbs mark the subject. In contrast, Like-English-but-object-marking puts the -s in *I drinks water* because of *water*, not because of *I*.
+You see, "I drink<b>s</b> water" would be ungrammatigal in ordinary English, where verbs mark the subject. In contrast, Like-English-but-object-marking puts the -s in *I drinks water* because of *water*, not because of *I*.
 
 Now, the WALS data doesn't tell me what do these 24 languages mark in an intransitive verb, so I decide that in Like-English-but-object-marking, intransitives have no person marking. (There are other options---more on those later!)
 
@@ -186,7 +186,7 @@ We established already how transitive verbs work:
  |**Sg3 object**   |I drink<strong><font color="purple">s</font></strong> <font color="purple">water</font> | the cat drink<strong><font color="purple">s</font></strong> <font color="purple">water</font>     |
  |-----------------|--------------------|---------------------------------|
 
-Now let's add intransitive verbs. As you can see, a transitive verb is marked with an __-s__, when its object is a 3rd person singular NP. Logically then, an intransitive verb will be marked with __-s__, when its *subject* is a 3rd person singular NP.
+Now let's add intransitive verbs. As you can see, a transitive verb is marked with an <b>-s</b>, when its object is a 3rd person singular NP. Logically then, an intransitive verb will be marked with <b>-s</b>, when its *subject* is a 3rd person singular NP.
 
 The same logic holds for 1st person. A transitive verb is unmarked, when its object is a 1st person singular NP (*me*). When *me* is a subject of an intransitive verb like *sleep*, then that verb should also be unmarked.
 
@@ -266,7 +266,7 @@ you find a complete abstract syntax and finished concrete syntaxes for English, 
 Some instructions:
 
 * Intransitive verbs mark their only argument.
-* You will need to modify the `NP` category (and obviously all verbal categories). However, you can still ignore case in NP: *you love he* and *the blog write I* are acceptable output, if you only want to concentrate on person marking in the verb.
+* You will need to modify the `NP` category (and obviously all verbal categories). However, you can still ignore case in `NP`: *you love he* and *the blog write I* are acceptable output, if you only want to concentrate on person marking in the verb.
 * You don't need to use animacy or person hierarchy---you can make your system as wild as you want, as long as you can encode it in GF.
 
 If you want feedback, make your solution available to me! You can make a pull request on GitHub or send your code to [inari.listenmaa@gmail.com](mailto:inari.listenmaa@gmail.com).
@@ -277,79 +277,131 @@ _____
 
 And we're done with 1-dimensional agreement! If I have missed something, please let me know. If it's about, say, case or clitics or adpositions or word order or wearing a cowboy hat to mark an argument, I'll be even more interested in it for the 3rd post.
 
-Soon we will go on to 2-dimensional agreement. But before that, I need to introduce properly "the other strategy" for the alignment of verbal person marking, which was used in LEBOM-ERG.
+Soon we will go on to 2-dimensional agreement. But before that, I need to introduce properly "the other strategy" for the alignment of argument marking, which was used in LEBOM-ERG.
 
-## Interlude: Nominative-accusative vs. Absolutive-ergative
+## Interlude: Nominative-accusative vs. Ergative-absolutive
 
-So far I've used the term *subject* for two things: the only argument of an intransitive verb (*__subject__ sleeps*), and the doer argument of a transitive verb (*__subject__ eats object*).
+So far I've used the term *subject* for two things: the only argument of an intransitive verb (*<b>subject</b> sleeps*), and the doer argument of a transitive verb (*<b>subject</b> eats object*).
 
-Now, let's make the definitions a bit narrower. With __<font color="green">subject</font>__, we refer to the only argument of an intransitive verb, whereas transitive verbs have an __<font color="blue">agent</font>__ and a __<font color="purple">patient</font>__. Like this:
+Now, let's make the definitions a bit narrower. With __<font color="orange">subject</font>__, we refer to the only argument of an intransitive verb, whereas transitive verbs have an __<font color="green">agent</font>__ and a __<font color="purple">object</font>__ (also called *<font color="purple">patient</font>*[^2]). Like this:
 
 <ul>
-<li><span title="SUBJECT"><strong><font color="green">the cat</font></strong></span>:S sleeps</li>
-<li><span title="AGENT"><strong><font color="blue">the cat</font></strong></span>:A eats <span title="PATIENT (or OBJECT)"><strong><font color="purple">the mouse</font></strong></span>:P</li>
+<li><span title="SUBJECT"><strong><font color="orange">the cat</font></strong></span> sleeps</li>
+<li><span title="AGENT"><strong><font color="green">the cat</font></strong></span> eats <span title="OBJECT"><strong><font color="purple">the mouse</font></strong></span></li>
 </ul>
 
-____
-
-*How about the word "object"? Doesn't matter all that much: __<font color="purple">agent</font>__ vs. __<font color="green">subject</font>__ is an important distinction regarding argument marking, but "object" and "patient" can be used interchangeably for the non-agent argument of a transitive verb. For (what I hope to be) clarity, I'll use "patient" in contexts where subject/agent distinction is important, and "object" when it doesn't matter. The scope of this decision is this series about agreement; in other posts other rules apply.*
-
-____
-
-With these 3 roles, we have 4 strategies of marking them all[^2]:
+With these three roles, we have four reasonable[^3] strategies of marking them. This is called the *alignment* of argument marking.
 <ol>
   <li>All same:
     <ul>
-    <li><span title="SUBJECT"><strong><font color="green">subject</font></strong></span> sleep</li>
-    <li><span title="AGENT"><strong><font color="green">agent</font></strong></span> eat <span title="PATIENT (or OBJECT)"><strong><font color="green">patient</font></strong></span></li>
+    <li><span title="SUBJECT"><strong><font color="grey">subject</font></strong></span> sleep</li>
+    <li><span title="AGENT"><strong><font color="grey">agent</font></strong></span> eat <span title="OBJECT"><strong><font color="grey">object</font></strong></span></li>
     </ul>
   </li>
-  <li>Subject and agent same:
+  <li>Subject and agent same, object different:
     <ul>
     <li><span title="SUBJECT"><strong><font color="green">subject</font></strong></span> sleeps</li>
-    <li><span title="AGENT"><strong><font color="green">agent</font></strong></span> eats <span title="PATIENT (or OBJECT)"><strong><font color="purple">patient</font></strong></span></li>
+    <li><span title="AGENT"><strong><font color="green">agent</font></strong></span> eats <span title="OBJECT"><strong><font color="purple">object</font></strong></span></li>
     </ul>
   </li>
-  <li>Subject and patient same:
+  <li>Subject and object same, agent different:
     <ul>
     <li><span title="SUBJECT"><strong><font color="purple">subject</font></strong></span> sleeps</li>
-    <li><span title="AGENT"><strong><font color="green">agent</font></strong></span> eats <span title="PATIENT (or OBJECT)"><strong><font color="purple">patient</font></strong></span></li>
+    <li><span title="AGENT"><strong><font color="green">agent</font></strong></span> eats <span title="OBJECT"><strong><font color="purple">object</font></strong></span></li>
     </ul>
   </li>
   <li>All different:
     <ul>
-    <li><span title="SUBJECT"><strong><font color="green">subject</font></strong></span> sleeps</li>
-    <li><span title="AGENT"><strong><font color="blue">agent</font></strong></span> eats <span title="PATIENT (or OBJECT)"><strong><font color="purple">patient</font></strong></span></li>
+    <li><span title="SUBJECT"><strong><font color="orange">subject</font></strong></span> sleeps</li>
+    <li><span title="AGENT"><strong><font color="green">agent</font></strong></span> eats <span title="OBJECT"><strong><font color="purple">object</font></strong></span></li>
     </ul>
   </li>
 </ol>
 
+Strategy #2 is called __nominative-accusative__ alignment, and strategy #3 is called __ergative-absolutive__ alignment.
+
+Where do the names come from? All four---nominative, accusative, absolutive and ergative---are originally nominal cases, used to mark the arguments.
+However, a language doesn't need to have cases in order to implement one of the strategies; there are lots of ways to treat arguments "same" or "different" that don't involve case! I'll rant about the names later, now let's look at both alignment strategies in detail.
+
+
+### Nominative-accusative alignment
+
+In languages such as English, nominative is the case which you use for subject and agent: *<font color="green">she</font> drinks water*, *<font color="green">she</font> sleeps*. Accusative is used for the object: *you see <font color="purple">her</font>*. So&nbsp;that's why the whole alignment strategy is called nominative-accusative.
+
+To shorten a bit, they are often called "nominative-accusative languages", and to shorten even more, just "accusative languages"---named after the more <span title="Wikipedia: “markedness is the state of standing out as unusual or divergent in comparison to a more common or regular form. In a marked–unmarked relation, one term of an opposition is the broader, dominant one. The dominant default or minimum-effort form is known as unmarked; the other, secondary one is marked. In other words, markedness involves the characterization of a ‘normal‘ linguistic unit against one or more of its possible ‘irregular‘ forms.“">[marked](https://en.wikipedia.org/wiki/Markedness)</span> argument.
+
+Keep in mind that no single feature of the picture below is *necessary* alone, they are just common tendencies.
+
+<!--
+
+So that's already lots of assumptions in a name: that the language marks the arguments with certain cases, and which of the cases is marked.
+Here's a cluster of common features -->
+
+
 <img src="/images/nom-acc-common-features.png" />
+
+<!-- Let's imagine a language that has no nominal nor verbal morphology and word order is determined by throwing a die. But the speakers consistently put on a cowboy hat when uttering the agent and subject, and a pirate hat when uttering the object. Such a language is also a nominative-accusative language. -->
+
+### Ergative-absolutive alignment
+
+In languages such as Basque, the subject of an intransitive verb and the object of a transitive verb are marked with a case called *absolutive*.
+
+<ul>
+ <li><font color="purple">Ni</font>  naiz<br/>
+     <em><font color="purple">I</font>  am</em>
+  </li>
+</ul>
+<ul>
+ <li> Inarik <font color="purple">ni</font> nau  <br/>
+      <em>Inari has <font color="purple">me</font ></em>   </li>
+</ul>
+
+See how the first <font color="purple">ni</font> is translated as *I*, and second as *me*. That's absolutive case in action. In contrast, the <b>-k</b>  after Inari (that's my name, not some obscure Basque word), that's the marker for ergative case.
+
+Let's translate now "Inari is" and "I have Inari":
+
+ * Inari  da  
+   *Inari is*
+<ul>
+<li><font color="green">Nik</font> Inari dut <br/>
+   <em><font color="green">I</font> have Inari</em>
+</li>
+</ul>
+
+Pretty solid ergative-absolutive alignment from the NPs! Notice also how the verb indexes the absolutive argument (S or O): <b>n</b>aiz and <b>n</b>au for 1st person singular, <b>d</b>a and <b>d</b>ut for 3rd person singular. If you just looked at the translations of "Inari is" and "Inari has me", you wouldn't find any similarities in the verb forms, *da* and *nau*.
+
+Languages that behave like this are called "ergative-absolutive languages", or "absolutive-ergative languages". (Some say that to have a consistent naming scheme with nominative-accusative, absolutive should come first because it's the unmarked case.) However, everyone agrees on the short name, "ergative languages"---again, named after the marked case.
+
 <img src="/images/abs-erg-common-features.png" />
 
-__TODO: explain nominative-accusative vs. absolutive-ergative.__
 
-Some terminology notes follow. I personally think that the terminology is unnecessarily confusing---all these terms conflate a lot of features, whereas in the real world, they can appear in all kinds of combinations.
+### Terminology notes
 
-* The short name for "the strategy of marking subject and patient with absolutive case, and agent with ergative case" is called *ergativity*.
-* Such a language is called an *ergative* language.
-* A language can be ergative even if it doesn't have case marking. All examples in this post have just used verb inflection. Even if the last example didn't switch the case to "me sleep" but was "I sleep", I'd argue that the language is still pretty ergative in terms of verb inflection.
-* Well, it doesn't even need to be in verb inflection, it can be encoded in word order, or through adpositions, or by the speaker wearing a cowboy hat when mentioning the agent, and a pirate hat when mentioning the subject and the patient. The bottom line is: does the language treat subject and patient the same, and agent in another way? If yes, then we have an "ergative" language.
+As you've seen, these terms conflate features from nominal morphology, verbal person marking and even syntax, whereas in the real world, they don't *need* to appear in just those combinations. For example, Somali is a nominative-accusative language with marked nominative, and unmarked accusative. Indonesian has a weird word order.
+If I were to design the names from scratch, I'd unpack the assumptions---but the names are well established, so better learn them as they are used.
+
+Just to drill my point, here's an absurd example of two languages, which implement none of the common features in the previous pictures, but are nevertheless examples of nominative-accusative and ergative-absolutive alignment.
+
+<img src="/images/alignment-absurd-example.png" />
 
 
-* A bit more exact names are *absolutive-ergative system* and *nominative-accusative system*. Absolutive and nominative are usually the unmarked cases in their respective systems, ergative and accusative are the marked cases. *Nominative-accusative* is such a well-established order, so *absolutive-ergative* follows the pattern.
-* For the record, there are also nominative-accusative languages with a marked nominative. You might see them called "nominative-absolutive" (or maybe I'm just reading overly confusing grammars at my spare time.) But if we're just interested in alignment, the relevant test is to compare agents and subjects: are they both marked in *the same way*? If yes, then you have a nominative-accusative system where nominative is the marked one and accusative is the unmarked one.
-* The same goes if you see a combination like "ergative-genitive".
+<!-- * For the record, there are also nominative-accusative languages with a marked nominative. You might see them called "nominative-absolutive" (or maybe I'm just reading overly confusing grammars at my spare time.) But if we're just interested in alignment, the relevant test is to compare agents and subjects: are they both marked in *the same way*? If yes, then you have a nominative-accusative system where nominative is the marked one and accusative is the unmarked one.
+* The same goes if you see a combination like "ergative-genitive". -->
 
 
 
 ## 2-dimensional marking
 
+Back to the regularly scheduled program! We're ready to move on to 2-dimensional agreement. There are, in fact, much fewer different ways of doing it, because we must include both. I will show one nominative-accusative language, and one ergative-absolutive language, but really, if we consider just the implementation of `V`, `V2`, `VP`, `UseV`, `ComplV2` and `PredVP`, there's not all that much difference.
+
+<!-- But now that we have 2-dimensional agreement, it stops being relevant for verbal agreement whether we have ergative-absolutive or nominative-accusative system. When we only had to mark one -->
+
+
+### Hungarian
 
 Next, let's do Hungarian (within the sample shown previously, that is, ignoring the 2nd person object suffix).
-Hungarian is nominative-accusative, so for consistency I'm talking about subjects and objects again.
+Hungarian is nominative-accusative.
 
-But now that we have 2-dimensional agreement, it stops being relevant for verbal agreement whether we have absolutive-ergative or nominative-accusative system. When we only had to mark one
 
 ```haskell
 param
@@ -379,12 +431,12 @@ lin
 
 ### 3-dimensional marking
 
-And why stop at direct object? If you've read my blog before, you knew this was coming---Basque ditransitive auxiliary agrees with agent, patient and indirect object.
+And why stop at direct object? If you've read my blog before, you knew this was coming---Basque ditransitive auxiliary agrees with agent, object and indirect object.
 
-Basque happens to be ergative, so we talk about subject, agent and patient again.
+Basque happens to be ergative, so we talk about subject, agent and object again.
 
 
-The patient agreement in transitive verbs covers all persons and numbers, but in ditransitive, it's restricted to singular vs. plural. (If someone who knows Basque is reading this and wondering, I'm ignoring second person familiar forms and allocutive for now, but I will introduce them in the next post.) Within these restrictions, we can model Basque verbs as follows:
+The object agreement in transitive verbs covers all persons and numbers, but in ditransitive, it's restricted to singular vs. plural. (If someone who knows Basque is reading this and wondering, I'm ignoring second person familiar forms and allocutive for now, but I will introduce them in the next post.) Within these restrictions, we can model Basque verbs as follows:
 
 ```haskell
 param
@@ -399,7 +451,7 @@ lincat
 
 Let's start from the order of the arguments.
 
-Also, the fact that Basque is absolutive-ergative is actually not at all interesting from verb inflection perspective. We need to mark both, so the argument marking strategy doesn't bring anything new to the verbs, unlike Like-English-but-patient-marking-and-ergative, which was an exciting and novel way of inflecting English verbs.
+Also, the fact that Basque is ergative-absolutive is actually not at all interesting from verb inflection perspective. We need to mark both, so the argument marking strategy doesn't bring anything new to the verbs, unlike Like-English-but-object-marking-and-ergative, which was an exciting and novel way of inflecting English verbs.
 
 We do notice ergativity in Basque in nominal cases.
 
@@ -421,10 +473,13 @@ We do notice ergativity in Basque in nominal cases.
 
 ## Read more
 
-* The whole WALS article about person marking: [wals.info/chapter/102](https://wals.info/chapter/102)
+* WALS article about person marking: [wals.info/chapter/102](https://wals.info/chapter/102)
+* WALS article about alignment of person marking: [wals.info/chapter/102](https://wals.info/chapter/100)
 
 ## Footnotes
 
 [^1]: In case you're wondering what "some languages" means, here's a WALS map. Pink shapes are different varieties of the strategy *mark transitive object same as intransitive subject* (at least some of the time).<a href="https://wals.info/feature/100A?v1=dffc&v0=dfff&v5=tf6f&v3=ff6f&v2=cfff&v4=sf6f&v6=cf6f#2/16.6/148.9"><img src="/images/alignments-wals.png" alt="Another world map from WALS" /></a>
 
-[^2]: Technically there's a 5th alternative; subject is different but agent and patient are the same. But it would be strange to spend precious morphemes on just the case where it doesn't make a difference (intransitive subject vs. both transitive arguments) and then not spend them where it is actually important---one would want to know whether <font color="green">you</font> see <font color="purple">me</font> or <font color="green">I</font> see <font color="purple">you</font>.
+[^2]: Sometimes you see the whole trio called by semantic rather than syntactic roles: <strong><font color="orange">experiencer</font></strong> sleeps, and <strong><font color="green">agent</font></strong> eats <strong><font color="purple">patient</font></strong>. A&nbsp;common combination is Subject, Agent and Patient. In this post, I use *object* instead of *patient*, because I want to introduce as little new terminology as possible. But if you e.g. read the WALS articles, it's useful to know what they mean with *patient*, shortened P.<img src="/images/wals-marking.png" width="50%"/>
+
+[^3]: Technically there's a 5th alternative; subject is different but agent and object are the same. But it would be strange to spend precious morphemes on just the case where it doesn't make a difference (intransitive subject vs. both transitive arguments) and then not spend them where it is actually important.
