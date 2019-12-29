@@ -392,39 +392,55 @@ Just to drill my point, here's an absurd example of two languages, which impleme
 
 ## 2-dimensional marking
 
-Back to the regularly scheduled program! We're ready to move on to 2-dimensional agreement. There are, in fact, much fewer different ways of doing it, because we must include both. I will show one nominative-accusative language, and one ergative-absolutive language, but really, if we consider just the implementation of `V`, `V2`, `VP`, `UseV`, `ComplV2` and `PredVP`, there's not all that much difference.
+Back to the regularly scheduled program!
+<!-- We're ready to move on to 2-dimensional agreement. -->
+I don't know about you but I'm tired of pretending English has morphology, so we're graduating from Like-English-but-… to actual languages.
+
+I will show one nominative-accusative language, and one ergative-absolutive language---not because there is a huge difference, but rather because there isn't.
+<!-- The lincats of `V`, `V2` and `VP` are basically identical (as you will see). The implementations of `UseV`, `ComplV2` and `PredVP` need to remember the subject case -->
+There are, in fact, fewer possible 2-dimensional systems than 1-dimensional, because we must include both arguments.
 
 <!-- But now that we have 2-dimensional agreement, it stops being relevant for verbal agreement whether we have ergative-absolutive or nominative-accusative system. When we only had to mark one -->
 
 
 ### Hungarian
 
-Next, let's do Hungarian (within the sample shown previously, that is, ignoring the 2nd person object suffix).
+Here's a grammar of very simplified Hungarian---just enough morphology to illustrate how to deal with 2-dimensional agreement. There are lots and lots of cases,
 Hungarian is nominative-accusative.
 
 
 ```haskell
 param
-  Subject = Sg1 | Sg2 | Sg3 | Pl1 | Pl2 | Pl3 ;
-  Object = DefObj | IndefObj ;
+  AgrS = Sg1 | Sg2 | Sg3 | Pl1 | Pl2 | Pl3 ;
+  AgrO = DefObj | IndefObj ;
+  Case = Nom | Acc | … ; -- Lots of cases we're not showing here!
 
 lincat
-  V  = {s :           Subject => Str} ;
-  V2 = {s : Object => Subject => Str} ;
+  V,
+  VP = {s :         AgrS => Str} ;
+  V2 = {s : AgrO => AgrS => Str} ;
+  NP = {s : Case => Str ; a : AgrS} ;
 
 lin
-  sleep_V = {s =
+  walk_V = {s =
     table { Sg1 => "..." ;
-                    ...
-                    Pl3 => "..." }
+            ...
+            Pl3 => "..." }
   } ;
   drink_V2 = {s =
-    table { DefObj   => table { Sg1 => "..." ;
-                                ...
-                                Pl3 => "..." } ;
-            IndefObj => table { Sg1 => "..." ;
-                                ...
-                                Pl3 => "..." }
+    table { DefObj   => table { Sg1 => "iszom" ;
+                                Sg2 => "iszod" ;
+                                Sg2 => "issza" ;
+                                Pl1 => "isszuk" ;
+                                Pl2 => "isszátok" ;
+                                Pl3 => "isszák" } ;
+
+            IndefObj => table { Sg1 => "iszok" ;
+                                Sg2 => "iszol" ;
+                                Sg2 => "iszik" ;
+                                Pl1 => "iszunk" ;
+                                Pl2 => "isztok" ;
+                                Pl3 => "isznak" }
           }
   } ;
 ```
