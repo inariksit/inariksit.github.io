@@ -40,7 +40,9 @@ For simplicity, I'm only showing positive present indicative forms. You can free
 
 ## No person marking
 
-The simplest person marking is no person marking. Let's start easy and do Chinese:
+The simplest person marking is no person marking. In the WALS map you've just seen, languages without verbal person marking are shown with white dots.
+
+Here's what an inflection table looks like in Chinese:
 
 ```haskell
 lincat
@@ -52,9 +54,15 @@ lin
   drink_V2 = {s = "喝"} ;
 ```
 
+Of course, languages without person marking in the verb are perfectly capable of expressing who does what.
+Presence or absence of person marking doesn't imply anything about the overall morphological complexity of the language:
+e.g. Japanese verbs mark tons of other things, just not person.
+
 ## 1-dimensional person marking
 
-Next possibility, the verb can mark one of its core arguments, subject or object.
+Moving on to higher dimensions.
+The verb can mark *one* of its core arguments---shown by the yellow and red dots on [the previous map](#person-marking-wals).
+The marked argument can be consistent, i.e. always the subject or object, or it may depend on more complex criteria.
 
 ### Subject marking
 
@@ -279,7 +287,7 @@ And we're done with 1-dimensional agreement! If I have missed something, please 
 
 Soon we will go on to 2-dimensional agreement. But before that, I need to introduce properly "the other strategy" for the alignment of argument marking, which was used in LEBOM-ERG.
 
-## Interlude: Nominative-accusative vs. Ergative-absolutive
+## Interlude: Nominative-accusative vs. Ergative-absolutive alignment
 
 So far I've used the term *subject* for two things: the only argument of an intransitive verb (*<b>subject</b> sleeps*), and the doer argument of a transitive verb (*<b>subject</b> eats object*).
 
@@ -352,7 +360,7 @@ In languages such as Basque, the subject of an intransitive verb and the object 
   </li>
 </ul>
 <ul>
- <li> Inarik <font color="purple">ni</font> nau  <br/>
+ <li> Inarik <font color="purple">ni</font> nauka  <br/>
       <em>Inari has <font color="purple">me</font ></em>   </li>
 </ul>
 
@@ -363,25 +371,29 @@ Let's translate now "Inari is" and "I have Inari":
  * Inari  da  
    *Inari is*
 <ul>
-<li><font color="green">Nik</font> Inari dut <br/>
+<li><font color="green">Nik</font> Inari daukat <br/>
    <em><font color="green">I</font> have Inari</em>
 </li>
 </ul>
 
-Pretty solid ergative-absolutive alignment from the NPs! Notice also how the verb indexes the absolutive argument (S or O): <b>n</b>aiz and <b>n</b>au for 1st person singular, <b>d</b>a and <b>d</b>ut for 3rd person singular. If you just looked at the translations of "Inari is" and "Inari has me", you wouldn't find any similarities in the verb forms, *da* and *nau*.
+Pretty solid ergative-absolutive alignment from the NPs! Notice also how the verb indexes the absolutive argument (S or O): <b>n</b>aiz and <b>n</b>auka for 1st person singular, <b>d</b>a and <b>d</b>aukat for 3rd person singular. If you just looked at the translations of "Inari is" and "Inari has me", you wouldn't find any similarities in the verb forms, *da* and *nauka*.
 
-Languages that behave like this are called "ergative-absolutive languages", or "absolutive-ergative languages". (Some say that to have a consistent naming scheme with nominative-accusative, absolutive should come first because it's the unmarked case.) However, everyone agrees on the short name, "ergative languages"---again, named after the marked case.
+Languages that behave like this are called "ergative-absolutive languages", or "absolutive-ergative languages". (Why the two orders? *Ergative-absolutive* mimics nominative-accusative in that the agent case comes first, and *absolutive-ergative* in that the unmarked case comes first.) However, everyone agrees on the short name, "ergative languages"---again, named after the marked case.
 
 <img src="/images/abs-erg-common-features.png" />
 
 
 ### Terminology notes
 
-As you've seen, these terms conflate features from nominal morphology, verbal person marking and even syntax, whereas in the real world, they don't *need* to appear in just those combinations. For example, Somali is a nominative-accusative language with marked nominative, and unmarked accusative. Indonesian has a weird word order.
-If I were to design the names from scratch, I'd unpack the assumptions---but the names are well established, so better learn them as they are used.
+As you've seen, these terms conflate features from nominal morphology, verbal person marking and even syntax, whereas in the real world, they don't *need* to appear in just those combinations.
 
+For example, Somali is a nominative-accusative language with a marked subject case and unmarked object case. The name "accusative" means "marked object case", so technically Somali's object case isn't an accusative (well, and a few other reasons which this margin is too narrow to contain). Despite Somali not having *accusative* as a nominal case, it still is a *nominative-accusative* language as for its person marking alignment.
+
+So if you're new to linguistics, try not to get confused! To finish this digression, here's an absurd example to remind you that despite the names, person marking alignment doesn't need to rely on cases.
+
+<!-- If I were to design the names from scratch, I'd unpack the assumptions---but the names are well established, so better learn them as they are used.
 Just to drill my point, here's an absurd example of two languages, which implement none of the common features in the previous pictures, but are nevertheless examples of nominative-accusative and ergative-absolutive alignment.
-
+-->
 <img src="/images/alignment-absurd-example.png" />
 
 
@@ -394,55 +406,63 @@ Just to drill my point, here's an absurd example of two languages, which impleme
 
 Back to the regularly scheduled program!
 <!-- We're ready to move on to 2-dimensional agreement. -->
-I don't know about you but I'm tired of pretending English has morphology, so we're graduating from Like-English-but-… to actual languages.
+By now you're surely tired of pretending that English has morphology, so we're graduating from *Like-English-but-…* to actual languages.
 
 I will show one nominative-accusative language, and one ergative-absolutive language---not because there is a huge difference, but rather because there isn't.
 <!-- The lincats of `V`, `V2` and `VP` are basically identical (as you will see). The implementations of `UseV`, `ComplV2` and `PredVP` need to remember the subject case -->
+
 There are, in fact, fewer possible 2-dimensional systems than 1-dimensional, because we must include both arguments.
+For 1-dimensional systems, we had 3 main classes: a) always mark subject, b) always mark object or c) it depends. For 2-dimensional systems, we have one main class, "always mark both", and variation is more fine-grained, like "mark both arguments in the verb inflection, but use a weird case for one of them".
 
 <!-- But now that we have 2-dimensional agreement, it stops being relevant for verbal agreement whether we have ergative-absolutive or nominative-accusative system. When we only had to mark one -->
 
 
 ### Hungarian
 
-Here's a grammar of very simplified Hungarian---just enough morphology to illustrate how to deal with 2-dimensional agreement. There are lots and lots of cases,
+Here's a grammar of __very simplified__ Hungarian---just enough morphology to illustrate how to deal with 2-dimensional agreement.
 Hungarian is nominative-accusative.
 
 
 ```haskell
 param
-  AgrS = Sg1 | Sg2 | Sg3 | Pl1 | Pl2 | Pl3 ;
-  AgrO = DefObj | IndefObj ;
-  Case = Nom | Acc | … ; -- Lots of cases we're not showing here!
+  Agr = Sg1 | Sg2 | Sg3 | Pl1 | Pl2 | Pl3 ;
+  Definiteness = Def | Indef ;
+  Case = Nom | Acc | … ; -- Lots of cases not shown here!
 
 lincat
   V,
-  VP = {s :         AgrS => Str} ;
-  V2 = {s : AgrO => AgrS => Str} ;
-  NP = {s : Case => Str ; a : AgrS} ;
+  VP = {s :                 Agr => Str} ;
+  V2 = {s : Definiteness => Agr => Str} ;
+  NP = {s : Case => Str ; a : Agr ; d : Definiteness} ;
 
 lin
-  walk_V = {s =
+  sleep_V = {s =
     table { Sg1 => "..." ;
             ...
             Pl3 => "..." }
   } ;
   drink_V2 = {s =
-    table { DefObj   => table { Sg1 => "iszom" ;
-                                Sg2 => "iszod" ;
-                                Sg2 => "issza" ;
-                                Pl1 => "isszuk" ;
-                                Pl2 => "isszátok" ;
-                                Pl3 => "isszák" } ;
+    table { Def => table { Sg1 => "iszom" ;
+                           Sg2 => "iszod" ;
+                           Sg2 => "issza" ;
+                           Pl1 => "isszuk" ;
+                           Pl2 => "isszátok" ;
+                           Pl3 => "isszák" } ;
 
-            IndefObj => table { Sg1 => "iszok" ;
-                                Sg2 => "iszol" ;
-                                Sg2 => "iszik" ;
-                                Pl1 => "iszunk" ;
-                                Pl2 => "isztok" ;
-                                Pl3 => "isznak" }
+            Indef => table { Sg1 => "iszok" ;
+                             Sg2 => "iszol" ;
+                             Sg2 => "iszik" ;
+                             Pl1 => "iszunk" ;
+                             Pl2 => "isztok" ;
+                             Pl3 => "isznak" }
           }
   } ;
+
+  UseV v = v ;
+
+  ComplV2 v2 np = {s = v2.s ! np.d ++ np.s ! Acc} ;
+
+  PredVP np vp = {s = np.s ! Nom ++ vp.s ! np.a} ;
 ```
 
 ### 3-dimensional marking
