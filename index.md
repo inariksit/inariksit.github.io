@@ -9,7 +9,7 @@ In addition, I contribute actively to the [Grammatical Framework](http://www.gra
 
 ## Contact
 
-* Email: `inari at digitalgrammars dot com`
+* Email: &#105;&#110;&#097;&#114;&#105;&#064;&#100;&#105;&#103;&#105;&#116;&#097;&#108;&#103;&#114;&#097;&#109;&#109;&#097;&#114;&#115;&#046;&#099;&#111;&#109;
 * Phone: 070 772 61 15
 * Office: D002, Holtermansgatan 1D, 41129 Göteborg
 * Post: Digital Grammars, Stena Center 1D, 41292 Göteborg, Sweden
