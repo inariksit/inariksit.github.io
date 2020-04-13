@@ -444,14 +444,14 @@ lin
   drink_V2 = {s =
     table { Def => table { Sg1 => "iszom" ;
                            Sg2 => "iszod" ;
-                           Sg2 => "issza" ;
+                           Sg3 => "issza" ;
                            Pl1 => "isszuk" ;
                            Pl2 => "isszátok" ;
                            Pl3 => "isszák" } ;
 
             Indef => table { Sg1 => "iszok" ;
                              Sg2 => "iszol" ;
-                             Sg2 => "iszik" ;
+                             Sg3 => "iszik" ;
                              Pl1 => "iszunk" ;
                              Pl2 => "isztok" ;
                              Pl3 => "isznak" }
