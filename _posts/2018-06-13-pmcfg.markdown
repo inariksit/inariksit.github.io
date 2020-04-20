@@ -67,7 +67,8 @@ lin
          k = kind.s ! num ;
       in case quality.isPre of {
                 True  => q++k ;
-                False => k++q }
+                False => k++q } ;
+    g = kind.g
   } ;
 ```
 
