@@ -98,9 +98,9 @@ An anonymous GF developer had a problem with the Czech concrete syntax of an app
 
 > I am experiencing something strange with the Czech grammar. When compiling to PGF and loading with the C runtime, I get:  
 > ```
->     Abstract category A is missing  
->     pgf_read_cnccat (pgf/reader.c:1067): assertion failed  
->       cnccat->abscat != NULL
+> Abstract category A is missing  
+> pgf_read_cnccat (pgf/reader.c:1067): assertion failed  
+>   cnccat->abscat != NULL
 > ```
 > 
 > This doesn't occur when loading with the Haskell runtime. 
