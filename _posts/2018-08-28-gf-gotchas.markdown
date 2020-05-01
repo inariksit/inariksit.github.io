@@ -122,7 +122,9 @@ concrete NumeralCze of Numeral = CatCze ** {
 NumeralCze was inheriting all of CatCze and not just `[Numeral,Digits]`. After restricting the inheritance, the problem was solved. The current [NumeralCze.gf](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/czech/NumeralCze.gf#L1-L3) looks like this:
 
 ```haskell
-concrete NumeralCze of Numeral [Numeral,Digits] = CatCze ** {
+concrete NumeralCze of Numeral = 
+  CatCze [Numeral,Digits]
+  ** {
 ```
 
 ## linref
