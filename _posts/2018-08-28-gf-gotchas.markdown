@@ -7,7 +7,7 @@ tags: gf
 ---
 
 ![duck](/images/gf-rubber-duck.png "Your favourite companion for writing GF")
-Latest update: 2018-12-28
+Latest update: 2020-05-01
 
 This post contains real-life examples when I or my friends have been
 confused in the past. It might be updated whenever someone is confused
@@ -90,6 +90,39 @@ GrammarEng.gf:
                                 p = str_0} ;
        linref CAdv = \str_0 -> str_0.s ! ParamX.Pos ;
    in module CatEng
+```
+
+### Restricted inheritance and the C runtime
+
+An anonymous GF developer had a problem with the Czech concrete syntax of an application grammar. The grammar worked fine in the ordinary GF shell, but it crashed when using the C runtime.
+
+> I am experiencing something strange with the Czech grammar. When compiling to PGF and loading with the C runtime, I get:  
+> ```
+>     Abstract category A is missing  
+>     pgf_read_cnccat (pgf/reader.c:1067): assertion failed  
+>       cnccat->abscat != NULL
+> ```
+> 
+> This doesn't occur when loading with the Haskell runtime. 
+> I'm not doing anything special, just:  
+>     `gf -make cze/XXXgrammarCze.gf && gf -cshell XXXgrammar.pgf`
+
+The problem turned out to be about the (non)restricted inheritance in the Czech resource grammar. Here's the first (content) line of [Numeral.gf](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/abstract/Numeral.gf#L20):
+
+```haskell
+abstract Numeral = Cat [Numeral,Digits] ** {
+```
+
+And here's the corresponding line in [NumeralCze.gf](https://github.com/GrammaticalFramework/gf-rgl/blob/0d6948f59b25b9f0d67244172ba85570ffd6405d/src/czech/NumeralCze.gf#L1-L3) at the time before it had been fixed:
+
+```haskell
+concrete NumeralCze of Numeral = CatCze ** {
+```
+
+NumeralCze was inheriting all of CatCze and not just `[Numeral,Digits]`. After restricting the inheritance, the problem was solved. The current [NumeralCze.gf](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/czech/NumeralCze.gf#L1-L3) looks like this:
+
+```haskell
+concrete NumeralCze of Numeral [Numeral,Digits] = CatCze ** {
 ```
 
 ## linref
