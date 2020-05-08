@@ -7,7 +7,7 @@ tags: gf
 ---
 
 ![duck](/images/gf-rubber-duck.png "Your favourite companion for writing GF")
-Latest update: 2020-05-01
+Latest update: 2020-05-08
 
 This post contains real-life examples when I or my friends have been
 confused in the past. It might be updated whenever someone is confused
@@ -31,6 +31,7 @@ again.
   - [Raise an exception](#raise-an-exception)
   - [variants {}](#empty-variants)
 - [Too good linearisations for some RGL functions](#too-good-linearisations-for-some-rgl-functions)
+- [Re-export RGL opers in application grammar](#re-export-rgl-opers-in-application-grammar)
 
 
 ## Restricted inheritance
@@ -102,10 +103,9 @@ An anonymous GF developer had a problem with the Czech concrete syntax of an app
 > pgf_read_cnccat (pgf/reader.c:1067): assertion failed  
 >   cnccat->abscat != NULL
 > ```
-> 
-> This doesn't occur when loading with the Haskell runtime. 
-> I'm not doing anything special, just:  
->     `gf -make cze/XXXgrammarCze.gf && gf -cshell XXXgrammar.pgf`
+>
+> This doesn't occur when loading with the Haskell runtime.
+> I'm not doing anything special, just  `gf -make AppCze.gf && gf -cshell App.pgf`
 
 The problem turned out to be about the (non)restricted inheritance in the Czech resource grammar. Here's the first (content) line of [Numeral.gf](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/abstract/Numeral.gf#L20):
 
@@ -116,15 +116,17 @@ abstract Numeral = Cat [Numeral,Digits] ** {
 And here's the corresponding line in [NumeralCze.gf](https://github.com/GrammaticalFramework/gf-rgl/blob/0d6948f59b25b9f0d67244172ba85570ffd6405d/src/czech/NumeralCze.gf#L1-L3) at the time before it had been fixed:
 
 ```haskell
-concrete NumeralCze of Numeral = CatCze ** {
+concrete NumeralCze of Numeral =
+
+  CatCze ** {
 ```
 
-NumeralCze was inheriting all of CatCze and not just `[Numeral,Digits]`. After restricting the inheritance, the problem was solved. The current [NumeralCze.gf](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/czech/NumeralCze.gf#L1-L3) looks like this:
+NumeralCze was inheriting all of CatCze and not just `[Numeral,Digits]`. After restricting the inheritance, the problem was solved. The current [NumeralCze.gf](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/czech/NumeralCze.gf#L1-L3) looks like this, and the application works correctly.
 
 ```haskell
-concrete NumeralCze of Numeral = 
-  CatCze [Numeral,Digits]
-  ** {
+concrete NumeralCze of Numeral =
+
+  CatCze [Numeral,Digits] ** {
 ```
 
 ## linref
@@ -613,6 +615,89 @@ One can argue that it's better for as many RGL trees as possible to return somet
 in such a case, "everything is blue" or "I see everything" is preferrable to "every is blue" and "I see every".
 On the other hand, such (over)engineered solution creates ambiguity: now "everything" is a linearisation of both `everything_NP` and `DetNP every_Det`. Furthermore, it forces other languages to do something that makes equally much sense, because now you will get more nonsensical trees while parsing text that makes sense.
 
+## Re-export RGL opers in application grammar
+
+Here's what you can do in any grammar in the GF shell: load any grammar, parse and linearise arbitrary trees in the grammar.
+
+```haskell
+Foods> l Pred (These Pizza) Delicious
+estas pizzas son deliciosas
+
+Foods> p "este vino es caro"
+Pred (This Wine) Expensive
+```
+
+Here's another standard thing we can do in the GF shell: import the Paradigms module with `retain`, and create any inflection table.
+
+```haskell
+$ gf
+> i -retain alltenses/ParadigmsSpa.gfo
+> cc -table mkN "tortilla"
+s . ParamX.Sg => tortilla
+s . ParamX.Pl => tortillas
+g . CommonRomance.Fem
+```
+
+But what about combining the two? What if I want to create sentences about delicious tortillas, but can't be bothered to extend the abstract syntax of Foods? Wouldn't it be nice if I could just do this?
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">Foods> l Pred (That (mkN "tortilla")) Delicious
+esa tortilla es deliciosa
+</span></code></pre></div></div>
+
+
+Unfortunately this won't work exactly like that. But you can get very close. Let's look at the [concrete syntax](https://github.com/inariksit/gf-contrib/blob/master/foods/FoodsSpa.gf#L1-L28):
+
+```haskell
+lincat
+  Comment = Utt ;
+  Item = NP ;
+  Kind = CN ;
+  Quality = AP ;
+lin
+  Pred item quality = mkUtt (mkCl item quality) ;
+  This kind = mkNP this_QuantSg kind ;
+  Mod quality kind = mkCN quality kind ;
+  Very quality = mkAP very_AdA quality ;
+  Wine = mkCN (mkN "vino") ;
+  Pizza = mkCN (mkN "pizza") ;
+  Delicious = mkAP (mkA "delicioso") ;
+```
+
+Now we know which RGL categories to use, so we can be more precise. Kinds are CNs, so we need `mkN` and `mkCN` to write make a `Kind` out of the string "tortilla". These opers, `mkN` and `mkCN`, are in scope when writing the grammar, because the grammar *opens* ParadigmsSpa and SyntaxSpa. But these opers are only *used* in the Foods grammar, they aren't retained when we import the Foods grammar in the GF shell using `i -retain`.
+
+So how to make those `mkN` and `mkCN` usable? We can __re-export__ them. Add the following lines in the concrete syntax:
+
+```haskell
+oper
+   mkN : Str -> N = ParadigmsSpa.mkN ;
+   mkCN : N -> CN = SyntaxSpa.mkCN ;
+```
+
+Now you can do the following in the GF shell:
+
+```haskell
+$ gf
+> i -retain FoodsSpa.gf
+> cc -one Pred (These (mkCN (mkN "tortilla"))) Delicious
+estas tortillas son deliciosas
+```
+
+You can repeat the process for other parts of speech. Want to say that the tortilla is vegan? Just check what's the lincat for Quality and re-export the appropriate opers from ParadigmsSpa and SyntaxSpa. In fact, you don't even need to call the functions the same. You could as well do this:
+
+```haskell
+oper
+  kind : Str -> CN = \s -> mkCN (mkN s) ;
+  qual : Str -> AP = \s -> mkAP (mkA s) ;
+```
+
+To be used in the GF shell like this:
+
+```haskell
+> cc -one Pred (These (kind "tortilla")) (qual "vegano")
+estas tortillas son veganas
+```
+
+The full grammar, including my additions, is [here](https://github.com/inariksit/gf-contrib/blob/master/foods/FoodsSpa.gf#L29).
 
 ## Footnotes
 
