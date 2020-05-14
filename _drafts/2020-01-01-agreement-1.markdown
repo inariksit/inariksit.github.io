@@ -13,6 +13,23 @@ The first post---this one---is an introduction to verbal agreement, most useful 
 
 If you're a seasoned GF grammarian and have any familiarity with linguistics, the first post won't be all that new information, but you surely wouldn't want to miss my hot takes on ergativity. If you don't know what ergativity means, that's a sign that you need to read the first post.
 
+- [Agreement in linguistics](#agreement-in-linguistics)
+- [No person marking](#no-person-marking)
+- [1-dimensional person marking](#1-dimensional-person-marking)
+  * [Subject marking](#subject-marking)
+  * [Object marking](#object-marking)
+  * [Object marking: another option for intransitive verbs](#object-marking--another-option-for-intransitive-verbs)
+  * [Subject *or* object: Differential argument marking](#subject--or--object--differential-argument-marking)
+- [Interlude: Nominative-accusative vs. Ergative-absolutive alignment](#interlude--nominative-accusative-vs-ergative-absolutive-alignment)
+  * [Nominative-accusative alignment](#nominative-accusative-alignment)
+  * [Ergative-absolutive alignment](#ergative-absolutive-alignment)
+  * [Terminology notes](#terminology-notes)
+- [2-dimensional person marking](#2-dimensional-person-marking)
+  * [Nominative-accusative: Hungarian](#nominative-accusative--hungarian)
+  * [Ergative-absolutive: Basque](#ergative-absolutive--basque)
+- [Read more](#read-more)
+- [Footnotes](#footnotes)
+
 
 ## Agreement in linguistics
 
@@ -402,7 +419,7 @@ Just to drill my point, here's an absurd example of two languages, which impleme
 
 
 
-## 2-dimensional marking
+## 2-dimensional person marking
 
 Back to the regularly scheduled program!
 <!-- We're ready to move on to 2-dimensional agreement. -->
@@ -416,18 +433,15 @@ For 1-dimensional systems, we had 3 main classes: a) always mark subject, b) alw
 
 <!-- But now that we have 2-dimensional agreement, it stops being relevant for verbal agreement whether we have ergative-absolutive or nominative-accusative system. When we only had to mark one -->
 
-
-### Hungarian
+### Nominative-accusative: Hungarian
 
 Here's a grammar of simplified Hungarian---just enough morphology to illustrate how to deal with 2-dimensional agreement.
-Hungarian is nominative-accusative.
-
 
 ```haskell
 param
   Agr = Sg1 | Sg2 | Sg3 | Pl1 | Pl2 | Pl3 ;
   Definiteness = Def | Indef ;
-  Case = Nom | Acc | Dat | … ; -- Most cases omitted here
+  Case = Nom | Acc | Dat ; -- Most cases omitted here
 
 lincat
   V,
@@ -497,49 +511,104 @@ MakeSentence subj verb obj = subj.s ! Nom
 
 As usual, there is runnable code for this little exercise grammar at [github.com/inariksit/gf-agreement-tutorial](https://github.com/inariksit/gf-agreement-tutorial/blob/master/2-dimensional/AgreementHun.gf). The actual grammar is quite different from this blog post, because I implemented a few things unrelated to verbal agreement, and moved some things to opers.
 
-### Basque
+### Ergative-absolutive: Basque
 
-## 3-dimensional marking
-
-And why stop at direct object? If you've read my blog before, you knew this was coming---Basque ditransitive auxiliary agrees with agent, object and indirect object.
-
-Basque happens to be ergative, so we talk about subject, agent and object again.
-
-
-The object agreement in transitive verbs covers all persons and numbers, but in ditransitive, it's restricted to singular vs. plural. (If someone who knows Basque is reading this and wondering, I'm ignoring second person familiar forms and allocutive for now, but I will introduce them in the next post.) Within these restrictions, we can model Basque verbs as follows:
+This is the final example of this blog post: a simplified version of Basque transitive verbs. (Home assignment is to implement Basque *ditransitive* verbs!)
 
 ```haskell
 param
   Agr = Sg1 | Sg2 | Sg3 | Pl1 | Pl2 | Pl3 ;
-  DtPat = SgPat | PlPat ;
+  Case = Abs | Erg ; -- Most cases omitted here
 
 lincat
-  V  = {s :                 Agr => Str } ;
-  V2 = {s :          Agr => Agr => Str } ;
-  V3 = {s : DtPat => Agr => Agr => Str } ;
+  NP = {s : Case => Str ; a : Agr} ;
+
+  VP = {s :        Agr => Str ; sc : Case} ; -- subj/agent case
+  V  = {s :        Agr => Str} ;
+  V2 = {s : Agr => Agr => Str} ;
 ```
+
+`V` and `V2` are just like in Hungarian: `V2` becomes `V` by peeling off the outer layer of object agreement. However, `VP` needs something extra due to ergativity: namely, the case of its future subject/agent. Trees don't track their origin automatically, so without the parameter `sc`, the VP wouldn't know if it came from an intransitive verb (via `UseV`) or a transitive verb (via `ComplV2`), and hence whether it has a *subject* or an *agent*.
+
+Next, let me show some verbs in action. The real code is at the usual place and will be linked later, let's just imagine for a moment that allomorphs and stem changes don't exist. The code below produces forms like *lo egin gara* 'we sleep', *edan dituzu* 'you drink them', *edan zaitut* 'I drink you' and so forth.
+
+```haskell
+lin
+  sleep_V = {
+    s = \\subj => "lo egin" ++ case subj of {
+                      Sg1 => "naiz" ; Pl1 => "gara" ;
+                      Sg2 => "zara" ; Pl2 => "zarete" ;
+                      Sg3 => "da"   ; Pl3 => "dira" }
+    } ;
+
+  drink_V2 = {s =
+    \\obj,ag => "edan" ++ (prefix ! obj + suffix ! ag) ;
+  } where {
+      prefix : Agr => Str = table {
+        Sg1 => "nau"   ; Pl1 => "gaitu" ;
+        Sg2 => "zaitu" ; Pl2 => "zaituzte" ;
+        Sg3 => "du"    ; Pl3 => "ditu" } ;
+
+      suffix : Agr => Str = table {
+        Sg1 => "t"  ; Pl1 => "gu" ;
+        Sg2 => "zu" ; Pl2 => "zue" ;
+        Sg3 => []   ; Pl3 => "te" } ;
+    } ;
+```
+
+Finally, the syntactic functions look as follows.
+
+```haskell
+UseV v = v ** {
+  sc = Abs ; -- Comes from V, has absolutive subject
+  } ;
+
+ComplV2 v2 np = {
+  s = \\agAgr => np.s ! Abs ++ v2.s ! np.a ! agAgr ;
+  sc = Erg ; -- Comes from V2, has ergative agent
+  } ;
+
+PredVP np vp = {
+  s = np.s ! vp.sc ++ vp.s ! np.a ;
+  } ;
+```
+
+Nothing exciting to see. `ComplV2` picks the right object agreement in v2 and leaves the agent open. `PredVP` completes the job and picks the right form, now that it has an agent. It also picks the right case from the NP, using the VP's `sc` field. Thus we get the following sentences:
+
+```
+Agreement: PredVP i_NP (UseV sleep_V)  
+AgreementEus: ni lo egin naiz  
+
+Agreement: PredVP i_NP (ComplV2 drink_V2 water_NP)  
+AgreementEus: nik ura edan dut
+```
+
+If you read through the interlude expecting some mindblowing grammar tricks due to ergativity, you'll be disappointed. The only thing we did was to add a subject case to VP, but that's what we do in other languages as well. In the [actual Hungarian implementation](https://github.com/inariksit/gf-agreement-tutorial/blob/master/2-dimensional/AgreementHun.gf) I have added a verb that takes its subject in dative. (Well, the difference is that the subject case is present already in the *verb*, not just VP.)
+
+So, now you can go and check out the [full grammar for Basque](https://github.com/inariksit/gf-agreement-tutorial/blob/master/2-dimensional/AgreementEus.gf)! If you get bored when waiting for the next posts, you can always take up the challenge of implementing ditransitive verbs, with their 3-dimensional agreement.
+
+<!-- ## 3-dimensional marking
+
+Remember when I said a while back that that was the last example? I intend to keep my promise, so this is left as a homework. You can complete the Basque into its proper 3-dimensional glory.
+
+```haskell
+param
+  Agr = Sg1 | Sg2 | Sg3 | Pl1 | Pl2 | Pl3 ;
+  IndirObj = SgObj | PlObj ;
+
+lincat
+  V  = {s :                    Agr => Str} ;
+  V2 = {s :             Agr => Agr => Str} ;
+  V3 = {s : IndirObj => Agr => Agr => Str} ;
+```
+
+https://upload.wikimedia.org/wikipedia/commons/3/36/Nor_Nori_Nork_taula_osoa.png
 
 Let's start from the order of the arguments.
 
-Also, the fact that Basque is ergative-absolutive is actually not at all interesting from verb inflection perspective. We need to mark both, so the argument marking strategy doesn't bring anything new to the verbs, unlike Like-English-but-object-marking-and-ergative, which was an exciting and novel way of inflecting English verbs.
+<!--Also, the fact that Basque is ergative-absolutive is actually not at all interesting from verb inflection perspective. We need to mark both, so the argument marking strategy doesn't bring anything new to the verbs, unlike Like-English-but-object-marking-and-ergative, which was an exciting and novel way of inflecting English verbs.-->
 
-We do notice ergativity in Basque in nominal cases.
 
-```haskell
-  sleep : IntransVerb =
-    table { Sg1 => "..." ;
-            ...
-            Pl3 => "..." } ;
-
-  drink : TransVerb =
-    table { Def   => table { Sg1 => "..." ;
-                             ...
-                             Pl3 => "..." } ;
-            Indef => table { Sg1 => "..." ;
-                             ...
-                             Pl3 => "..." }
-    } ;
-```
 
 ## Read more
 
