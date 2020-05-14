@@ -528,7 +528,7 @@ lincat
   V2 = {s : Agr => Agr => Str} ;
 ```
 
-`V` and `V2` are just like in Hungarian: `V2` becomes `V` by peeling off the outer layer of object agreement. However, `VP` needs something extra due to ergativity: namely, the case of its future subject/agent. Trees don't track their origin automatically, so without the parameter `sc`, the VP wouldn't know if it came from an intransitive verb (via `UseV`) or a transitive verb (via `ComplV2`), and hence whether it has a *subject* or an *agent*.
+`V` and `V2` are just like in Hungarian. However, `VP` needs something extra due to ergativity: namely, the case of its future subject/agent. Trees don't track their origin automatically, so without the parameter `sc`, the `VP` wouldn't know if it came from an intransitive verb (via `UseV`) or a transitive verb (via `ComplV2`), and hence whether it has a *subject* or an *agent*.
 
 Next, let me show some verbs in action. The real code is at the usual place and will be linked later, let's just imagine for a moment that allomorphs and stem changes don't exist. The code below produces forms like *lo egin gara* 'we sleep', *edan dituzu* 'you drink them', *edan zaitut* 'I drink you' and so forth.
 
