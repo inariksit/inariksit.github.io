@@ -45,9 +45,9 @@ However, if the difference is morphological, then a good rule of thumb is to see
 fun
   see_V2 : V2 ;
 lincat
-  V2 = {s : Politeness => Str} ;
+  V2 = {s : Style => Str} ;
 param
-  Politeness = Plain | Polite | Polite+ ;
+  Style = Plain | Polite | Polite+ ;
 lin
   see_V2 = {
     s = table {
@@ -67,14 +67,16 @@ But inflection table is just the first step. We need to decide how to get those 
   * If object contains a polite word, such as `youPol_Pron` or `emperor_N`, choose `Polite+`. (Note that it doesn't have to be a direct object: a possessor is enough, like in *your garden*.)
   * If subject contains `i_Pron` and object contains `you_Pron`, choose `Polite`.
   * If object contains `i_Pron`, choose `Plain`. <!--(even as a possessor, like in *my garden*)-->
-1. Politeness is determined by factors beyond mere words and the common RGL constructors. It is best to keep all categories open for `Politeness` until `Utt`. In the common core of the RGL, `PhrUtt` will choose the most neutral one, and to access the others, we need to define the following functions in a language-specific extra module:
-  * `PlainPhr,`
-  * `PolitePhr,`
-  * `Polite+Phr : Utt -> Phr  ;`
+1. Politeness is determined by factors beyond mere words and the common RGL constructors. It is best to keep all categories open for `Style` until `Utt`. In the common core of the RGL, `UttS` will choose the most neutral one, and to access the others, we need to define the following functions in a language-specific extra module:
+  * `PlainUtt,`
+  * `PoliteUtt,`
+  * `Polite+Utt : S -> Utt ;`
 
-If the RGL had been designed with Japanese in mind, it would certainly have these distinctions as abstract syntax functions in the common core. But as long as the different forms are available to application grammarians through *some* means---`ExtraJpn` or `Extend`---it's not a problem. RGL isn't meant to produce translation equivalents
+If the RGL had been designed with Japanese in mind, it would certainly have these distinctions as abstract syntax functions in the common core. But as long as the different forms are available to application grammarians through *some* means---`ExtraJpn` or `Extend`---it's not a problem. I'll elaborate on that [later in this post](TODO).
 
-<!--
+### Actual RGL implementation
+
+Japanese has been in the RGL since 2012, so let's see how it works there. All credit for the actual code goes to Liza Zimina ([link to paper](https://link.springer.com/chapter/10.1007/978-3-642-33983-7_16)), I'm just reporting the great work she's done.
 
 
 I tried to replicate Feynman's example sentences in the Japanese RG, but it seems that the distinction isn't included for all verbs, only for `VV` and `V3`. So here's how it works for `want_VV`:
@@ -87,7 +89,7 @@ Lang&gt; p "she wants to see Paris" | l -lang=Jpn
 彼女    は パリ を 見<span class="o">たがって います</span>
 <span class="c1">kanojo wa pari o mitagatte imasu</span>
 </code></pre></div></div>
--->
+
 <!-- ```
 Lang> p "I want to see Paris" | l -lang=Jpn
 私 は パリ を 見 たい です
@@ -143,3 +145,25 @@ So style should rather be a variable in both NPs and VPs.
 -->
 
 ## Basque allocutives
+
+## Implications to the RGL API
+
+Earlier, I said _as long as the different forms are available to application grammarians through *some* means---`ExtraJpn` or `Extend`---it's not a problem._
+
+My suggestion is to keep `Utt` as
+
+Utt is a {s : Str}, is easier to reuse other concrete syntaxes. Even though `Phr` is the start category, in many application grammars I find Utt to be the de facto start category. It makes sense, because S often needs to be open: think `SubjS : S -> Adv` which requires `S` to be open for mood (subjunctive vs. indicative), or `ComplVS : VS -> S -> VP`, which requires `S` to be open for word order (main vs. subordinate).
+But after Utt, there's only vocatives to add, and I don't think I've ever seen one used in an application grammar.
+
+Furthermore, often the grammars are written in a way that
+
+
+Example: politeness, make it open until S, and choose one in `UttS`. Then communicate to your users that you need to have a custom `mkUtt` if you want other politeness forms.
+Why just S?
+- Would be much more complicated to drop politeness already at Cl level: a lot of hassle to change which forms get chosen at `UseCl` or `PredVP`. Both of these functions are complex and an end user should not need to touch internals that much.
+- Would be API-breaking to keep politeness at Utt level. Adopting the language becomes a hassle, lot of grammars assume that Utt is a {s : Str}. Say you have a functor that takes care of a lot of things, and adding a new language is just adding lexicon. It's disappointing to plug in a new concrete and then have to override tons of things in your functor. In contrast, if Utt is {s:Str} and you want to change the politeness level, then you only need to override `mkUtt` from the RGL.
+
+```haskell
+demo application grammar showing how to override an API function like mkUtt
+yes, there's a tiny bit of internals touching here, but wayyyy less than in option 1 and probably still less hassle than in option 2.
+```
