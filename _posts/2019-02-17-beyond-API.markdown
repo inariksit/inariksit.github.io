@@ -30,10 +30,11 @@ fun WhereIsThing : Thing -> Question ;
 You've written a linearisation for your application grammar in a language you don't know (we'll just call it L from now on), using the API function `mkQCl`:
 
 ```haskell
+-- mkQCl : IP -> NP -> QCl    -- who is the man
+
 lincat 
   Thing = NP ;
   Question = QCl ;
--- mkQCl : IP -> NP -> QCl    -- who is the man
 
 lin 
   WhereIsThing np = mkQCl where_IP np ;
@@ -41,7 +42,7 @@ lin
 
 You show the application-specific sentence, say, *where is the money* to your informant, and they tell you that it's wrong: *money* should be in accusative.
 
-Unfortunately, your trigger-happy second-in-command shoots the informant in frustration, and you don't have access to any other L speakers in reasonable distance. What do you do?
+Unfortunately, your second-in-command shoots the informant in frustration, and you don't have access to any other L speakers in reasonable distance. What do you do?
 
 ### Ideal: fix the RG
 
