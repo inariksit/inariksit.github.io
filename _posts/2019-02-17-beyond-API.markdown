@@ -24,15 +24,19 @@ Of course, the *best* practice is that you fix or extend the RG, or change the a
 So you have an application grammar with the following function:
 
 ```haskell
-fun WhereIsNP : NP -> QCl ;
+fun WhereIsThing : Thing -> Question ;
 ```
 
 You've written a linearisation for your application grammar in a language you don't know (we'll just call it L from now on), using the API function `mkQCl`:
 
 ```haskell
+lincat 
+  Thing = NP ;
+  Question = QCl ;
 -- mkQCl : IP -> NP -> QCl    -- who is the man
 
-lin WhereIsNP np = mkQCl where_IP np ;
+lin 
+  WhereIsThing np = mkQCl where_IP np ;
 ```
 
 You show the application-specific sentence, say, *where is the money* to your informant, and they tell you that it's wrong: *money* should be in accusative.
@@ -55,7 +59,7 @@ You've peeked into the resource grammar of L, and you know that `NP` has an `s`
 field which is a table of `Case => Str`. So you go for this quick and dirty solution:
 
 ```haskell
-WhereIsNP np = mkQCl where_IP npInAcc
+WhereIsThing np = mkQCl where_IP npInAcc
   where {
     npInAcc = np ** {s = \\_ => np.s ! Acc}
   } ;
@@ -65,14 +69,14 @@ You're extending the original *np* argument, so it's not the most terrible solut
 
 ### OK: find another RGL API function
 
-So, let's look at `WhereIsNP` again.
+So, let's look at `WhereIsThing` again.
 
 ```haskell
 -- Try 1
-WhereIsNP np = mkQCl where_IP np ;
+WhereIsThing np = mkQCl where_IP np ;
 
 -- Try 2
-WhereIsNP np = mkQCl where_IP npInAcc
+WhereIsThing np = mkQCl where_IP npInAcc
   where { npInAcc = ... } ;
 ```
 
