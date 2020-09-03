@@ -355,7 +355,7 @@ echo "-- temporary definitions to enable the compilation of RGL API" >> MissingX
 Then go to the directory `abstract`, and do this:
 
 ```
-for l in `cat /tmp/missingLins.txt` ; do egrep -o "\<$l\> +:.*;" *.gf | tr -s ' ' | egrep -v "(Definition|Document|Inflection|Language|Mark|Month|Monthday|Tag|Timeunit|Weekday|Year|Month)" | sed 's/gf:/ ;/g' | cut -f 2 -d ';' | sed -E 's/(.*) : (.*)/oper \1 : \2 = notYet "\1" ;/' ; done >> ../XXX/MissingXXX.gf
+for l in `cat /tmp/missingLins.txt` ; do egrep -o "\<$l\> +:.*;" *.gf | tr -s ' ' | egrep -v "(Definition|Document|Inflection|Language|Mark|Month|Monthday|Tag|Timeunit|Hour|Weekday|Year|Month)" | sed 's/gf:/ ;/g' | cut -f 2 -d ';' | sed -E 's/(.*) : (.*)/oper \1 : \2 = notYet "\1" ;/' ; done >> ../XXX/MissingXXX.gf
 ```
 
 And remember to add the ending brace to the `MissingXxx` file.
