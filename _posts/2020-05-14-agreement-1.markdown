@@ -249,7 +249,7 @@ lin
   UseV v = v ;
 
   -- ComplV2 : V2 -> NP -> VP
-  ComplV2 v2 np = {s = \\_ => v2.s ! agr ++ np.s} ;
+  ComplV2 v2 np = {s = \\_ => v2.s ! np.a ++ np.s} ;
 
   -- PredVP : NP -> VP -> Cl
   PredVP np vp = {s = np.s ++ vp.s ! np.a} ;
@@ -259,7 +259,7 @@ We're back to `{s : Agr => Str}` for all verbal categories. Unlike LEBOM, where 
 
 Because `V` needs a subject to know the correct form, `VP` needs to be an inflection table too. Just looking at `UseV` and `PredVP`, they are exactly like in [ordinary English](#gf-grammar-for-english).
 
-In contrast, `ComplV2` has a different behaviour: it picks out the right form of the `V2` already when forming a `VP`, using the object's agreement. But `VP` still needs a table, that's how GF works. So we put the chosen form in a dummy inflection table: all left-hand sides lead to that form.
+In contrast, `ComplV2` has a different behaviour: it picks out the right form of the `V2` already when forming a `VP`, using the object's agreement (`v2.s ! np.a`). But `VP` still needs a table, that's how GF works. So we put the chosen form in a dummy inflection table: all left-hand sides lead to that form.
 
 ### Subject *or* object: Differential argument marking
 
