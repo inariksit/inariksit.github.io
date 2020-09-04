@@ -8,3 +8,11 @@ tags: "gf linguistics"
 # Agreement, part III: Oblique agreement
 
 Here all the rambling about how an orthographical word depends on various elements in the tree.
+
+## Somali prepositions
+
+First I need to make you appreciate how cool this is. Examples from [Saeed (1999)](https://benjamins.com/catalog/loall.10) page 39.
+
+![SomaliPrepContr1](https://github.com/inariksit/inariksit.github.io/blob/master/images/somali-preposition-contraction-1.png "Somali preposition contraction: 'Faarax sidan ugu samee', gloss 'Faarax si-tan u+u samee', translation 'Do it in this way for Farah'")
+
+![SomaliPrepContr2](https://github.com/inariksit/inariksit.github.io/blob/master/images/somali-preposition-contraction-2.png "Somali preposition contraction: 'Cali lacagta nooga soo qaad', gloss 'Cali lacag-ta na+u+ka soo qaad', translation 'Get the money for us from Ali'")
