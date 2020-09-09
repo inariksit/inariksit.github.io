@@ -7,7 +7,7 @@ tags: gf
 ---
 
 ![duck](/images/gf-rubber-duck.png "Your favourite companion for writing GF")
-Latest update: 2020-05-08
+Latest update: 2020-09-09
 
 This post contains real-life examples when I or my friends have been
 confused in the past. It might be updated whenever someone is confused
@@ -20,6 +20,7 @@ again.
 - [Some overlooked GF shell commands](#some-overlooked-gf-shell-commands)
   - [ai](#ai)
   - [ma](#ma)
+  - [ca](#ca)
   - [tt](#tt)
   - [The coolest flags of `l`](#the-coolest-flags-of-l)
 - [Generating MissingXxx](#generating-missingxxx)
@@ -258,6 +259,86 @@ DefArt : s True Sg Neutr
 DefArt : s False Sg Neutr
 ...
 ```
+
+The `ma` command is useful also if you're dealing with GF text that is first generated in GF, but postprocessed with another program after that generation. If you need to debug or reverse engineer such output, then the `p` command won't work, because it contains strings outside the grammar. But you can still `ma` a text like that: it just ignores the words that it doesn't recognise. Example:
+
+```
+Lang> p "책과 고양이가 좋습니다"
+The parser failed at token 1: "\52293\44284"
+
+Lang> ma "책과 고양이가 좋습니다"
+책과
+
+고양이가
+cat_N : s Subject
+
+좋습니다
+good_A : s (VF Formal Pos)
+```
+
+You still don't know what the whole sentence is about, but at least you know its subject is a cat 😺 and something is good.
+
+Another unexpected use case for `ma` is if your grammar is extremely ambiguous. Say you have a few empty strings in strategic places, or are using a large lexicon with tons of synonyms--you'll easily get hundreds or even thousands of parses for a 3-word sentence. Example:
+
+```
+Lang> p "작은 고양이가 좋습니다" | ? wc
+     359   11232   86068
+
+Lang> ma "작은 고양이가 좋습니다" 
+작은
+small_A : s (VAttr Pos)
+short_A : s (VAttr Pos)
+
+고양이가
+cat_N : s Subject
+
+좋습니다
+good_A : s (VF Formal Pos)
+```
+
+This is much more readable than 359 trees. The subject is a small or short cat, and the predicate is that the cat is good. Just by seeing the morphological parameters from the inflection tables, we can infer that `small` is attributive and `good` is predicative. 
+
+### ca
+
+If your grammar includes bind tokens (`&+`), the standard GF shell can't parse it out of the box. You can either switch to the C shell (install GF with C runtime support and then type `gf -cshell`), or preprocess your input with `clitic_analyse`, `ca` for short. For this to work, you need a list of clitics in the GF grammar. 
+
+The Korean RG uses clitics for Conj (e.g. 고, 하고, 며, 이며), Prep (e.g. 와, 과) and Predet (e.g. 마다), and a few other things. If the grammar uses a the BIND token a lot, it's honestly pretty terrible to try to gather them all in order use `ca`, but let's just show this for the sake of example. Let's go back to the sentence we couldn't parse in the [`ma`](#ma) section: "책과 고양이가 좋습니다".
+
+```
+ca -lang=Kor -clitics=와,과,고,하고,며,이며 "책과 고양이가 좋습니다"
+책 &+ 과 고양이가 좋습니다
+```
+
+`ca` gives a hint why we couldn't parse it: the first word is in fact two tokens, `책 &+ 과`. The output of the `ca` command can be directly piped into other commands.
+
+```
+Lang> ca -lang=Kor -clitics=와,과,고,하고,며,이며 "책과 고양이가 좋습니다" | p | ? wc
+    1799   62920  496268
+```
+
+As you can see, `p` is more than happy to parse that stuff, it can find 1799 trees for those 3 words! What an improvement to `The parser failed at token 1: "\52293\44284"`. Let's try `ma`:
+
+```
+Lang> ca -lang=Kor -clitics=와,과,고,하고,며,이며 "책과 고양이가 좋습니다" | ma
+책
+book_N : s Bare
+
+&+
+
+과
+with_Prep : s Consonant
+married_A2 : p2 s Consonant
+
+고양이가
+cat_N : s Subject
+
+좋습니다
+good_A : s (VF Formal Pos)
+```
+
+So it's either a cat with a book or cat married to a book that is good. The mystery is solved.
+
+
 ### tt
 
 `tt`, short for `to_trie`, outputs the results of a parse in a trie
@@ -427,6 +508,10 @@ let subj = case np.isPron of {
       False => np.s ! Nom
    } ;
 ```
+<!--
+So why do they even appear in the first place? Quoting http://www.cse.chalmers.se/alumni/bringert/publ/pgf/pgf.pdf
+> Metavariables are an extension useful for several purposes. In particular, they are usedfor encoding suppressed arguments when parsing grammars with erasing linearization rules (Section 4.5). In dependent type checking, they are used for unifying type dependencies,and in interactive syntax editors (Khegai et al. 2003), they are used for marking unfinished parts of syntax trees.
+-->
 
 ## Placeholders/empty linearisations
 
