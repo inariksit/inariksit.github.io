@@ -38,7 +38,7 @@ If you know what GF and PGF are but haven't installed them, skip to [Installatio
 
 A GF grammar consists of an abstract syntax and a number of concrete syntaxes. They live in files that end in `.gf`. The executable is called `gf`, and you can use it in two ways:
 
-### 1) Run your grammar in a GF shell
+#### 1) Run your grammar in a GF shell
 
 Assuming that you have a file called `LangEng.gf` in the same directory, you can run the following command.
 
@@ -50,7 +50,7 @@ Lang> help
 <lots of helpful output>
 ```
 
-### 2) Compile your grammar into one of the various formats
+#### 2) Compile your grammar into one of the various formats
 
 ```
 $ gf -make LangEng.gf
@@ -109,10 +109,10 @@ Now follows installation instructions for the `PGF` library in Python and Haskel
 
 ## Installation in Python
 
-### 0) Check if it's already installed
+### Using the binary: PGF library is already installed
 
 <!--Depending on how you installed GF, you might already have the Python bindings. -->
-If you downloaded the Mac or Ubuntu binary, then you should have the Python bindings already. (Of course, if you have Mac or Ubuntu but you installed GF in another way, you can still download the binary just for the sake of the libraries and ignore everything else that comes with it!)
+If you downloaded the Mac or Ubuntu binary of GF, then you should have the Python bindings already.
 
 To test if you have the Python bindings, open a Python shell and type `import pgf`:
 
@@ -131,16 +131,24 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 If the import succeeeds, you have the library, and you can skip all the way to [Embedding grammars](#embedding-grammars).
 
-______
-
-*Note that for Mac, the library is installed only for the system Python, so if you have installed another Python from e.g. Homebrew and you'd prefer to use that for your GF+Python programming, then you need to go further to step 1.*
-
-*I have no experience on installing the libraries in Windows, so I recommend that you just try to follow these instructions---modify them if needed or use your favourite unix-like compatibility layer. If it doesn't work, we would appreciate if you open an issue at [GF's GitHub](https://github.com/GrammaticalFramework/gf-core/issues) describing your problem.*
-
-______
 <!-- If it does work, please let me know ([inari.listenmaa@gmail.com](mailto:inari.listenmaa@gmail.com)) so that I can update this post! -->
 
+### Not using the binary: get PGF library from PyPI
 
+When I wrote this blog post in 2019, this section used to be a multi-step hassle. I'm glad to inform you that since June 2020, the PGF library is [in PyPI](https://pypi.org/project/pgf/). So the installation step, if you're not using the binary, is as follows:
+
+```
+pip install pgf
+```
+
+And that's it. Make sure that you install it for the right Python---substitute with `pip3 install gf` or whichever version you want to use.
+Now you can continue to [Embedding grammars](#embedding-grammars).
+
+*If you have trouble with installing the PGF library, please open an issue at [GF's GitHub](https://github.com/GrammaticalFramework/gf-core/issues) describing your setup, what steps you took and the output.*
+
+<!--
+
+*I have no experience on installing the libraries in Windows. If it doesn't work, we would appreciate if you open an issue at [GF's GitHub](https://github.com/GrammaticalFramework/gf-core/issues) describing your problem.*
 
 ### 1) Install the C runtime
 
@@ -164,6 +172,7 @@ If you have several versions of Python on your computer, make sure that you use 
 Now open a Python shell (with the same Python that you used to build+install in the previous step) and type `import pgf`---if it works, now you can skip to [Embedding grammars](#embedding-grammars).
 
 How about if you have followed the steps until here, and it doesn't work? Please open an issue at [GF's GitHub](https://github.com/GrammaticalFramework/gf-core/issues) describing your setup, what steps you took and the output.
+-->
 
 ## Installation in Haskell
 
