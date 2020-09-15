@@ -114,9 +114,7 @@ Here is an artist's illustration on the process:
 ![alt text](/images/holes-with-holes.png "Applying contexts to other contexts")
 
 So what kind of a trivial `Tree → Tree` function we could use for
-`Comment`?  Well, there is always `id`, the most trivial of all `a →
-a` functions<sup>[3](#the-joke's-about-parametricity)</sup>!<a
-name="fn-3"> </a>So let's plug that in there.
+`Comment`?  Well, you can't get more trivial than `id : a → a`.
 
 ```haskell
 CtxComment := { id }
@@ -413,6 +411,3 @@ here's one more illustration just for you! <a href="#fn-2">↩</a>
 
 ![alt text](/images/categories.png "Antropomorfic categories")
 
-
-3.<a name="the-joke's-about-parametricity"> </a>Technically, also the
-most nontrivial. <a href="#fn-3">↩</a>
