@@ -247,7 +247,46 @@ Prep}` into an actual `N2` by wrapping it in `lin N2`.
         mkNoun s ** { c2 = prep }  -- : Noun ** {c2:Prep}
 lin N2 (mkNoun s ** { c2 = prep }) -- : N2
 ```
+<!--
+TODO: include this gotcha.
 
+Consider an oper like this:
+
+```haskell
+oper compoundN : Str -> N -> N ;
+```
+This is the expected use of such an oper.
+
+```haskell
+lin foobar_1_N = compoundN "foo" bar_N ;
+``` 
+
+But if we have more lincats that are the same as N's lincat, we can abuse the `compoundN` oper and apply it to them.
+
+```
+lincat N, CN = ResXxx.Noun ;
+lin foobar_2_N = compoundN "foo" (mkCN bar_N) ;
+```
+
+Why is that? Because some parts of GF actually ignore the lock fields. But this is actually sensitive to the types being otherwise 100% same. If we do this, then `foobar_2_N` stops working.
+
+```
+lincat
+  N = ResXxx.Noun ;
+  CN = ResXxx.Noun ** {someField : Str} ;
+lin foobar_2_N = compoundN "foo" (mkCN bar_N) ; -- this doesn't work
+```
+
+As long as N is the supertype of CN, it can still work if we just annotate the CN explicitly: "treat this as if it was a N".
+
+```
+lincat
+  N = ResXxx.Noun ;
+  CN = ResXxx.Noun ** {someField : Str} ;
+lin foobar_2_N = compoundN "foo" <mkCN bar_N : N> ; -- this should work (TODO test)
+```
+
+-->
 
 ## Interlude 2
 
