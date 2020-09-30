@@ -10,11 +10,16 @@ tags: "gf linguistics"
 
 Aside from an explicit vocative and imperative, we don't really model the addressee as an argument. Yet it is there; usually a speech act is directed to some audience. So this is a thing that happens in some languages:
 
-1. I ate-X some bread. (written in a personal diary, nobody sees it.)
-1. I ate-X-SG2 your bread.
-1. I ate-X-SG2 some bread. (addressed to someone)
+1. I eat-X some bread. (written in a personal diary, nobody sees it.)
+1. I eat-X-SG2 your bread.
+1. I eat-X-SG2 some bread. (addressed to someone)
 
-The verb form for *eat* may or may not agree with *I* and *bread*---we mark that with the morpheme X. But crucially, in addition to the explicit arguments, it agrees with *you*.  How should we model such forms in the RGL? Let us take two examples and I'll share my opinions.
+The verb form for *eat* may or may not agree with *I* and *bread*---we mark that with the morpheme X. But crucially, in addition to the explicit arguments, it agrees with *you*. This raises a couple of questions: 
+
+* Are we dealing with morphosyntax or sociolinguistics? 
+* How should we model such forms in the RGL?
+
+Let us take two examples and I'll share my opinions.
 
 ## Politeness
 
