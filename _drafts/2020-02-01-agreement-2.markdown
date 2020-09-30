@@ -1,29 +1,28 @@
 ---
 layout: post
-title:  "Generalising agreement: part II"
+title:  "Agreement, part II: Addressee and other implicit arguments"
 date:   2020-02-01
 categories: gf
 tags: "gf linguistics"
 ---
 
-# Agreement, part II: Addressee and other implicit arguments
-
-Aside from an explicit vocative and imperative, we don't really model the addressee as an argument. Yet it is there; usually a speech act is directed to some audience. So this is a thing that happens in some languages:
+Aside from an explicit vocative and imperative, we don't really model the addressee as an argument.
+Yet it is there---usually a speech act is directed to some audience. So this is a thing that happens in some languages.
 
 1. I eat-X some bread. (written in a personal diary, nobody sees it.)
 1. I eat-X-SG2 your bread.
 1. I eat-X-SG2 some bread. (addressed to someone)
 
-The verb form for *eat* may or may not agree with *I* and *bread*---we mark that with the morpheme X. But crucially, in addition to the explicit arguments, it agrees with *you*. This raises a couple of questions: 
+The verb form for *eat* may or may not agree with *I* and *bread*---we mark that with the morpheme X. But crucially, in addition to the explicit arguments, it agrees with *you*. This raises a couple of questions:
 
-* Are we dealing with morphosyntax or sociolinguistics? 
-* How should we model such forms in the RGL?
+* Are we dealing with morphosyntax or sociolinguistics?
+* Whatever it is, how should we model it in the RGL?
 
 Let us take two examples and I'll share my opinions.
 
 ## Politeness
 
-There's a funny passage from [Surely You're Joking, Mr. Feynman](https://books.google.se/books?id=Z7g-BAAAQBAJ&pg=PA245&dq=%22May+I+see+your+garden%22), about learning Japanese. (You can read the whole thing in the link.) Basically, Feynman learns that in order to translate the verb *see*, you have to know the whole context, who is talking to whom:
+There's a funny passage from [Surely You're Joking, Mr. Feynman](https://books.google.se/books?id=Z7g-BAAAQBAJ&pg=PA245&dq=%22May+I+see+your+garden%22), about learning Japanese. (You can read the whole thing in the link.) Basically, Feynman learns that in order to translate a verb like *to see*, you have to know the whole context, who is talking to whom:
 
 
  &nbsp;                       | *my* garden | *your* (polite) garden | *your* (extra polite) garden
@@ -44,7 +43,7 @@ fun
   hang_eyes_on_V2 : V2 ;
 ```
 
-However, if the difference is morphological, then a good rule of thumb is to see them as one verb, and put all politeness forms in the same inflection table.
+However, if the difference is morphological, then a good rule of thumb[^1] is to see them as one verb, and put all politeness forms in the same inflection table.
 
 ```haskell
 fun
@@ -63,14 +62,14 @@ lin
   }
 ```
 
-<!-- Of course, this is just a rule of thumb---inflection tables don't need to contain things that are morphologically related, nor is it a crime to separate them. *Kill* and *die* are related, but we don't want to put them in the same inflection table. -->
+
 
 But inflection table is just the first step. We need to decide how to get those forms out---which GF constructors higher up in the tree select which forms? We have two alternatives:
 <!-- How predictable is politeness from mere words or other constructors in the tree? Here are some ways to formulate rules: -->
 
 1. Politeness is determined by combinations of words and other constructors in the tree. Extremely simplified example rules:
   * If object contains a polite word, such as `youPol_Pron` or `emperor_N`, choose `Polite+`. (Note that it doesn't have to be a direct object: a possessor is enough, like in *your garden*.)
-  * If subject contains `i_Pron` and object contains `you_Pron`, choose `Polite`.
+  * If subject contains `i_Pron` and object contains `you{Sg,Pl}_Pron`, choose `Polite`.
   * If object contains `i_Pron`, choose `Plain`. <!--(even as a possessor, like in *my garden*)-->
 1. Politeness is determined by factors beyond mere words and the common RGL constructors. It is best to keep all categories open for `Style` until `Utt`. In the common core of the RGL, `UttS` will choose the most neutral one, and to access the others, we need to define the following functions in a language-specific extra module:
   * `PlainUtt,`
@@ -81,21 +80,50 @@ If the RGL had been designed with Japanese in mind, it would certainly have thes
 
 ### Actual RGL implementation
 
-Japanese has been in the RGL since 2012, so let's see how it works there. All credit for the actual code goes to Liza Zimina ([link to paper](https://link.springer.com/chapter/10.1007/978-3-642-33983-7_16)), I'm just reporting the great work she's done.
+Japanese has been in the RGL since 2012, so let's see how it works there. All credit for the actual code goes to Liza Zimina ([link to paper](https://link.springer.com/chapter/10.1007/978-3-642-33983-7_16)), I'm just reporting the great work she's done. Any misunderstandings about Japanese in this blog post are mine.
 
 
 I tried to replicate Feynman's example sentences in the Japanese RG, but it seems that the distinction isn't included for all verbs, only for `VV` and `V3`. So here's how it works for `want_VV`:
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Lang&gt; p "I want to see Paris" | l -lang=Jpn
-私       は パリ を 見<span class="o">たい です</span>
+私       は  パリ を 見<span class="o">たい です</span>
 <span class="c1">watashi wa pari o mitai desu</span>
 
 Lang&gt; p "she wants to see Paris" | l -lang=Jpn
-彼女    は パリ を 見<span class="o">たがって います</span>
+彼女     は  パリ を 見<span class="o">たがって います</span>
 <span class="c1">kanojo wa pari o mitagatte imasu</span>
 </code></pre></div></div>
 
-<!-- ```
+If you didn't know Japanese, you'd be bored out of your mind right now. The verb inflects depending on the subject, stop the press! But in fact, this is not person agreement. The form reflects that I should be more respectful when talking about other people, but I can spend fewer morphemes when  talking about myself[^2].
+
+
+
+<!--
+
+In the previous example, "mitai" and "mitagatte" are actually forms of the same verb. You can see the stem 見 in both versions. But the verb may also be completely different. Let's see the verb `give_V3`.
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Lang&gt; p "I give him the car" | l -lang=Jpn
+私       は  彼  に   車     を 上げます
+<span class="c1">watashi wa kare ni kuruma o agemasu</span>
+<span class="c1">I    TOPIC him DAT car  OBJ give</span>
+
+Lang&gt; p "he gives me the car" | l -lang=Jpn
+彼    は   私      に  車     を 呉れます
+<span class="c1">kare wa  watashi ni kuruma o kuremasu</span>
+<span class="c1">he TOPIC me     DAT car  OBJ give</span>
+</code></pre></div></div>
+
+Here we have -->
+
+<!--
+```
+Lang> p "I give him the car" | l -lang=Jpn
+私 は 彼 に 車 を 上げます
+
+Lang> p "he gives me the car" | l -lang=Jpn
+彼 は 私 に 車 を 呉れます
+```
+```
 Lang> p "I want to see Paris" | l -lang=Jpn
 私 は パリ を 見 たい です
 
@@ -107,7 +135,9 @@ Lang> p "he wants to see Paris" | l -lang=Jpn
 <!--
 In the Japanese RG, written by Liza Zimina ([link to paper](https://link.springer.com/chapter/10.1007/978-3-642-33983-7_16)), the solution is as follows---heavily simplified, apologies to the author for omitting all other points but the speaker distinction.-->
 
-<!-- ```haskell
+<!--
+
+ ```haskell
 param
   Speaker = Me | SomeoneElse ;
   Style = Plain | Resp ;
@@ -123,9 +153,12 @@ lin
     s = \\style,… => np.s ! style ++
                      vp.s ! np.speaker ! style ! …
     } ;
-``` -->
+```
+-->
 
-<!--
+Let's look at a simplified version of the types.
+
+
 <div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">param</span>
   <span class="kt">Speaker</span> <span class="o">=</span> <span class="kt">Me</span> <span class="o">|</span> <span class="kt">SomeoneElse</span> <span class="p">;</span>
   <span class="kt">Style</span> <span class="o">=</span> <span class="kt">Plain</span> <span class="o">|</span> <span class="kt">Resp</span> <span class="p">;</span>
@@ -143,8 +176,23 @@ lin
     <span class="p">}</span> <span class="p">;</span>
 </code></pre></div></div>
 
+There are, in fact, two dimensions in this sociolinguistic puzzle: the speaker and the overall style.
+The Japanese resource grammar forces you to spend more morphemes when you talk about others, but you can still choose to do it in an overall more or less polite way. Here's the table for "__ want(s) to see Paris". (If you can't read Japanese, just take it as longer = more polite.)
 
-Luckily, it's fairly easy to know if a NP is *me* or *someone else*---i.e. is the NP `UsePron i_Pron` or any other NP. The `Style` parameter can also be encoded in some things that are already in the RGL: there is `youSg_Pron`, `youPl_Pron` and `youPol_Pron`. Of course, there are a million other things that are not handled in the RGL---maybe we could infer that all NPs made out of `emperor_N` are respectful, but this is very much not the case for nouns in general. Quite the contrary: nouns have several variants, depending on who is talking. Consider that even in English, you would rather call your own mother "mommy" and someone else's mother "that person's mother", not vice versa. Now let's just grammaticalise this idea, make it depend on politeness in general, and have it affect all words!
+
+ &nbsp; | Plain | Respectful |
+--------|-------|--------|---
+ **Me**    | 私はパリを<strong>見たい</strong> | 私はパリを<strong>見たいです</strong>
+ **SomeoneElse**  | 彼女はパリを<strong>見たがっている</strong> | 彼女はパリを<strong>見たがっています</strong>
+
+
+Luckily, it's fairly easy to know if a NP is *me* or *someone else*---i.e. is the NP `UsePron i_Pron` or any other NP. So we can definitely choose the speaker in `PredVP`, and only be left with the overall style, when we reach `Cl`.
+
+In the Japanese RG, the `Style` is open all the way up to `Phr`--finally, `PhrUtt` in  [PhraseJpn](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/japanese/PhraseJpn.gf#L8) chooses explicitly the `Resp`ectful style.
+If you want to get the plain form, you need to use the function `StylePartPhr` in [ExtraJpn](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/japanese/ExtraJpn.gf#L36).
+
+<!--
+ The `Style` parameter can also be encoded in some things that are already in the RGL: there is `youSg_Pron`, `youPl_Pron` and `youPol_Pron`. Of course, there are a million other things that are not handled in the RGL---maybe we could infer that all NPs made out of `emperor_N` are respectful, but this is very much not the case for nouns in general.
 
 So style should rather be a variable in both NPs and VPs.
 -->
@@ -172,3 +220,9 @@ Why just S?
 demo application grammar showing how to override an API function like mkUtt
 yes, there's a tiny bit of internals touching here, but wayyyy less than in option 1 and probably still less hassle than in option 2.
 ```
+
+## Footnotes
+
+[^1]: Of course, this is just a rule of thumb---inflection tables don't need to contain things that are morphologically related, nor is it a crime to separate them. *Kill* and *die* are semantically related, but we don't want to put them in the same inflection table.
+
+[^2]: If you think this is weird, consider that even in English, people might call their parents differently from other people's parents. So `father_N2` could have an inflection table `Me => "daddy" ; SomeoneElse => "father"`. Japanese has just grammaticalised this idea.
