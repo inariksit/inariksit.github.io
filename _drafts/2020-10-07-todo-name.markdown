@@ -13,7 +13,7 @@ In this post, I discuss how to write a GF grammar that is used from another appl
 
 ![nlg_pizza_order](/images/pizza-order-interface.png "An interface for ordering pizza")
 
-Suppose you have an application as shown above. You can choose the dish, and then choose specifics of the dish: a pizza has toppings, a lasagna has fillings and so on. After you have chosen your dish, an order confirmation is generated as a natural language sentence: "Your pizza has [topping1] and [topping2]".
+Suppose you have a restaurant application like above. You can choose your dish, and then choose specifics of the dish: a pizza has toppings, a lasagna has fillings and so on. After you have chosen your dish, an order confirmation is generated as a natural language sentence: "Your pizza has [topping1] and [topping2]".
 
 The natural language sentence is generated with a GF grammar. This grammar contains the vocabulary, such as "pizza", "lasagna" and "zucchini", as well as the sentence structure for "[food] contains [ingredient]".
 All the logic for reading user input and constructing a matching GF tree is written in some general-purpose programming language. (For details on how to do that, see the post on [embedding grammars](https://inariksit.github.io/gf/2019/12/12/embedding-grammars.html).)
@@ -49,7 +49,7 @@ abstract Foods = {
 }
 ```
 
-You may have seen something similar before. This abstract syntax and the English concrete syntax are found in my fork of gf-contrib, folder [foods/zucchini/initial](https://github.com/inariksit/gf-contrib/tree/zucchini/foods/zucchini/initial).
+You may have seen something similar before. This abstract syntax and the English concrete syntax are found in my fork of gf-contrib, directory [foods/zucchini/initial](https://github.com/inariksit/gf-contrib/tree/zucchini/foods/zucchini/initial).
 
 What can we say of this grammar? Its abstract syntax is not very semantically restrictive: it happily generates both of these sentences.
 
@@ -62,7 +62,7 @@ Foods: Has (Mass Zucchini) (Your Pizza)
 FoodsEng: zucchini has your pizza
 ```
 
-I think it's completely fine to not have selectional restrictions in the GF grammar. The actual restrictions come from the external program that generates the GF trees. But if it makes you happier, by all means do split `Item` into `Dish` and `Ingredient`:
+I think it's completely fine to not have selectional restrictions in the GF grammar. The actual restrictions come from the external program that generates the GF trees. But if it makes you happier, by all means do split `Item` into `Dish` and `Ingredient`. I can't think of any reason why it would be a negative thing.
 
 ```haskell
 Is : Dish -> Quality -> Comment ;       -- Your pizza is vegan
@@ -80,7 +80,7 @@ With a more restrictive abstract syntax, you're more likely to get sentences tha
 
 All of my examples are going to be in English, with some imaginary restrictions. If you've read my [post on agreement](https://inariksit.github.io/gf/2020/05/14/agreement-1.html#2-dimensional-person-marking), you know how much I like to show off my copypasting-from-Wiktionary skills, but for this post, I believe it's clearer if we skip the glosses and explanations. You may find the particular expressions contrived, but these situations happen all the time.
 
-To distinguish this contrived-inconveniences-English from actual English, we'll call it Pretenglish. (There's no language with ISO codes `pre` or `pr`.)
+To distinguish this contrived-inconveniences-English from actual English, we'll call it Pretenglish. (There's no language with ISO codes `pre` or `pr`.) I introduce the differences between Pretenglish and English in the next section.
 
 ### Concrete syntax in Pretenglish
 
@@ -91,7 +91,7 @@ Our restaurant business grows, and we want to adapt our order app to other langu
 FoodsPre: your zucchini is green
 ```
 
-Actually, idiomatic Pretenglish is "the colour of your zucchini is green". We note this to our TODO list and continue the QA round.
+«Actually», our informant tells us, «the idiomatic Pretenglish is _"the color of your zucchini is green_"». We note this to our TODO list and continue the QA round.
 
 
 ```
@@ -103,9 +103,9 @@ Foods: Has (Your Risotto) (Mass Zucchini)
 FoodsPre: your risotto has zucchini
 ```
 
-Pretenglish doesn't just have the verb "have". It's obligatory to specify whether the zucchini is on top of the dish, or mixed in the dish. Just saying "the dish has zucchini" is not merely strange, it's ungrammatical in Pretenglish.
+The informant is angry now. «There's no verb _"have"_ in Pretenglish. It's obligatory to specify whether the zucchini is on top of the dish, or mixed in the dish. _"The dish has zucchini"_ is not merely strange, it's ungrammatical!»
 
-We could go on, but the point becomes clear with these two. In the rest of the post, I'll show different ways to fix this.
+We could go on, but the point becomes clear with these two. In the rest of the post, I'll show different ways to introduce these distinctions in the grammar.
 
 ## Change abstract syntax
 
@@ -148,7 +148,7 @@ your pizza is vegan
 …
 ```
 
-However, I don't actually recommend this approach for most situations. Maybe if Pretenglish was the second concrete syntax after English, such refactoring would be feasible. But if you had 10 languages already, and had to do this to all of them, that's just not fun at all. Even if you went through all that trouble, your grammar might still not cover the distinctions of the next language.
+However, I don't actually recommend this approach for most situations. Maybe if Pretenglish was the second concrete syntax after English, such refactoring would be feasible. But if you have 10 languages already, and need to do a major restructuring to all of them, that's just not fun. Even if you went through all that trouble, your grammar might still not cover the distinctions of the next language.
 
 ### Softcore: add constructions with default implementations
 
@@ -170,7 +170,7 @@ abstract FoodsSoftcore = Foods ** {
 }
 ```
 
-We extend the old Foods grammar (found at [foods/zucchini/initial](https://github.com/inariksit/gf-contrib/tree/zucchini/foods/zucchini/initial), so we need an appropriate `-path` flag), and add three new constructions on top of the old one. Here's how to implement them in Pretenglish---we can extend FoodsEng, because apart from these details, English and Pretenglish are the same language.
+We extend the old Foods grammar (found at [foods/zucchini/initial](https://github.com/inariksit/gf-contrib/tree/zucchini/foods/zucchini/initial), so we need an appropriate `-path` flag), and add three new constructions on top of the old ones. Here's how to implement them in Pretenglish---we can extend FoodsEng, because apart from these details, English and Pretenglish are the same language.
 
 ```haskell
 --# -path=.:../initial
@@ -189,9 +189,9 @@ concrete FoodsSoftcorePre of FoodsSoftcore = FoodsEng ** {
 }
 ```
 
-These constructions aren't as smart as the hardcore ones. In FoodsHardcore, `HasOnTop` would only accept a `OnTopDish` as its first argument. In contrast, you can apply FoodsSoftcore's `HasOnTop` to all dishes, and the responsibility of applying selectional restrictions is on the external program.
+These constructions aren't as smart as the hardcore ones. In FoodsHardcore, `HasOnTop` would only accept an `OnTopDish` as its first argument. In contrast, you can apply FoodsSoftcore's `HasOnTop` to all dishes, and the responsibility of applying selectional restrictions is on the external program.
 
-If you're feeling unsure about this approach, look at the concrete syntax for ordinary English.
+If you're still unsure about this approach, look at the concrete syntax for ordinary English.
 
 ```haskell
 --# -path=.:../initial
@@ -202,7 +202,7 @@ concrete FoodsSoftcoreEng of FoodsSoftcore = FoodsEng ** {
 }
 ```
 
-This is the beauty of the approach. No need to refactor anything in the previous languages. Add as fine-grained constructions as you need, but don't remove the old ones. Only write new GF code for those languages that make the distinction, and for the rest, just use the old construction, like we did with `HasOnTop = Has`.
+This is the real selling point. No need to refactor anything in the previous languages. Add as fine-grained constructions as you need, but don't remove the old ones. Only write new GF code for those languages that make the distinction, and for the rest, just use the old construction, like we did with `HasOnTop = Has`.
 
 We can confirm that this grammar now translates successfully between English and Pretenglish.
 
@@ -228,7 +228,7 @@ Of course, when you do this, remember to update the program that constructs GF t
 
 Now suppose that it's not possible to change the abstract syntax. The code that creates GF trees based on user choices is a black box---you can still use it, but you're not allowed to modify it.
 
-![pizza_blackbox](/images/pizza-order-blackbox.png "Abstract syntax is locked, no access to the external program that creates GF trees")"
+![pizza_blackbox](/images/pizza-order-blackbox.png "Abstract syntax is locked, no access to the external program that creates GF trees")
 
 Are we screwed? No, in fact, we can mimic the hardcore approach without adding anything to the abstract syntax. If you've gotten past [Lesson 3](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc46) in the GF tutorial, you know how to do this.
 
