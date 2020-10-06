@@ -1,0 +1,301 @@
+---
+layout: post
+title:  "TODO: name for this post"
+date:   2020-10-07
+categories: gf
+tags: "gf programming"
+---
+
+In this post, I discuss how to write a GF grammar that is used from another application.
+
+## A toy NLG application
+
+![nlg_pizza_order](/images/pizza-order-interface.png "An interface for ordering pizza")
+
+Suppose you have an application as shown above. You can choose the dish, and then choose specifics of the dish: a pizza has toppings, a lasagna has fillings and so on. After you have chosen your dish, an order confirmation is generated as a natural language sentence: "Your pizza has [topping1] and [topping2]".
+
+The natural language sentence is generated with a GF grammar. This grammar contains the vocabulary, such as "pizza", "lasagna" and "zucchini", as well as the sentence structure for "[food] contains [ingredient]".
+All the logic for reading user input and constructing a matching GF tree is written in some general-purpose programming language. (For details on how to do that, see the post on [embedding grammars](https://inariksit.github.io/gf/2019/12/12/embedding-grammars.html).)
+
+<!--
+![nlg_pizza_order](/images/pizza-order-interface2.png "GF tree for the order confirmation")
+
+ As we know from [an earlier post](https://inariksit.github.io/gf/2019/12/12/embedding-grammars.html), such an application can be written in any language that has support for the PGF library. -->
+
+## GF grammar
+
+Suppose that the application is slightly more advanced than this. Maybe you can even describe the dish's properties.
+
+```haskell
+abstract Foods = {
+  flags startcat = Comment ;
+  cat
+    Comment ; Item ; Kind ; Quality ;
+  fun
+    Is : Item -> Quality -> Comment ; -- Your pizza is vegan
+    Has : Item -> Item -> Comment ;   -- Your pizza has pine seeds
+
+    Your : Kind -> Item ;             -- your pizza
+    Mass : Kind -> Item ;             -- zucchini
+    Plural : Kind -> Item ;           -- pine seeds
+    ConjItem :
+      Item -> Item -> Item ;          -- zucchini and pine seeds
+    Mod : Quality -> Kind -> Kind ;   -- vegan pizza
+    Pizza, Lasagna, Risotto : Kind ;
+    PineSeed, Mush, Zucchini : Kind ;
+    Colorless, Green,
+      Indeterminate, Vegan : Quality ;
+}
+```
+
+You may have seen something similar before. This abstract syntax and the English concrete syntax are found in my fork of gf-contrib, folder [foods/zucchini/initial](https://github.com/inariksit/gf-contrib/tree/zucchini/foods/zucchini/initial).
+
+What can we say of this grammar? Its abstract syntax is not very semantically restrictive: it happily generates both of these sentences.
+
+```haskell
+gr -number=2 Has ? ? | l -treebank
+Foods: Has (Your Pizza) (Mass Zucchini)
+FoodsEng: your pizza has zucchini
+
+Foods: Has (Mass Zucchini) (Your Pizza)
+FoodsEng: zucchini has your pizza
+```
+
+I think it's completely fine to not have selectional restrictions in the GF grammar. The actual restrictions come from the external program that generates the GF trees. But if it makes you happier, by all means do split `Item` into `Dish` and `Ingredient`:
+
+```haskell
+Is : Dish -> Quality -> Comment ;       -- Your pizza is vegan
+Has : Dish -> Ingredient -> Comment ;   -- Your pizza has pine seeds
+
+-- Exercise to the reader:
+-- update the rest of the code to match!
+```
+
+With a more restrictive abstract syntax, you're more likely to get sentences that make sense, whether you hit `gr` on the GF shell or use [gftest](https://github.com/GrammaticalFramework/gftest#readme). However, for the purposes of this post, we continue with the original design. (It will illustrate my point about bad GF design better.)
+
+## New linguistic challenges
+
+### Introducing Pretenglish ("Pretend English")
+
+All of my examples are going to be in English, with some imaginary restrictions. If you've read my [post on agreement](https://inariksit.github.io/gf/2020/05/14/agreement-1.html#2-dimensional-person-marking), you know how much I like to show off my copypasting-from-Wiktionary skills, but for this post, I believe it's clearer if we skip the glosses and explanations. You may find the particular expressions contrived, but these situations happen all the time.
+
+To distinguish this contrived-inconveniences-English from actual English, we'll call it Pretenglish. (There's no language with ISO codes `pre` or `pr`.)
+
+### Concrete syntax in Pretenglish
+
+Our restaurant business grows, and we want to adapt our order app to other languages. No problem, GF was just made for this! Let's write a concrete syntax in Pretenglish and check its output against a fluent speaker.
+
+```
+> l -treebank Is (Your Zucchini) Green
+FoodsPre: your zucchini is green
+```
+
+Actually, idiomatic Pretenglish is "the colour of your zucchini is green". We note this to our TODO list and continue the QA round.
+
+
+```
+> gr -number=2 Has (Your ?) (Mass Zucchini) | l -treebank
+Foods: Has (Your Pizza) (Mass Zucchini)
+FoodsPre: your pizza has zucchini
+
+Foods: Has (Your Risotto) (Mass Zucchini)
+FoodsPre: your risotto has zucchini
+```
+
+Pretenglish doesn't just have the verb "have". It's obligatory to specify whether the zucchini is on top of the dish, or mixed in the dish. Just saying "the dish has zucchini" is not merely strange, it's ungrammatical in Pretenglish.
+
+We could go on, but the point becomes clear with these two. In the rest of the post, I'll show different ways to fix this.
+
+## Change abstract syntax
+
+If you've read my post on [low-level hacks](https://inariksit.github.io/gf/2019/02/17/beyond-API.html), you may guess what I suggest:
+
+_Adapt the abstract syntax._
+
+We can interpret this advice in different ways.
+
+### Hardcore: change types, major restructuring
+
+This approach could be for you, if you don't like the idea of a GF grammar that can even in theory output anything wrong. You feel uneasy until you can split `Item` into `Dish` and `Ingredient`, and now you want to split `Quality` into colour and non-colour types. I have written an implementation so that you don't have to, found at [foods/zucchini/hardcore](https://github.com/inariksit/gf-contrib/tree/zucchini/foods/zucchini/hardcore). This is a fragment of new design,
+
+```haskell
+IsColor : Dish -> ColorQuality -> Comment ;
+IsOther : Dish -> OtherQuality -> Comment ;
+HasInside : InsideDish -> Ingredient -> Comment ;
+HasOnTop : OnTopDish -> Ingredient -> Comment ;
+```
+
+The types are so carefully engineered, you can be sure that no tree is unidiomatic. (Until you add the next language.) To demonstrate, everything here is correct Pretenglish:
+
+```
+> gt -depth=2 | l
+your lasagna has pine seeds inside
+your lasagna has zucchini inside
+your risotto has pine seeds inside
+your risotto has zucchini inside
+your pizza has pine seeds on top
+your pizza has zucchini on top
+the color of your lasagna is green
+the color of your risotto is green
+the color of your pizza is green
+your lasagna is colorless
+your lasagna is vegan
+your risotto is colorless
+your risotto is vegan
+your pizza is colorless
+your pizza is vegan
+…
+```
+
+However, I don't actually recommend this approach for most situations. Maybe if Pretenglish was the second concrete syntax after English, such refactoring would be feasible. But if you had 10 languages already, and had to do this to all of them, that's just not fun at all. Even if you went through all that trouble, your grammar is still brittle for the linguistic challenges of the next language.
+
+### Softcore: add constructions with default implementations
+
+The hardcore person's philosophy is: "I want every tree in my grammar to make sense." (100% precision.)
+
+The softcore person's philosophy is: "I want my grammar to contain every tree that makes sense." (100% recall.)
+
+Softcore strategy doesn't try to eliminate every "zucchini is green" from Pretenglish. It just adds a correct tree on top. In the directory [foods/zucchini/softcore](https://github.com/inariksit/gf-contrib/tree/zucchini/foods/zucchini/softcore), I have an implementation of this. The whole thing is so short that I'll paste it all.
+
+```haskell
+--# -path=.:../initial
+
+abstract FoodsSoftcore = Foods ** {
+  flags startcat=Comment ;
+  fun
+    IsColor : Item -> Quality -> Comment ;
+    HasInside,
+      HasOnTop : Item -> Item -> Comment ;
+}
+```
+
+We extend the old Foods grammar (found at [foods/zucchini/initial](https://github.com/inariksit/gf-contrib/tree/zucchini/foods/zucchini/initial), so we need an appropriate `-path` flag), and add three new constructions on top of the old one. Here's how to implement them in Pretenglish---we can extend FoodsEng, because apart from these details, English and Pretenglish are the same language.
+
+```haskell
+--# -path=.:../initial
+
+concrete FoodsSoftcorePre of FoodsSoftcore = FoodsEng ** {
+  lin
+    IsColor item qual = {
+      s = "the color of" ++ item.s
+        ++ "is" ++ qual.s} ;
+    HasInside dish ingr = {
+      s = dish.s ++ have ! dish.n
+        ++ ingr.s ++ "inside"} ;
+    HasOnTop dish ingr = {
+      s = dish.s ++ have ! dish.n
+        ++ ingr.s ++ "on top"} ;
+}
+```
+
+These constructions aren't as smart as the hardcore ones. In FoodsHardcore, `HasOnTop` would only accept a `OnTopDish` as its first argument. In contrast, you can apply FoodsSoftcore's `HasOnTop` to all dishes, and the responsibility of applying selectional restrictions is on the external program.
+
+If you're feeling unsure about this approach, look at the concrete syntax for ordinary English.
+
+```
+--# -path=.:../initial
+concrete FoodsSoftcoreEng of FoodsSoftcore = FoodsEng ** {
+  lin
+    IsColor             = Is ;
+    HasInside, HasOnTop = Has ;
+}
+```
+
+This is the beauty of the approach. No need to refactor anything in the previous languages. Add as fine-grained constructions as you need, but don't remove the old ones. Only write new GF code for those languages that make the distinction, and for the rest, just use the old construction, like we did with `HasOnTop = Has`.
+
+We can confirm that this grammar now translates successfully between English and Pretenglish.
+
+```
+> l -treebank IsColor (Your Pizza) Green
+FoodsSoftcoreEng: your pizza is green
+FoodsSoftcorePre: the color of your pizza is green
+```
+
+Yes, the incorrect Prenglish "your pizza is green" is still available:
+
+```
+> l -treebank Is (Your Pizza) Green
+FoodsSoftcoreEng: your pizza is green
+FoodsSoftcorePre: your pizza is green
+```
+
+But we don't care about it, because the correct construction is available in another tree.
+
+Of course, when you do this, remember to update the program that constructs GF trees. You don't need to do anything language-specific in that external program, it's enough to match the abstract syntax. Whenever the customer order is `Pizza`, call `HasOnTop`, otherwise call `HasInside`. (You would need to do this for hardcore approach as well.)
+
+## Change only concrete syntax
+
+Now suppose that it's not possible to change the abstract syntax. The code that creates GF trees based on user choices is a black box---you can still use it, but you're not allowed to modify it.
+
+![pizza_blackbox](/images/pizza-order-blackbox.png "Abstract syntax is locked, no access to the external program that creates GF trees")"
+
+Are we screwed? No, in fact, we can mimic the hardcore approach without adding anything to the abstract syntax. If you've gotten past [Lesson 3](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc46) in the GF tutorial, you know how to do this.
+
+We add some parameters:
+
+```haskell
+param
+  DishType = Inside | OnTop | NotADish ;
+  QualType = Color | Other ;
+```
+
+And use them in the lincats of Kind, Item and Quality:
+
+```haskell
+lincat
+  Item    = {s : Str ; n : Number ; d : DishType} ;
+  Kind    = {s : Number=>Str ; d : DishType} ;
+  Quality = {s : Str ; q : QualType} ;
+```
+
+We adjust the constructors `mkKind` and `mkQuality` from the initial grammar, and construct our lexicon like this:
+
+```haskell
+lin
+  Pizza = mkKind "pizza" OnTop ;
+  Lasagna = mkKind "lasagna" Inside ;
+  Vegan = mkQuality "vegan" Other ;
+  Green = mkQuality "green" Color ;
+```
+
+Finally, the parameters are put in action in the functions `Is` and `Has`:
+
+```haskell
+lin
+  Is item quality =
+    let theColorOf : Str = case quality.q of {
+          Color => "the color of" ;
+          Other => [] }
+        is : Str = case quality.q of {
+          Color => "is" ; -- the color of pine seeds *is* green
+          Other => copula ! item.n
+          } ;
+     in {s = theColorOf ++ item.s ++ is ++ quality.s} ;
+
+  Has food ingrds =
+    let place : Str = case food.d of {
+          Inside => "inside" ;
+          OnTop  => "on top" ;
+          NotADish => [] }
+     in {s = food.s ++ have ! food.n ++ ingrds.s ++ place} ;
+```
+
+The full grammar is in [foods/zucchini/only-concrete](https://github.com/inariksit/gf-contrib/tree/zucchini/foods/zucchini/only-concrete). To run together with the initial FoodsEng (since it shares the same abstract syntax), go to the `zucchini` directory and give both files as arguments to gf:
+
+```
+$ gf initial/FoodsEng.gf only-concrete/FoodsPre.gf
+…
+Languages: FoodsEng FoodsPre
+Foods> gr | l -treebank
+Foods: Is (Plural PineSeed) Green
+FoodsEng: pine seeds are green
+FoodsPre: the color of pine seeds is green
+```
+
+And you're done! Since we didn't change the abstract syntax, there's no need to change the external program. You might argue that this is more elegant than [foods/zucchini/hardcore](https://github.com/inariksit/gf-contrib/tree/zucchini/foods/zucchini/hardcore), because we didn't have to add all the extra types, functions and coercions, but we still have 100% precision. I'm not saying you're wrong.
+
+However, please be cautious with this approach. Just because it's possible to do it, it doesn't mean that it's always a good idea. I have real horror stories of this approach taken way too long, but the examples are so long and complicated that they don't make a good blog post.
+
+## Conclusion
+
+The ideal solution depends on the situation. It may be a combination of hardcore, softcore and concrete-only strategies. The fewer concrete syntaxes you have, the more you should dare to restructure your abstract syntax. After your 30th language, when your abstract syntax has been stable for the past 16 languages, you run into a quirk like "your pizza's colour is green", honestly I would just add the parameter. But if internal parameters are your only way of fixing things, eventually you will be very sad.
