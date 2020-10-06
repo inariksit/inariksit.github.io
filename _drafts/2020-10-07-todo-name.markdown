@@ -7,6 +7,7 @@ tags: "gf programming"
 ---
 
 In this post, I discuss how to write a GF grammar that is used from another application.
+<!--Depending on the application, a lot of the NLG challenges can be delegated to the external program. -->
 
 ## A toy NLG application
 
@@ -116,7 +117,7 @@ We can interpret this advice in different ways.
 
 ### Hardcore: change types, major restructuring
 
-This approach could be for you, if you don't like the idea of a GF grammar that can even in theory output anything wrong. You feel uneasy until you can split `Item` into `Dish` and `Ingredient`, and now you want to split `Quality` into colour and non-colour types. I have written an implementation so that you don't have to, found at [foods/zucchini/hardcore](https://github.com/inariksit/gf-contrib/tree/zucchini/foods/zucchini/hardcore). This is a fragment of new design,
+This approach could be for you, if you [don't like the idea](https://github.com/michmech/plausibility#readme) of a GF grammar that can even in theory output anything wrong. You feel uneasy until you can split `Item` into `Dish` and `Ingredient`, and now you want to split `Quality` into colour and non-colour types. I have written an implementation so that you don't have to, found at [foods/zucchini/hardcore](https://github.com/inariksit/gf-contrib/tree/zucchini/foods/zucchini/hardcore). This is a fragment of new design,
 
 ```haskell
 IsColor : Dish -> ColorQuality -> Comment ;
@@ -147,7 +148,7 @@ your pizza is vegan
 …
 ```
 
-However, I don't actually recommend this approach for most situations. Maybe if Pretenglish was the second concrete syntax after English, such refactoring would be feasible. But if you had 10 languages already, and had to do this to all of them, that's just not fun at all. Even if you went through all that trouble, your grammar is still brittle for the linguistic challenges of the next language.
+However, I don't actually recommend this approach for most situations. Maybe if Pretenglish was the second concrete syntax after English, such refactoring would be feasible. But if you had 10 languages already, and had to do this to all of them, that's just not fun at all. Even if you went through all that trouble, your grammar might still not cover the distinctions of the next language.
 
 ### Softcore: add constructions with default implementations
 
@@ -155,7 +156,7 @@ The hardcore person's philosophy is: "I want every tree in my grammar to make se
 
 The softcore person's philosophy is: "I want my grammar to contain every tree that makes sense." (100% recall.)
 
-Softcore strategy doesn't try to eliminate every "zucchini is green" from Pretenglish. It just adds a correct tree on top. In the directory [foods/zucchini/softcore](https://github.com/inariksit/gf-contrib/tree/zucchini/foods/zucchini/softcore), I have an implementation of this. The whole thing is so short that I'll paste it all.
+In the softcore strategy, we don't try to eliminate every "zucchini is green" from Pretenglish. We just add a correct tree on top. The implementation is in the directory [foods/zucchini/softcore](https://github.com/inariksit/gf-contrib/tree/zucchini/foods/zucchini/softcore), but the whole thing is so short that I'll paste it all.
 
 ```haskell
 --# -path=.:../initial
@@ -192,7 +193,7 @@ These constructions aren't as smart as the hardcore ones. In FoodsHardcore, `Has
 
 If you're feeling unsure about this approach, look at the concrete syntax for ordinary English.
 
-```
+```haskell
 --# -path=.:../initial
 concrete FoodsSoftcoreEng of FoodsSoftcore = FoodsEng ** {
   lin
@@ -211,7 +212,7 @@ FoodsSoftcoreEng: your pizza is green
 FoodsSoftcorePre: the color of your pizza is green
 ```
 
-Yes, the incorrect Prenglish "your pizza is green" is still available:
+Yes, the incorrect Pretenglish "your pizza is green" is still available:
 
 ```
 > l -treebank Is (Your Pizza) Green
