@@ -16,16 +16,16 @@ Yet it is there---usually a speech act is directed to some audience. So this is 
 The verb form for *eat* may or may not agree with *I* and *bread*---we mark that with the morpheme X. But crucially, in addition to the explicit arguments, it agrees with *you*. This raises a couple of questions:
 
 * Are we dealing with morphosyntax or sociolinguistics?
-* Whatever it is, how should we model it in the RGL?
+* How should we model it in the RGL ([Resource Grammar Library](http://www.grammaticalframework.org/lib/doc/synopsis/index.html))?
 
 Let us take two examples and I'll share my opinions.
 
-## Politeness
+## Politeness in Japanese
 
 There's a funny passage from [Surely You're Joking, Mr. Feynman](https://books.google.se/books?id=Z7g-BAAAQBAJ&pg=PA245&dq=%22May+I+see+your+garden%22), about learning Japanese. (You can read the whole thing in the link.) Basically, Feynman learns that in order to translate a verb like *to see*, you have to know the whole context, who is talking to whom:
 
 
- &nbsp;                       | *my* garden | *your* (polite) garden | *your* (extra polite) garden
+ &nbsp;                       | *my* garden | *your* (respectful) garden | *your* (extra respectful) garden
 ------------------------------|-------------|------------------------|------------------------------
 __*I*&nbsp;see…&nbsp;__                 |             | "May I *observe* your *gorgeous* garden?" | "May I *hang my eyes on* your *most exquisite* gardens?" |
 __*You*&nbsp;see…&nbsp;__                    | "Would you like to *glance at* my *lousy* garden?" | | |
@@ -34,7 +34,7 @@ __*You*&nbsp;see…&nbsp;__                    | "Would you like to *glance at* 
 * May I see *your* (standard level of politeness) garden -> "May I observe your gorgeous garden?"
 * May I see *your* (extra polite) -> 'May I hang my eyes on your most exquisite gardens?' -->
 
-Now, what does this mean in terms of GF? My take: if the politeness forms are different lexemes, then we shouldn't make them a part of the RGL. We'd simply have a design as follows:
+Now, what does this mean in terms of GF? My take: if the politeness forms are different lexemes, most often we shouldn't put them in one lexicon entry _in the RGL_. We'd simply have a design as follows:
 
 ```haskell
 fun
@@ -43,7 +43,7 @@ fun
   hang_eyes_on_V2 : V2 ;
 ```
 
-However, if the difference is morphological, then a good rule of thumb[^1] is to see them as one verb, and put all politeness forms in the same inflection table.
+However, if the difference is morphological, then a good rule of thumb[^1] is to see them as one verb, and put all politeness forms in the same inflection table. Here I have 3 levels, plain, respecftul and extra respectful.
 
 ```haskell
 fun
@@ -51,14 +51,14 @@ fun
 lincat
   V2 = {s : Style => Str} ;
 param
-  Style = Plain | Polite | Polite+ ;
+  Style = Plain | Resp | ExtraResp ;
 lin
   see_V2 = {
     s = table {
-          Plain => "see.PLAIN" ;  -- "glance at"
-          Polite => "see.POL" ;   -- "observe"
-          Polite+ => "see.POL+" ; -- "hang one's eyes on"
-        } ;
+      Plain     => "see.PLAIN" ; -- "glance at"
+      Resp      => "see.RESP" ;  -- "observe"
+      ExtraResp => "see.RESP+" ; -- "hang one's eyes on"
+      } ;
   }
 ```
 
@@ -68,22 +68,22 @@ But inflection table is just the first step. We need to decide how to get those 
 <!-- How predictable is politeness from mere words or other constructors in the tree? Here are some ways to formulate rules: -->
 
 1. Politeness is determined by combinations of words and other constructors in the tree. Extremely simplified example rules:
-  * If object contains a polite word, such as `youPol_Pron` or `emperor_N`, choose `Polite+`. (Note that it doesn't have to be a direct object: a possessor is enough, like in *your garden*.)
-  * If subject contains `i_Pron` and object contains `you{Sg,Pl}_Pron`, choose `Polite`.
+  * If object contains a polite word, such as `youPol_Pron` or `emperor_N`, choose `ExtraResp`. (Note that it doesn't have to be a direct object: a possessor is enough, like in *your garden*.)
+  * If subject contains `i_Pron` and object contains `you{Sg,Pl}_Pron`, choose `Resp`.
   * If object contains `i_Pron`, choose `Plain`. <!--(even as a possessor, like in *my garden*)-->
-1. Politeness is determined by factors beyond mere words and the common RGL constructors. It is best to keep all categories open for `Style` until `Utt`. In the common core of the RGL, `UttS` will choose the most neutral one, and to access the others, we need to define the following functions in a language-specific extra module:
+1. Politeness is determined by factors beyond mere words and the common RGL constructors. It is best to keep all categories open for `Style` up to `S`. In the common core of the RGL, `UttS` will choose the most neutral one, and to access the others, we need to define the following functions in a language-specific extra module:
   * `PlainUtt,`
-  * `PoliteUtt,`
-  * `Polite+Utt : S -> Utt ;`
+  * `RespectUtt,`
+  * `ExtraRespUtt : S -> Utt ;`
 
-If the RGL had been designed with Japanese in mind, it would certainly have these distinctions as abstract syntax functions in the common core. But as long as the different forms are available to application grammarians through *some* means---`ExtraJpn` or `Extend`---it's not a problem. I'll elaborate on that [later in this post](TODO).
+If the RGL had been designed with Japanese in mind, it would certainly have these distinctions as abstract syntax functions in the common core. But as long as the different forms are available to application grammarians through *some* means---`ExtraJpn` or `ExtendJpn`---it's not a problem. I'll elaborate on that [later in this post](TODO).
 
-### Actual RGL implementation
+### Politeness in the RGL
 
-Japanese has been in the RGL since 2012, so let's see how it works there. All credit for the actual code goes to Liza Zimina ([link to paper](https://link.springer.com/chapter/10.1007/978-3-642-33983-7_16)), I'm just reporting the great work she's done. Any misunderstandings about Japanese in this blog post are mine.
+Japanese has been in the RGL since 2012, so let's see how it works there. All credit for the actual code goes to Liza Zimina ([link to paper](https://link.springer.com/chapter/10.1007/978-3-642-33983-7_16)). Any misunderstandings about Japanese morphosyntax are mine.
 
 
-I tried to replicate Feynman's example sentences in the Japanese RG, but it seems that the distinction isn't included for all verbs, only for `VV` and `V3`. So here's how it works for `want_VV`:
+I tried to replicate Feynman's example sentences in the Japanese resource grammar, but it seems that the distinction isn't included for all verbs, only for `VV` and `V3`. So here's how it works for "__ want(s) to see Paris".
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Lang&gt; p "I want to see Paris" | l -lang=Jpn
 私       は  パリ を 見<span class="o">たい です</span>
@@ -94,7 +94,7 @@ Lang&gt; p "she wants to see Paris" | l -lang=Jpn
 <span class="c1">kanojo wa pari o mitagatte imasu</span>
 </code></pre></div></div>
 
-If you didn't know Japanese, you'd be bored out of your mind right now. The verb inflects depending on the subject, stop the press! But in fact, this is not person agreement. The form reflects that I should be more respectful when talking about other people, but I can spend fewer morphemes when  talking about myself[^2].
+So what's the big deal---a verb inflects depending on the subject? But in fact, this is not person agreement. The form _mitagatte imasu_ reflects that I should be more respectful when talking about other people, but I can spend fewer morphemes (_mitai desu_) when talking about myself[^2].
 
 
 
@@ -156,7 +156,7 @@ lin
 ```
 -->
 
-Let's look at a simplified version of the types.
+Let's look at the types. I have omitted parameters that are unrelated to politeness.
 
 
 <div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">param</span>
@@ -177,7 +177,7 @@ Let's look at a simplified version of the types.
 </code></pre></div></div>
 
 There are, in fact, two dimensions in this sociolinguistic puzzle: the speaker and the overall style.
-The Japanese resource grammar forces you to spend more morphemes when you talk about others, but you can still choose to do it in an overall more or less polite way. Here's the table for "__ want(s) to see Paris". (If you can't read Japanese, just take it as longer = more polite.)
+The Japanese resource grammar forces you to spend more morphemes when you talk about others, but you can still choose to do it in an overall more or less polite way. Here's the table for "__ want(s) to see Paris". (No need to know Japanese, just take it as longer = more polite.)
 
 
  &nbsp; | Plain | Respectful |
@@ -188,16 +188,120 @@ The Japanese resource grammar forces you to spend more morphemes when you talk a
 
 Luckily, it's fairly easy to know if a NP is *me* or *someone else*---i.e. is the NP `UsePron i_Pron` or any other NP. So we can definitely choose the speaker in `PredVP`, and only be left with the overall style, when we reach `Cl`.
 
-In the Japanese RG, the `Style` is open all the way up to `Phr`--finally, `PhrUtt` in  [PhraseJpn](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/japanese/PhraseJpn.gf#L8) chooses explicitly the `Resp`ectful style.
-If you want to get the plain form, you need to use the function `StylePartPhr` in [ExtraJpn](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/japanese/ExtraJpn.gf#L36).
+In the Japanese RG, the `Style` parameter is open all the way up to `Utt`---finally, `PhrUtt` in  [PhraseJpn](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/japanese/PhraseJpn.gf#L8) chooses explicitly the `Resp`ectful style.
+If you want to get the plain form, you need to use the function `StylePartPhr` in [ExtraJpn](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/japanese/ExtraJpn.gf#L36), which has the type signature `Level -> Part -> PConj -> Utt -> Voc -> Phr`.
+Like all Extra and Extend functions, it is not exported in the API, so if you want to use it in your grammar, you need to open ExtraJpn in your concrete syntax and use it like this:
 
-<!--
- The `Style` parameter can also be encoded in some things that are already in the RGL: there is `youSg_Pron`, `youPl_Pron` and `youPol_Pron`. Of course, there are a million other things that are not handled in the RGL---maybe we could infer that all NPs made out of `emperor_N` are respectful, but this is very much not the case for nouns in general.
+```haskell
+concrete TestJpn of Test = open SyntaxJpn,
+                               (E=ExtraJpn),
+                               (P=PhraseJpn) in {
+ lincat
+   MyUtt = Utt ;
+   MyPhr = Phr ;
 
-So style should rather be a variable in both NPs and VPs.
--->
+ lin
+   -- : MyUtt -> MyPhr ;
+   MyPolitePhr utt = mkPhr utt ; -- use the API function
+   MyPlainPhr utt = E.StylePartPhr E.Informal P.NoPConj
+                                   E.PartGa utt P.NoVoc ;
+}
+```
 
-## Basque allocutives
+I opened ExtraJpn qualified `(E=ExtraJpn)` and prefixed all functions from it with `E.`, so you can see the origins clearly.
+The function `StylePartPhr`, as well as its argument categories `Level` (politeness level) and `Part` (particle) come from ExtraJpn. That makes sense: we define a function that is beyond the core RGL API, so then we also need to define its argument types and values, all in one module.
+
+The only criticism I have for the type signature of `StylePartPhr` is that `PConj` (phrase-beginning conjunction, e.g. "therefore") and `Voc` (vocative[^3]) are obligatory. The only `Voc`s exported [in the API](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#Voc) are `please_Voc` and `mkVoc : NP -> Voc`, so if we want to make a phrase without any eplicit addressee, we cannot use the API, but have to import another low-level RGL module, in this case PhraseJpn, to use its `NoVoc` construction. The same goes for `PConj`.
+In contrast, the [API function `mkPhr`](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#Phr) has this overload instance:
+
+```haskell
+mkPhr : (PConj) -> Utt -> (Voc) -> Phr ; -- but sleep, my friend
+```
+
+The arguments in parentheses mean that if you leave them out, they will be `NoPConj` and `NoVoc`.
+
+
+## Allocutive agreement in Basque
+
+In [part I](https://inariksit.github.io/gf/2020/05/14/agreement-1.html#ergative-absolutive-basque), we learned that Basque verbs mark their subject, object and indirect object in the verb form. If you've followed along this far in the agreemnet posts, I think you're ready to learn the whole truth.
+
+In certain sociolinguistic contexts, Basque verbs mark also the addressee. (All code is available at [gf-agreement-tutorial/allocutive](https://github.com/inariksit/gf-agreement-tutorial/tree/master/allocutive).)
+
+```
+> p "they are cats" | l -lang=Eus
+katuak dira
+```
+
+This is the version without addressee agreement. The form _dira_ tells us that the subject (_they_) is 3rd person plural. There is no other agreement in _dira_; in other words, it's an intransitive verb.
+
+Now suppose I'm saying "they are cats" to a close friend. Assuming the friend is of a binary gender, I need to use one of the following forms.
+
+```
+> p "they are cats ( spoken to a woman )" | l -lang=Eus
+katuak ditun
+
+> p "they are cats ( spoken to a man )" | l -lang=Eus
+katuak dituk
+```
+
+Okay, cool! How about transitive verbs?
+
+```
+> p "I see cats" | l -lang=Eus
+katuak ikusi ditut
+
+> p "I see cats ( spoken to a woman ) " | l -lang=Eus
+katuak ikusi ditinat
+
+> p "I see cats ( spoken to a man ) " | l -lang=Eus
+katuak ikusi ditiat
+```
+
+Works even for ditransitive.
+
+```
+> p "I give them cats" | l -lang=Eus
+katuei eman dizkiet
+
+> p "I give them cats ( spoken to a woman ) " | l -lang=Eus
+katuei eman zizkienat
+
+> p "I give them cats ( spoken to a man ) " | l -lang=Eus
+katuei eman zizkieat
+```
+
+### Implementation details
+
+This section can be safely skipped, if you are only interested in how to make allocutivity available in the RGL API. If you wish so, [jump to the next section](#allocutivity-in-the-rgl).
+
+https://inariksit.github.io/gf/2018/09/22/grammar-blowup.html#iv-trading-size-for-amount
+
+### Allocutivity in the RGL
+
+This is a bit of an anticlimax, but allocutives are not implemented in the full Basque resource grammar. One day I'll have a GF retreat in a [Basque village by the sea](https://duckduckgo.com/?q=pasai+donibane&ia=images&iax=images) and don't emerge until the resource grammar is finished. Until that, let me just tell you how I'd make it accessible if it was implemented in the resource grammar.
+
+<!-- Number 1 concern: in which categories to keep allocutivity open? The inflection tables are massive. I checked against an existing morphological analyser, and it suggests that the ditransitive auxiliary has 334 forms that are not addressed to someone, and 396 forms that are---together 730 forms. I would much prefer a category with ~400 forms instead of 730 forms.[^4] -->
+
+
+I wouldn't want to keep allocutivity open for too long, because the inflection tables are massive.
+If we kept allocutivity open, then for every sentence like "I give them cats", we need to store 3 versions in all tenses, aspects and moods, depending on if we have an audience and of which gender.
+
+So I would add custom constructors that construct a VP, like this:
+
+```
+PredVP,    -- spoken to any audience or no audience
+PredVPFem, -- spoken to a woman
+PredVPMasc -- spoken to a man
+  : NP -> VP -> Cl ;
+```
+
+
+
+In the case of Japanese, it was obvious from the syntax tree who is the speaker. So that's why it was possible to encode it as a rule in the grammar: the verb `see_V2` in _I want to see Paris_ is in a different form than `see_V2` in _she wants to see Paris_.
+
+But in the case of Basque allocutive, it's impossible to know in which context a sentence is said. I can say "it's raining" to myself, or to an addressee. That's why in Basque, we implement the allocutive statements as extra constructions. In this mini grammar, I'm stopping at Cl, so we have the variants at the `NP -> VP -> Cl` level:
+
+
 
 ## Implications to the RGL API
 
@@ -226,3 +330,10 @@ yes, there's a tiny bit of internals touching here, but wayyyy less than in opti
 [^1]: Of course, this is just a rule of thumb---inflection tables don't need to contain things that are morphologically related, nor is it a crime to separate them. *Kill* and *die* are semantically related, but we don't want to put them in the same inflection table.
 
 [^2]: If you think this is weird, consider that even in English, people might call their parents differently from other people's parents. So `father_N2` could have an inflection table `Me => "daddy" ; SomeoneElse => "father"`. Japanese has just grammaticalised this idea.
+
+[^3]: If you're confused about the use of the word "vocative" in the GF RGL jargon, see [this post](https://groups.google.com/g/gf-dev/c/b0X8pgyxFSc/m/XdI4S75PAQAJ). In short: we call `please_Voc` and `VocNP (UsePN john_PN)` vocatives, because they turn any sentence into a vocative sentence. _"I'd like a cookie"_ and _it's raining_ can be said in any situation, but _"I'd like a cookie, please"_ and _"it's raining, John"_ are undoubtedly directed at someone.
+
+<!-- [^4]: Seriously, take a moment to appreciate the inflection tables. 730 forms for a single verb. In English, how many verb forms can you think of? To be, am, are, is, was, were, has been, had been, would be, would've been, be (imperative), being. I got up to 12, and I had to include periphrastic forms and homonyms. -->
+
+
+<!-- When I've explained allocutive agreement to my more natural-science-oriented friends, two people have independently called it the linguistics version of [spooky action at a distance](https://www.google.com/search?q=spooky%20action%20at%20a%20distance). (No need to know what the physics version means to understand allocutives.) -->
