@@ -58,8 +58,8 @@ You may have seen something similar before. This abstract syntax and the English
 
 What can we say of this grammar? Its abstract syntax is not very semantically restrictive: it happily generates both of these sentences.
 
-```haskell
-gr -number=2 Has ? ? | l -treebank
+```
+> gr -number=2 Has ? ? | l -treebank
 Foods: Has (Your Pizza) (Mass Zucchini)
 FoodsEng: your pizza has zucchini
 
