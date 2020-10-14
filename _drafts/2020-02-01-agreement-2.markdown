@@ -225,7 +225,7 @@ The arguments in parentheses mean that if you leave them out, they will be `NoPC
 
 In [part I](https://inariksit.github.io/gf/2020/05/14/agreement-1.html#ergative-absolutive-basque), we learned that Basque verbs mark their subject, object and indirect object in the verb form. If you've followed along this far in the agreemnet posts, I think you're ready to learn the whole truth.
 
-In certain sociolinguistic contexts, Basque verbs mark also the addressee. (All code is available at [gf-agreement-tutorial/allocutive](https://github.com/inariksit/gf-agreement-tutorial/tree/master/allocutive).)
+In certain sociolinguistic contexts, Basque verbs mark also the addressee. (All code is available at [gf-agreement-tutorial/allocutive](https://github.com/inariksit/gf-agreement-tutorial/tree/master/allocutive).) This marking of the addressee is called _allocutive agreement_.[^4]
 
 ```
 > p "they are cats" | l -lang=Eus
@@ -332,6 +332,8 @@ yes, there's a tiny bit of internals touching here, but wayyyy less than in opti
 [^2]: If you think this is weird, consider that even in English, people might call their parents differently from other people's parents. So `father_N2` could have an inflection table `Me => "daddy" ; SomeoneElse => "father"`. Japanese has just grammaticalised this idea.
 
 [^3]: If you're confused about the use of the word "vocative" in the GF RGL jargon, see [this post](https://groups.google.com/g/gf-dev/c/b0X8pgyxFSc/m/XdI4S75PAQAJ). In short: we call `please_Voc` and `VocNP (UsePN john_PN)` vocatives, because they turn any sentence into a vocative sentence. _"I'd like a cookie"_ and _it's raining_ can be said in any situation, but _"I'd like a cookie, please"_ and _"it's raining, John"_ are undoubtedly directed at someone.
+
+[^4]: For a comprehensive introduction, see e.g. [Wikipedia](https://en.wikipedia.org/wiki/Allocutive_agreement) or [Antonov (2015)](https://core.ac.uk/download/pdf/47323396.pdf).
 
 <!-- [^4]: Seriously, take a moment to appreciate the inflection tables. 730 forms for a single verb. In English, how many verb forms can you think of? To be, am, are, is, was, were, has been, had been, would be, would've been, be (imperative), being. I got up to 12, and I had to include periphrastic forms and homonyms. -->
 
