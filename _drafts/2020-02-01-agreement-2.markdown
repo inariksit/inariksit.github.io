@@ -83,7 +83,7 @@ If the RGL had been designed with Japanese in mind, it would certainly have thes
 Japanese has been in the RGL since 2012, so let's see how it works there. All credit for the actual code goes to Liza Zimina ([link to paper](https://link.springer.com/chapter/10.1007/978-3-642-33983-7_16)). Any misunderstandings about Japanese morphosyntax are mine.
 
 
-I tried to replicate Feynman's example sentences in the Japanese resource grammar, but it seems that the distinction isn't included for all verbs, only for `VV` and `V3`. So here's how it works for "__ want(s) to see Paris".
+I tried to replicate Feynman's example sentences in the Japanese resource grammar, but it seems that the distinction is implemented only for `VV` and `V3`. So here's how it works for "__ want(s) to see Paris".
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Lang&gt; p "I want to see Paris" | l -lang=Jpn
 私       は  パリ を 見<span class="o">たい です</span>
@@ -223,7 +223,7 @@ The arguments in parentheses mean that if you leave them out, they will be `NoPC
 
 ## Allocutive agreement in Basque
 
-In [part I](https://inariksit.github.io/gf/2020/05/14/agreement-1.html#ergative-absolutive-basque), we learned that Basque verbs mark their subject, object and indirect object in the verb form. If you've followed along this far in the agreemnet posts, I think you're ready to learn the whole truth.
+In [part I](https://inariksit.github.io/gf/2020/05/14/agreement-1.html#ergative-absolutive-basque), we learned that Basque verbs mark their subject, object and indirect object in the verb form. If you've followed along this far in the agreement posts, I think you're ready to learn the whole truth.
 
 In certain sociolinguistic contexts, Basque verbs mark also the addressee. (All code is available at [gf-agreement-tutorial/allocutive](https://github.com/inariksit/gf-agreement-tutorial/tree/master/allocutive).) This marking of the addressee is called _allocutive agreement_.[^4]
 
@@ -274,7 +274,42 @@ katuei eman zizkieat
 
 This section can be safely skipped, if you are only interested in how to make allocutivity available in the RGL API. If you wish so, [jump to the next section](#allocutivity-in-the-rgl).
 
-https://inariksit.github.io/gf/2018/09/22/grammar-blowup.html#iv-trading-size-for-amount
+Here's a recap on Basque verbs. (Seen before in the [post about grammar blowup](https://inariksit.github.io/gf/2018/09/22/grammar-blowup.html#iv-trading-size-for-amount).)
+
+* Agrees with subject, direct object (if it has one) and indirect object (if it has one), in all tenses and moods.
+* Most verbs are inflected with an auxiliary; so think “intransitive-do sleeping”, “transitive-do eating”, “ditransitive-do talking” and so on. The “✱-do” part inflects in hundreds of forms, but the “✱ing” part only inflects in 3 forms.
+
+In my [demo grammar](https://github.com/inariksit/gf-agreement-tutorial/blob/master/allocutive/AllocutiveEus.gf#L105-L115), I'm skipping all other tenses and aspects, so the type for verb phrases is as follows.
+
+```haskell
+param
+  Valency = Intrans
+          | Trans Agr              -- Agr is Sg1..Pl3
+          | Ditrans Number Agr ;
+oper
+  VerbPhrase : Type = {
+    s : Str ; -- the participle, which carries only a small part of inflection.
+    v : Valency
+    } ;
+```
+
+Note that this type `VerbPhrase` is actually the lincat of _all_ verby types.[^5]
+
+```haskell
+lincat
+  V, V2, V3, VP = VerbPhrase ;
+```
+
+And now we get to the exciting part. We define [three types](https://github.com/inariksit/gf-agreement-tutorial/blob/master/allocutive/AllocutiveEus.gf#L128-L132), which _are not used as lincats_, but only internally.
+
+```haskell
+oper
+  Verb  : Type =                  Agr => Str ;
+  Verb2 : Type =           Agr => Agr => Str ;
+  Verb3 : Type = Number => Agr => Agr => Str ;
+```
+
+
 
 ### Allocutivity in the RGL
 
@@ -334,6 +369,9 @@ yes, there's a tiny bit of internals touching here, but wayyyy less than in opti
 [^3]: If you're confused about the use of the word "vocative" in the GF RGL jargon, see [this post](https://groups.google.com/g/gf-dev/c/b0X8pgyxFSc/m/XdI4S75PAQAJ). In short: we call `please_Voc` and `VocNP (UsePN john_PN)` vocatives, because they turn any sentence into a vocative sentence. _"I'd like a cookie"_ and _it's raining_ can be said in any situation, but _"I'd like a cookie, please"_ and _"it's raining, John"_ are undoubtedly directed at someone.
 
 [^4]: For a comprehensive introduction, see e.g. [Wikipedia](https://en.wikipedia.org/wiki/Allocutive_agreement) or [Antonov (2015)](https://core.ac.uk/download/pdf/47323396.pdf).
+
+
+[^5]: Technically the full `Valency` parameter is overkill in `V`, `V2` and `V3`, because all `V`s are intransitive, all `V2`s are transitive and so on. But `VP` needs the full type anyway, because it can come from any of `V{,2,3}`, so I put the `Valency` parameter already in the lexical categories to save me some keystrokes. The inefficiency is optimised away in the PGF, when compiled with `--optimize-pgf`. For example, `UseV` expands to only 1 concrete function (instead of 25 without optimisation), reflecting the fact that there's only one real valency alternative for `V`.
 
 <!-- [^4]: Seriously, take a moment to appreciate the inflection tables. 730 forms for a single verb. In English, how many verb forms can you think of? To be, am, are, is, was, were, has been, had been, would be, would've been, be (imperative), being. I got up to 12, and I had to include periphrastic forms and homonyms. -->
 
