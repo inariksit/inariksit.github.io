@@ -223,18 +223,42 @@ The arguments in parentheses mean that if you leave them out, they will be `NoPC
 
 ## Allocutive agreement in Basque
 
-In [part I](https://inariksit.github.io/gf/2020/05/14/agreement-1.html#ergative-absolutive-basque), we learned that Basque verbs mark their subject, object and indirect object in the verb form. If you've followed along this far in the agreement posts, I think you're ready to learn the whole truth.
+In [part I](https://inariksit.github.io/gf/2020/05/14/agreement-1.html#ergative-absolutive-basque), we learned that Basque verbs mark their subject, object and indirect object in the verb form. But that's not all! In certain sociolinguistic contexts, Basque verbs mark also the addressee.
+This marking of the addressee is called _allocutive agreement_.[^4]
 
-In certain sociolinguistic contexts, Basque verbs mark also the addressee. (All code is available at [gf-agreement-tutorial/allocutive](https://github.com/inariksit/gf-agreement-tutorial/tree/master/allocutive).) This marking of the addressee is called _allocutive agreement_.[^4]
+I will demonstrate with a GF grammar. The code is available at [gf-agreement-tutorial/allocutive](https://github.com/inariksit/gf-agreement-tutorial/tree/master/allocutive). If you know Basque, let me know if you find errors in this post. (There are simplifications and strategic omissions all over the place, but if you spot a genuine error, let me know!)
+
+#### Basque verbs
+
+<!-- Here's all you need to know to read this post about allocutivity. Some simplifications -->
+
+Most Basque verbs inflect using an auxiliary. Imagine if English verbs like _sleep_, _eat_ and _talk_ had no inflection, but you had to say _do sleeping_, _do eating_ and _do talking_. (In fact, English negation behaves like that: _I don't/she doesn't sleep/eat/talk_.)
+
+Basque has several auxiliaries for different number of arguments: think _intransitive-do sleeping_, _transitive-do eating_ and _ditransitive-do talking_. The auxiliaries also have a meaning independently, so we can translate the more accurately as _be sleeping_, _have eating_ etc. The sentences _I am sleeping_ and _I am_ only differ by the omission of the participle for _sleeping_. (English does that too: contrast _I am sleeping_ and _I am_.)
+
+<!-- The auxiliaries (_✱-do_ part) inflect in hundreds of forms. As we knew from before, the auxiliary marks subject, direct object (if it has one) and indirect object (if it has one), in all tenses and moods. As we just have learned, it also marks the addressee,  -->
+<!-- arking all 3 core arguments---and as we have learned, also the addressee. -->
+<!--  _✱ing_ part (participle) only inflects in 3 forms. -->
+
+
+#### No allocutive agreement
+
+Let's start with the form that has no allocutive agreement. I could be talking to myself, or addressing a group of people.
 
 ```
 > p "they are cats" | l -lang=Eus
 katuak dira
 ```
 
-This is the version without addressee agreement. The form _dira_ tells us that the subject (_they_) is 3rd person plural. There is no other agreement in _dira_; in other words, it's an intransitive verb.
+_Katuak_ means 'cats',
+<!-- in absolutive case (see Basque core cases in the [first agreement post](https://inariksit.github.io/gf/2020/05/14/agreement-1.html#ergative-absolutive-alignment)).  -->
+and _dira_ is the intransitive auxiliary, inflected for a 3rd person plural subject. There's no subject pronoun: I've dropped all pronouns in my grammar, because all arguments are marked in the verb inflection.
 
-Now suppose I'm saying "they are cats" to a close friend. Assuming the friend is of a binary gender, I need to use one of the following forms.
+(Basque word order is SOV, so if there was a subject pronoun, the whole sentence would be _hauek katuak dira_, 'they cats are'.)
+
+#### Allocutive agreement with intransitive verbs
+
+Now suppose I'm saying "they are cats" to a close friend of a binary gender. Then I need to use one of the following forms.
 
 ```
 > p "they are cats ( spoken to a woman )" | l -lang=Eus
@@ -244,70 +268,109 @@ katuak ditun
 katuak dituk
 ```
 
-Okay, cool! How about transitive verbs?
+These forms, _ditun_ for a woman and _dituk_ for a man, are an example of allocutive agreement. The form _ditun_ encodes a 3rd person plural argument (just like _dira_), and in addition, it encodes a 2nd person singular feminine argument---in this case[^5], the addressee. _Dituk_ is the same, just for a male addressee.
+
+
+<!-- [](https://inariksit.github.io/gf/2020/05/14/agreement-1.html#ergative-absolutive-alignment) -->
+
+
+#### Allocutive agreement with transitive verbs
+
+The logic is exactly the same with transitive verbs. In the first example, I'm saying "I see cats" to nobody in particular; in the latter two, to a close friend or a family member.
 
 ```
 > p "I see cats" | l -lang=Eus
 katuak ikusi ditut
 
-> p "I see cats ( spoken to a woman ) " | l -lang=Eus
+> p "I see cats ( spoken to a woman )" | l -lang=Eus
 katuak ikusi ditinat
 
-> p "I see cats ( spoken to a man ) " | l -lang=Eus
+> p "I see cats ( spoken to a man )" | l -lang=Eus
 katuak ikusi ditiat
 ```
 
-Works even for ditransitive.
+#### Allocutive agreement with ditransitive verbs
+
+Ditransitive verbs work the same way. To add some interest, I omitted the last form, so if you never got to participate in linguistic olympiads, now is your chance to predict the ditransitive auxiliary form of "I give them cats", spoken to a man.
 
 ```
 > p "I give them cats" | l -lang=Eus
 katuei eman dizkiet
 
-> p "I give them cats ( spoken to a woman ) " | l -lang=Eus
+> p "I give them cats ( spoken to a woman )" | l -lang=Eus
 katuei eman zizkienat
 
-> p "I give them cats ( spoken to a man ) " | l -lang=Eus
-katuei eman zizkieat
+> p "I give them cats ( spoken to a man )" | l -lang=Eus
+katuei eman ________
 ```
+
+To check your answer, you can linearise the tree `PredVPMasc i_NP (ComplV3 give_V3 they_NP cats_NP)` in the [GF grammar](https://github.com/inariksit/gf-agreement-tutorial/tree/master/allocutive).
 
 ### Implementation details
 
-This section can be safely skipped, if you are only interested in how to make allocutivity available in the RGL API. If you wish so, [jump to the next section](#allocutivity-in-the-rgl).
+These are the implementation details of my demo grammar at [gf-agreement-tutorial/allocutive](https://github.com/inariksit/gf-agreement-tutorial/tree/master/allocutive). I have simplified many things to keep it relevant to just allocutivity.
+<!-- The actual Basque RG has lots of other, unrelated action. -->
 
-Here's a recap on Basque verbs. (Seen before in the [post about grammar blowup](https://inariksit.github.io/gf/2018/09/22/grammar-blowup.html#iv-trading-size-for-amount).)
+If you are only interested in how to make allocutivity available in the RGL API, you can [jump to the next section](#allocutivity-in-the-rgl). Otherwise, keep reading.
 
-* Agrees with subject, direct object (if it has one) and indirect object (if it has one), in all tenses and moods.
-* Most verbs are inflected with an auxiliary; so think “intransitive-do sleeping”, “transitive-do eating”, “ditransitive-do talking” and so on. The “✱-do” part inflects in hundreds of forms, but the “✱ing” part only inflects in 3 forms.
 
-In my [demo grammar](https://github.com/inariksit/gf-agreement-tutorial/blob/master/allocutive/AllocutiveEus.gf#L105-L115), I'm skipping all other tenses and aspects, so the type for verb phrases is as follows.
+#### `V*` in GF
 
-```haskell
-param
-  Valency = Intrans
-          | Trans Agr              -- Agr is Sg1..Pl3
-          | Ditrans Number Agr ;
-oper
-  VerbPhrase : Type = {
-    s : Str ; -- the participle, which carries only a small part of inflection.
-    v : Valency
-    } ;
-```
+I said [earlier in this post](#basque-verbs) that the participle inflects in 3 forms. But in my small grammar, I only implement present indicative perfective inflection, so for the purposes of this post, we pretend that the participle doesn't inflect.
 
-Note that this type `VerbPhrase` is actually the lincat of _all_ verby types.[^5]
+With the lexical categories `V`, `V2` and `V3`, we only need to store the participle, so their lincat is as simple as `{s : Str}`.
 
 ```haskell
 lincat
-  V, V2, V3, VP = VerbPhrase ;
+  V, V2, V3 = {s : Str} ; -- Uninflected participle
 ```
 
-And now we get to the exciting part. We define [three types](https://github.com/inariksit/gf-agreement-tutorial/blob/master/allocutive/AllocutiveEus.gf#L128-L132), which _are not used as lincats_, but only internally.
+In addition to the participle, `VP` contains a parameter [`ObjAgr`](https://github.com/inariksit/gf-agreement-tutorial/blob/master/allocutive/AllocutiveEus.gf#L108-L117)
+, to record its origin (`V`, `V2` or `V3`) and the agreement of its objects.
+
+```haskell
+param
+  ObjAgr = Intrans    -- No object
+         | Trans Agr  -- Direct object (Sg1..Pl3)
+         | Ditrans
+              Number  -- Direct object (only number)
+              Agr ;   -- Indirect object (Sg1..Pl3)
+lincat
+  VP = {
+    s : Str ; -- Uninflected participle + maybe object
+    a : ObjAgr -- The object(s) agreement
+    } ;
+```
+The objects are added in `ComplV*`: the string in the `s` field, and the agreement in the `a` field. `UseV` adds no objects, just the `ObjAgr` value `Intrans` to keep track that the `VP` came from a `V`.
+
+```haskell
+lin
+  UseV v = v ** {
+    a = Intrans
+    } ;
+
+  ComplV2 v2 obj = {
+    s = obj.s ! Abs ++ v2.s ; -- OV word order
+    a = Trans obj.a ; -- Obj. agreement kept in the VP
+    } ;
+
+  ComplV3 v3 dir indir = {
+    s = dir.s ! Abs ++ indir.s ! Dat ++ v3.s ;
+    a = Ditrans (agr2num dir.a) indir.a
+    } ;
+```
+
+#### `NP -> VP -> Cl` in GF
+
+Next, we define [three types for inflection tables](https://github.com/inariksit/gf-agreement-tutorial/blob/master/allocutive/AllocutiveEus.gf#L123-L127). These are not used as lincats, but only internally in functions of type `NP -> VP -> Cl`.
 
 ```haskell
 oper
-  Verb  : Type =                  Agr => Str ;
-  Verb2 : Type =           Agr => Agr => Str ;
-  Verb3 : Type = Number => Agr => Agr => Str ;
+  Verb  : Type =                  Agr => Str ; -- Subj
+  Verb2 : Type =           Agr => Agr => Str ; -- D.obj, subj
+  Verb3 : Type = Number => Agr => Agr => Str ; -- D.obj, i.obj, subj
 ```
+
 
 
 
@@ -371,9 +434,16 @@ yes, there's a tiny bit of internals touching here, but wayyyy less than in opti
 [^4]: For a comprehensive introduction, see e.g. [Wikipedia](https://en.wikipedia.org/wiki/Allocutive_agreement) or [Antonov (2015)](https://core.ac.uk/download/pdf/47323396.pdf).
 
 
-[^5]: Technically the full `Valency` parameter is overkill in `V`, `V2` and `V3`, because all `V`s are intransitive, all `V2`s are transitive and so on. But `VP` needs the full type anyway, because it can come from any of `V{,2,3}`, so I put the `Valency` parameter already in the lexical categories to save me some keystrokes. The inefficiency is optimised away in the PGF, when compiled with `--optimize-pgf`. For example, `UseV` expands to only 1 concrete function (instead of 25 without optimisation), reflecting the fact that there's only one real valency alternative for `V`.
+[^5]: In fact, _dituk_ and _ditun_ are ambiguous: in addition to being allocutive forms of the intransitive auxiliary, they are also the ordinary forms of the transitive auxiliary (with `Pl3` object and `Sg2{masc,fem}` subject). With transitive auxiliary, some (not all) of the allocutive forms are ambiguous with ordinary ditransitive auxiliary. With ditransitive auxiliary, there is no further auxiliary to be ambiguous with, so all ditransitive allocutive forms are unique, and genuinely encode 4 arguments.<br/><br/>(This was just a side note; whether the allocutive forms are unique or not, has no effect on how we implement it in GF.)
+
+All allocutive forms of the intransitive auxiliary are ambiguous with the ordinary transitive auxiliary; some allocutives of the transitive auxiliary are ambiguous with ornot all allocutive form
+
+<!-- [^5]: Technically the full `Valency` parameter is overkill in `V`, `V2` and `V3`, because all `V`s are intransitive, all `V2`s are transitive and so on. But `VP` needs the full type anyway, because it can come from any of `V{,2,3}`, so I put the `Valency` parameter already in the lexical categories to save me some keystrokes. The inefficiency is optimised away in the PGF, when compiled with `--optimize-pgf`. For example, `UseV` expands to only 1 concrete function (instead of 25 without optimisation), reflecting the fact that there's only one real valency alternative for `V`. -->
 
 <!-- [^4]: Seriously, take a moment to appreciate the inflection tables. 730 forms for a single verb. In English, how many verb forms can you think of? To be, am, are, is, was, were, has been, had been, would be, would've been, be (imperative), being. I got up to 12, and I had to include periphrastic forms and homonyms. -->
 
 
 <!-- When I've explained allocutive agreement to my more natural-science-oriented friends, two people have independently called it the linguistics version of [spooky action at a distance](https://www.google.com/search?q=spooky%20action%20at%20a%20distance). (No need to know what the physics version means to understand allocutives.) -->
+
+
+<!--(Actually, Basque `V2` can take its subject in either ergative or dative, so in the full RG we do need a parameter even in the lexical categories. But in this simplified grammar, we only have ergative subjects for V2.)-->
