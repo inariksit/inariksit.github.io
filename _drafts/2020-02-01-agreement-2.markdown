@@ -1,12 +1,12 @@
 ---
 layout: post
-title:  "Agreement, part II: Addressee and other implicit arguments"
+title:  "Agreement, part II: Addressee"
 date:   2020-02-01
 categories: gf
 tags: "gf linguistics"
 ---
 
-Aside from an explicit vocative and imperative, we don't really model the addressee as an argument.
+Aside from an explicit vocative and imperative, we don't really think of the addressee as an argument.
 Yet it is there---usually a speech act is directed to some audience. So this is a thing that happens in some languages.
 
 1. I eat-X some bread. (written in a personal diary, nobody sees it.)
@@ -16,7 +16,7 @@ Yet it is there---usually a speech act is directed to some audience. So this is 
 The verb form for *eat* may or may not agree with *I* and *bread*---we mark that with the morpheme X. But crucially, in addition to the explicit arguments, it agrees with *you*. This raises a couple of questions:
 
 * Are we dealing with morphosyntax or sociolinguistics?
-* How should we model it in the RGL ([Resource Grammar Library](http://www.grammaticalframework.org/lib/doc/synopsis/index.html))?
+* How should we model it in the GF RGL ([Resource Grammar Library](http://www.grammaticalframework.org/lib/doc/synopsis/index.html))?
 
 Let us take two examples and I'll share my opinions.
 
@@ -82,21 +82,26 @@ If the RGL had been designed with Japanese in mind, it would certainly have thes
 
 Japanese has been in the RGL since 2012, so let's see how it works there. All credit for the actual code goes to Liza Zimina ([link to paper](https://link.springer.com/chapter/10.1007/978-3-642-33983-7_16)). Any misunderstandings about Japanese morphosyntax are mine.
 
+#### Feynman's examples
 
-I tried to replicate Feynman's example sentences in the Japanese resource grammar, but it seems that the distinction is implemented only for `VV` and `V3`. So here's how it works for "__ want(s) to see Paris".
+Here's a simplified variant of Feynman's examples in the Japanese RG.
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Lang&gt; p "I want to see Paris" | l -lang=Jpn
-私       は  パリ を 見<span class="o">たい です</span>
-<span class="c1">watashi wa pari o mitai desu</span>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Lang&gt; p "I want to see the garden" | l -lang=Jpn
+私       は  庭  を 見<span class="o">たい です</span>
+<span class="c1">watashi wa niwa o mitai desu</span>
 
-Lang&gt; p "she wants to see Paris" | l -lang=Jpn
-彼女     は  パリ を 見<span class="o">たがって います</span>
-<span class="c1">kanojo wa pari o mitagatte imasu</span>
+Lang&gt; p "she wants to see the garden" | l -lang=Jpn
+彼女     は  庭  を 見<span class="o">たがって います</span>
+<span class="c1">kanojo wa niwa o mitagatte imasu</span>
 </code></pre></div></div>
 
-So what's the big deal---a verb inflects depending on the subject? But in fact, this is not person agreement. The form _mitagatte imasu_ reflects that I should be more respectful when talking about other people, but I can spend fewer morphemes (_mitai desu_) when talking about myself[^2].
+If you look closely, you'll see different forms of the verb 見る 'to see'. Note that this difference is not person agreement! The form _mitagatte imasu_ reflects that I should be more respectful when talking about other people, but I can spend fewer morphemes (_mitai desu_) when talking about myself.[^2]
 
+"But isn't that the definition of person agreement? You conjugate the verb differently when the subject is yourself vs. other people."
 
+Sure, if it was the case that in all contexts, you always said _mitai desu_ about yourself and _mitagatte imasu_ about others, I too would call it person agreement. But that's not the case. In a context where everyone speaks politely, _watashi wa … mitagatte imasu_ is probably perfectly normal. [CITATION NEEDED]
+
+(If you want to read the rest of the debate with the imaginary reader, follow the footnote.[^6])
 
 <!--
 
@@ -125,10 +130,10 @@ Lang> p "he gives me the car" | l -lang=Jpn
 ```
 ```
 Lang> p "I want to see Paris" | l -lang=Jpn
-私 は パリ を 見 たい です
+私 は 庭 を 見 たい です
 
 Lang> p "he wants to see Paris" | l -lang=Jpn
-彼 は パリ を 見 たがって います
+彼 は 庭 を 見 たがって います
 ``` -->
 
 
@@ -156,7 +161,9 @@ lin
 ```
 -->
 
-Let's look at the types. I have omitted parameters that are unrelated to politeness.
+#### GF categories
+
+Let's look at the types in GF. I have omitted parameters that are unrelated to politeness.
 
 
 <div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">param</span>
@@ -177,13 +184,13 @@ Let's look at the types. I have omitted parameters that are unrelated to politen
 </code></pre></div></div>
 
 There are, in fact, two dimensions in this sociolinguistic puzzle: the speaker and the overall style.
-The Japanese resource grammar forces you to spend more morphemes when you talk about others, but you can still choose to do it in an overall more or less polite way. Here's the table for "__ want(s) to see Paris". (No need to know Japanese, just take it as longer = more polite.)
+The Japanese resource grammar forces you to spend more morphemes when you talk about others, but you can still choose to do it in an overall more or less polite way. Here's the table for "__ want(s) to see the garden". (No need to know Japanese, just take it as longer = more polite.)
 
 
  &nbsp; | Plain | Respectful |
 --------|-------|--------|---
- **Me**    | 私はパリを<strong>見たい</strong> | 私はパリを<strong>見たいです</strong>
- **SomeoneElse**  | 彼女はパリを<strong>見たがっている</strong> | 彼女はパリを<strong>見たがっています</strong>
+ **Me**    | 私は庭を<strong>見たい</strong> | 私は庭を<strong>見たいです</strong>
+ **SomeoneElse**  | 彼女は庭を<strong>見たがっている</strong> | 彼女は庭を<strong>見たがっています</strong>
 
 
 Luckily, it's fairly easy to know if a NP is *me* or *someone else*---i.e. is the NP `UsePron i_Pron` or any other NP. So we can definitely choose the speaker in `PredVP`, and only be left with the overall style, when we reach `Cl`.
@@ -226,15 +233,19 @@ The arguments in parentheses mean that if you leave them out, they will be `NoPC
 In [part I](https://inariksit.github.io/gf/2020/05/14/agreement-1.html#ergative-absolutive-basque), we learned that Basque verbs mark their subject, object and indirect object in the verb form. But that's not all! In certain sociolinguistic contexts, Basque verbs mark also the addressee.
 This marking of the addressee is called _allocutive agreement_.[^4]
 
-I will demonstrate with a GF grammar. The code is available at [gf-agreement-tutorial/allocutive](https://github.com/inariksit/gf-agreement-tutorial/tree/master/allocutive). If you know Basque, let me know if you find errors in this post. (There are simplifications and strategic omissions all over the place, but if you spot a genuine error, let me know!)
+I will demonstrate with a GF grammar. The code is available at [gf-agreement-tutorial/allocutive](https://github.com/inariksit/gf-agreement-tutorial/tree/master/allocutive). If you know Basque, please report any errors in this post. (There are simplifications and strategic omissions all over the place, but if you spot a genuine error, let me know!)
 
 #### Basque verbs
 
 <!-- Here's all you need to know to read this post about allocutivity. Some simplifications -->
 
-Most Basque verbs inflect using an auxiliary. Imagine if English verbs like _sleep_, _eat_ and _talk_ had no inflection, but you had to say _do sleeping_, _do eating_ and _do talking_. (In fact, English negation behaves like that: _I don't/she doesn't sleep/eat/talk_.)
+Most Basque verbs inflect with a combination of a content-bearing participle and inflection-bearing auxiliary. Imagine if English verbs like _sleep_, _eat_ and _talk_ had no inflection, but you had to say _do sleeping_, _do eating_ and _do talking_. (In fact, English negation behaves like that: _I don't/she doesn't sleep/eat/talk_.)
 
-Basque has several auxiliaries for different number of arguments: think _intransitive-do sleeping_, _transitive-do eating_ and _ditransitive-do talking_. The auxiliaries also have a meaning independently, so we can translate the more accurately as _be sleeping_, _have eating_ etc. The sentences _I am sleeping_ and _I am_ only differ by the omission of the participle for _sleeping_. (English does that too: contrast _I am sleeping_ and _I am_.)
+Basque has several auxiliaries for different number of arguments---not a direct translation, but think _be sleeping_, _have eating_ and _give talking_. The auxiliaries are also used independently. In a context like _I am sleeping_, the intransitive _be_ is just an auxiliary, and without a participle, like _I am old_, it functions as a copula. (Notice how well this example worked in English too.)
+
+<!-- There are only a handful of different auxiliaries in Basque. So a single inflection table may have hundreds of forms, but there are much fewer inflection tables than in your average language. -->
+
+<!-- The sentences _I am sleeping_ and _I am_ only differ by the omission of the participle for _sleeping_. (English does that too: contrast _I am sleeping_ and _I am_.) -->
 
 <!-- The auxiliaries (_✱-do_ part) inflect in hundreds of forms. As we knew from before, the auxiliary marks subject, direct object (if it has one) and indirect object (if it has one), in all tenses and moods. As we just have learned, it also marks the addressee,  -->
 <!-- arking all 3 core arguments---and as we have learned, also the addressee. -->
@@ -289,6 +300,8 @@ katuak ikusi ditinat
 katuak ikusi ditiat
 ```
 
+For those curious about morphology, _ikusi_ is the participle of the verb _to see_, and _ditut/ditinat/ditiat_ are forms of the transitive auxiliary.
+
 #### Allocutive agreement with ditransitive verbs
 
 Ditransitive verbs work the same way. To add some interest, I omitted the last form, so if you never got to participate in linguistic olympiads, now is your chance to predict the ditransitive auxiliary form of "I give them cats", spoken to a man.
@@ -316,7 +329,7 @@ If you are only interested in how to make allocutivity available in the RGL API,
 
 #### `V*` in GF
 
-I said [earlier in this post](#basque-verbs) that the participle inflects in 3 forms. But in my small grammar, I only implement present indicative perfective inflection, so for the purposes of this post, we pretend that the participle doesn't inflect.
+As mentioned [earlier in this post](#basque-verbs), Basque verbs consist of an auxiliary, which inflects in hundreds of forms, and a participle, which for the purposes of this grammar is invariant.
 
 With the lexical categories `V`, `V2` and `V3`, we only need to store the participle, so their lincat is as simple as `{s : Str}`.
 
@@ -427,7 +440,8 @@ yes, there's a tiny bit of internals touching here, but wayyyy less than in opti
 
 [^1]: Of course, this is just a rule of thumb---inflection tables don't need to contain things that are morphologically related, nor is it a crime to separate them. *Kill* and *die* are semantically related, but we don't want to put them in the same inflection table.
 
-[^2]: If you think this is weird, consider that even in English, people might call their parents differently from other people's parents. So `father_N2` could have an inflection table `Me => "daddy" ; SomeoneElse => "father"`. Japanese has just grammaticalised this idea.
+[^2]: If you think this is weird, consider that even in English, people make linguistic distinctions based on if they're talking about themselves or others. For example, the names of parents: `father_N2` could have an inflection table `Me => "dad" ; SomeoneElse => "father"`.
+<!-- Japanese has just grammaticalised this idea, and applied it to everything from word choice to verb inflection. -->
 
 [^3]: If you're confused about the use of the word "vocative" in the GF RGL jargon, see [this post](https://groups.google.com/g/gf-dev/c/b0X8pgyxFSc/m/XdI4S75PAQAJ). In short: we call `please_Voc` and `VocNP (UsePN john_PN)` vocatives, because they turn any sentence into a vocative sentence. _"I'd like a cookie"_ and _it's raining_ can be said in any situation, but _"I'd like a cookie, please"_ and _"it's raining, John"_ are undoubtedly directed at someone.
 
@@ -436,7 +450,8 @@ yes, there's a tiny bit of internals touching here, but wayyyy less than in opti
 
 [^5]: In fact, _dituk_ and _ditun_ are ambiguous: in addition to being allocutive forms of the intransitive auxiliary, they are also the ordinary forms of the transitive auxiliary (with `Pl3` object and `Sg2{masc,fem}` subject). With transitive auxiliary, some (not all) of the allocutive forms are ambiguous with ordinary ditransitive auxiliary. With ditransitive auxiliary, there is no further auxiliary to be ambiguous with, so all ditransitive allocutive forms are unique, and genuinely encode 4 arguments.<br/><br/>(This was just a side note; whether the allocutive forms are unique or not, has no effect on how we implement it in GF.)
 
-All allocutive forms of the intransitive auxiliary are ambiguous with the ordinary transitive auxiliary; some allocutives of the transitive auxiliary are ambiguous with ornot all allocutive form
+[^6]: _"Let's imagine that 'watashi wa … mitagatte imasu' were always socially inappropriate, and anyone who says that must be a foreigner or a total weirdo. Would you then call it person agreement?"_<br/><br/>If it's always inappropriate to talk about yourself politely, we can still ask whether people would get confused, or just offended. Contrast with a language that actually has person agreement. If I switched the subjects in English, the sentences would turn out as _*I wants […]_ and _*she want […]_. Most native speakers would argue that those are wrong on a purely grammatical level, not related to any social context.<br/><br/>_"I just said that only foreigners would say 'watashi wa … mitagatte imasu' in my hypothetical Japanese. Now you define that English has person agreement, because saying 'I wants' makes you sound like a foreigner?"_<br/><br/>I agree, sounding like a foreigner is a valuable clue for deeming something 'grammatically incorrect'. If a sociolinguistic rule creates gaps in the possible combinations of subject and verb form---literally nobody ever mixes the 3rd person and plain form, or 1st person and polite form---then in time it can grammaticalise into actual person agreement. As a further development, the formerly offensive deviations might even become neutral, like currently in English: <em>I&nbsp;wants</em> just says I don't speak the language well, not that I'm inappropriate.<br/><br/>_"There's nothing special about being offended about language use. Many people get irrationally angry about grammatical phenomena in English, like split infinitives."_<br/><br/>Look, you're going to like my 3rd post, where I'm going to claim that preposition contraction is person agreement. Now stop hijacking my footnotes and let the poor reader return to the main post.
+
 
 <!-- [^5]: Technically the full `Valency` parameter is overkill in `V`, `V2` and `V3`, because all `V`s are intransitive, all `V2`s are transitive and so on. But `VP` needs the full type anyway, because it can come from any of `V{,2,3}`, so I put the `Valency` parameter already in the lexical categories to save me some keystrokes. The inefficiency is optimised away in the PGF, when compiled with `--optimize-pgf`. For example, `UseV` expands to only 1 concrete function (instead of 25 without optimisation), reflecting the fact that there's only one real valency alternative for `V`. -->
 
