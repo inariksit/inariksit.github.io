@@ -13,12 +13,21 @@ Yet it is there---usually a speech act is directed to some audience. So this is 
 1. I eat-X-SG2 your bread.
 1. I eat-X-SG2 some bread. (addressed to someone)
 
-The verb form for *eat* may or may not agree with *I* and *bread*---we mark that with the morpheme X. But crucially, in addition to the explicit arguments, it agrees with *you*. This raises a couple of questions:
+The verb form for *eat* may or may not agree with *I* and *bread*---we mark that with the morpheme X. But crucially, in addition to the explicit arguments, it encodes *you*, the addressee. This raises a couple of questions:
 
 * Are we dealing with morphosyntax or sociolinguistics?
 * How should we model it in the GF RGL ([Resource Grammar Library](http://www.grammaticalframework.org/lib/doc/synopsis/index.html))?
 
 Let us take two examples and I'll share my opinions.
+
+- [Politeness in Japanese](#politeness-in-japanese)
+    - [Implementation in the RGL](#implementation-in-the-rgl)
+    - [Controlling style in an application grammar](#controlling-style-in-an-application-grammar)
+- [Allocutive agreement in Basque](#allocutive-agreement-in-basque)
+    - [Implementation in GF](#implementation-in-gf)
+    - [Controlling allocutivity in an application grammar](#controlling-allocutivity-in-an-application-grammar)
+- [Conclusions](#conclusions)
+- [Footnotes](#footnotes)
 
 ## Politeness in Japanese
 
@@ -43,7 +52,7 @@ fun
   hang_eyes_on_V2 : V2 ;
 ```
 
-However, if the difference is morphological, then a good rule of thumb[^1] is to see them as one verb, and put all politeness forms in the same inflection table. Here I have 3 levels, plain, respecftul and extra respectful.
+However, if the difference is morphological, then a good rule of thumb[^1] is to see them as one verb, and put all forms in the same inflection table. Here I have 3 levels, plain, respectful and extra respectful.
 
 ```haskell
 fun
@@ -62,8 +71,6 @@ lin
   }
 ```
 
-
-
 But inflection table is just the first step. We need to decide how to get those forms out---which GF constructors higher up in the tree select which forms? We have two alternatives:
 <!-- How predictable is politeness from mere words or other constructors in the tree? Here are some ways to formulate rules: -->
 
@@ -76,69 +83,40 @@ But inflection table is just the first step. We need to decide how to get those 
   * `RespectUtt,`
   * `ExtraRespUtt : S -> Utt ;`
 
-If the RGL had been designed with Japanese in mind, it would certainly have these distinctions as abstract syntax functions in the common core. But as long as the different forms are available to application grammarians through *some* means---`ExtraJpn` or `ExtendJpn`---it's not a problem. I'll elaborate on that [later in this post](#controlling-politeness-in-an-application-grammar).
+If the RGL had been designed with Japanese in mind, it would certainly have these distinctions as abstract syntax functions in the common core. But as long as the different forms are available to application grammarians through *some* means---`ExtraJpn` or `ExtendJpn`---it's not a problem. I'll elaborate on that [later in this post](#controlling-style-in-an-application-grammar).
 
-### Politeness in the RGL
+### Implementation in the RGL
 
 Japanese has been in the RGL since 2012, so let's see how it works there. All credit for the actual code goes to Liza Zimina ([link to paper](https://link.springer.com/chapter/10.1007/978-3-642-33983-7_16)). Any misunderstandings about Japanese morphosyntax are mine.
 
-#### Feynman's examples
+#### Agreement or politeness?
 
-Here's a simplified variant of Feynman's examples in the Japanese RG.
+Here are two sentences, loosely inspired by Feynman's examples, as rendered by the Japanese RG.
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Lang&gt; p "I want to see the garden" | l -lang=Jpn
 私       は  庭  を 見<span class="o">たい です</span>
 <span class="c1">watashi wa niwa o mitai desu</span>
 
-Lang&gt; p "she wants to see the garden" | l -lang=Jpn
-彼女     は  庭  を 見<span class="o">たがって います</span>
-<span class="c1">kanojo wa niwa o mitagatte imasu</span>
+Lang&gt; p "the teacher wants to see the garden" | l -lang=Jpn
+先生     は  庭  を 見<span class="o">たがって います</span>
+<span class="c1">sensei wa niwa o mitagatte imasu</span>
 </code></pre></div></div>
 
 If you look closely, you'll see different forms of the verb 見る 'to see'. Note that this difference is not person agreement! The form _mitagatte imasu_ reflects that I should be more respectful when talking about other people, but I can spend fewer morphemes (_mitai desu_) when talking about myself.[^2]
 
 "But isn't that the definition of person agreement? You conjugate the verb differently when the subject is yourself vs. other people."
 
-Sure, if it was the case that in all contexts, you always said _mitai desu_ about yourself and _mitagatte imasu_ about others, I too would call it person agreement. But that's not the case. In a context where everyone speaks politely, talking about yourself using polite morphology is normal. Contrast with English, where _I wants_ is wrong in all contexts.
+If you __always__ spoke plainly about yourself and politely about others, and mixing the two was as wrong as English _I wants_ or _she want_, then I too would call it person agreement. But that's not the case. In a context where everyone speaks politely, it's normal to refer to yourself politely.
 
-(If you want to read the rest of the debate with the imaginary reader, follow the footnote.[^6])
+"Why does the Japanese RG then have this distinction? Would you sometimes want to say _watashi wa … mitagatte imasu_?"
 
-<!--
+Some individual constructions are particularly weird to use on the wrong person. Wanting is one of such cases, as well as giving and receiving. The majority of the verbs in the RGL lexicon inflect the same for different subjects, but since __some__ verbs have this distinction, `VP` needs to have the structure for it.
 
-In the previous example, "mitai" and "mitagatte" are actually forms of the same verb. You can see the stem 見 in both versions. But the verb may also be completely different. Let's see the verb `give_V3`.
+<!-- However, that's not enough to say that Japanese as a whole has person agreement.
+Contrast with English, where _I wants_ is wrong in all contexts. -->
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Lang&gt; p "I give him the car" | l -lang=Jpn
-私       は  彼  に   車     を 上げます
-<span class="c1">watashi wa kare ni kuruma o agemasu</span>
-<span class="c1">I    TOPIC him DAT car  OBJ give</span>
+<!-- (If you want to read the rest of the debate with the imaginary reader, follow the footnote.[^6]) -->
 
-Lang&gt; p "he gives me the car" | l -lang=Jpn
-彼    は   私      に  車     を 呉れます
-<span class="c1">kare wa  watashi ni kuruma o kuremasu</span>
-<span class="c1">he TOPIC me     DAT car  OBJ give</span>
-</code></pre></div></div>
-
-Here we have -->
-
-<!--
-```
-Lang> p "I give him the car" | l -lang=Jpn
-私 は 彼 に 車 を 上げます
-
-Lang> p "he gives me the car" | l -lang=Jpn
-彼 は 私 に 車 を 呉れます
-```
-```
-Lang> p "I want to see Paris" | l -lang=Jpn
-私 は 庭 を 見 たい です
-
-Lang> p "he wants to see Paris" | l -lang=Jpn
-彼 は 庭 を 見 たがって います
-``` -->
-
-
-<!--
-In the Japanese RG, written by Liza Zimina ([link to paper](https://link.springer.com/chapter/10.1007/978-3-642-33983-7_16)), the solution is as follows---heavily simplified, apologies to the author for omitting all other points but the speaker distinction.-->
 
 <!--
 
@@ -161,9 +139,9 @@ lin
 ```
 -->
 
-#### GF categories
+#### Speaker vs. style
 
-Let's look at the types in GF. I have omitted parameters that are unrelated to politeness.
+Let's look at the [types of NP, VP and Cl](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/japanese/ResJpn.gf#L26-L32). I have omitted parameters that are unrelated to politeness.
 
 
 <div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">param</span>
@@ -183,23 +161,53 @@ Let's look at the types in GF. I have omitted parameters that are unrelated to p
     <span class="p">}</span> <span class="p">;</span>
 </code></pre></div></div>
 
-There are, in fact, two dimensions in this sociolinguistic puzzle: the speaker and the overall style.
-The Japanese resource grammar forces you to spend more morphemes when you talk about others, but you can still choose to do it in an overall more or less polite way. Here's the table for "__ want(s) to see the garden". (No need to know Japanese, just take it as longer = more polite.)
+There are two dimensions in this sociolinguistic puzzle: the speaker and the overall style.
+The Japanese resource grammar forces you to spend more morphemes to say what others want vs. what you want, but you can still choose the general style of your sentence. Here's the table for "__ want(s) to see".
 
 
- &nbsp; | Plain | Respectful |
---------|-------|--------|---
- **Me**    | 私は庭を<strong>見たい</strong> | 私は庭を<strong>見たいです</strong>
- **SomeoneElse**  | 彼女は庭を<strong>見たがっている</strong> | 彼女は庭を<strong>見たがっています</strong>
+ &nbsp;           | Plain                        | Respectful
+------------------|------------------------------|---------------------------------
+ **Me**           | 見たい 'mitai'                | 見たいです 'mitai desu'
+ **SomeoneElse**  | 見たがっている 'mitagatte iru' | 見たがっています 'mitagatte imasu'
 
 
-Luckily, it's fairly easy to know if a NP is *me* or *someone else*---i.e. is the NP `UsePron i_Pron` or any other NP. So we can definitely choose the speaker in `PredVP`, and only be left with the overall style, when we reach `Cl`.
+Luckily, it's extremely easy to know if a NP is *me* or *someone else*---either it's `UsePron i_Pron` or any other NP. So `PredVP` can choose the speaker, and `Cl` has only the overall style open. The overall style is chosen by explicit constructors, as we will see in the next section.
 
-### Controlling politeness in an application grammar
+### Controlling style in an application grammar
 
-In the Japanese RG, the `Style` parameter is open all the way up to `Utt`---finally, `PhrUtt` in  [PhraseJpn](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/japanese/PhraseJpn.gf#L8) chooses explicitly the `Resp`ectful style.
+<!-- First, we need to distinguish between two _sources_ of politeness: -->
+
+<!-- 1. __Subject-driven__---whether the subject is `i_Pron` or not-.param `Speaker` in  `VP`, actual forms for only a few verbs. -->
+<!-- 2. __Situation-driven__---param `Style` in `VP`, actual forms for all verbs. -->
+
+<!-- (Addressee counts as "situation-driven politeness", because there's nothing in the tree that reveals who you're talking to.) -->
+
+We have seen two strategies for encoding politeness:
+
+1. __Lexical__---the choice of verb (_glance at_ vs. _observe_ vs. _hang one's eyes on_). Not supported in the Japanese RG.
+2. __Morphological__---the choice of verb form (_mitai_ vs. _mitai desu_ vs. _mitagatte iru_ vs. _mitagatte imasu_). Supported in `VP` as a combination of `Speaker` and `Style`. The `Speaker` parameter makes a difference only in very specific constructions, like wanting or giving.
+
+
+#### Choice of verb
+
+Just to be clear: I don't think RGL should support _glance at_ and _observe_ as inflection forms of the same verb. A resource grammar should offer an API to syntactic structures and lexicon, not try to be too clever about usage.
+
+If you need to use _glance at_ and _observe_ as if they belonged to the same verb, I recommend creating a custom type: a record with several `V*` fields, and a custom parameter to control when each of them are used.
+To choose the forms of those verbs, see the next section.
+
+
+<!-- We've just seen that the RGL `VP` contains inflection forms of the same verb (_mitai desu_, _mitagatte iru_, _mitagatte imasu_). -->
+<!-- The inflection table is of type `Speaker => Style => … => Str`, and for most verbs, the `Speaker` doesn't actually make a difference. -->
+<!-- Technically it's possible to include completely different verbs in the table (_glance at_ vs. _observe_), but I wouldn't recommend it, because there are constructions (like _wanting_ to do something) that use the full -->
+
+#### Choice of verb form
+
+<!-- As we've seen, the Japanese RG makes a difference for speaker in a few select constructions, like wanting and giving. If those are the only _speaker-related_ politeness distinctions you need, then the RGL category `VP` is enough. -->
+
+The `Style` parameter is open all the way up to `Utt`---finally, `PhrUtt` in  [PhraseJpn](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/japanese/PhraseJpn.gf#L8) chooses the respectful style.
 If you want to get the plain form, you need to use the function `StylePartPhr` in [ExtraJpn](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/japanese/ExtraJpn.gf#L36), which has the type signature `Level -> Part -> PConj -> Utt -> Voc -> Phr`.
-Like all Extra and Extend functions, it is not exported in the API, so if you want to use it in your grammar, you need to open ExtraJpn in your concrete syntax and use it like this:
+<!-- Like all Extra and Extend functions, it is not exported in [RGL API](http://www.grammaticalframework.org/lib/doc/synopsis/index.html). -->
+To use it in your grammar, you need to open ExtraJpn in your concrete syntax and use it like this:
 
 ```haskell
 concrete TestJpn of Test = open SyntaxJpn,
@@ -220,14 +228,14 @@ concrete TestJpn of Test = open SyntaxJpn,
 I opened ExtraJpn qualified `(E=ExtraJpn)` and prefixed all functions from it with `E.`, so you can see the origins clearly.
 The function `StylePartPhr`, as well as its argument categories `Level` (politeness level) and `Part` (particle) come from ExtraJpn. That makes sense: we define a function that is beyond the core RGL API, so then we also need to define its argument types and values, all in one module.
 
-The only criticism I have for the type signature of `StylePartPhr` is that `PConj` (phrase-beginning conjunction, e.g. "therefore") and `Voc` (vocative[^3]) are obligatory. The only `Voc`s exported [in the API](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#Voc) are `please_Voc` and `mkVoc : NP -> Voc`, so if we want to make a phrase without any eplicit addressee, we cannot use the API, but have to import another low-level RGL module, in this case PhraseJpn, to use its `NoVoc` construction. The same goes for `PConj`.
+The only criticism I have for the type signature of `StylePartPhr` is that `PConj` (phrase-beginning conjunction, e.g. "therefore") and `Voc` (vocative[^3]) are obligatory.
 In contrast, the [API function `mkPhr`](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#Phr) has this overload instance:
 
 ```haskell
 mkPhr : (PConj) -> Utt -> (Voc) -> Phr ; -- but sleep, my friend
 ```
 
-The arguments in parentheses mean that if you leave them out, they will be `NoPConj` and `NoVoc`.
+The arguments in parentheses mean that you can leave them out, in which case the phrase won't have any conjunction nor vocative expression. But the RGL API doesn't export `NoPConj` nor `NoVoc`, so we have to import another low-level RGL module, in this case PhraseJpn.
 
 
 ## Allocutive agreement in Basque
@@ -235,7 +243,7 @@ The arguments in parentheses mean that if you leave them out, they will be `NoPC
 In [part I](https://inariksit.github.io/gf/2020/05/14/agreement-1.html#ergative-absolutive-basque), we learned that Basque verbs mark their subject, object and indirect object in the verb form. And that's not all! In certain sociolinguistic contexts, Basque verbs mark also the addressee.
 This marking of the addressee is called _allocutive agreement_.[^4]
 
-First comes a short intro to Basque verbs, and then I will demonstrate allocutivity with a GF grammar. The code is available at [gf-agreement-tutorial/allocutive](https://github.com/inariksit/gf-agreement-tutorial/tree/master/allocutive). If you know Basque, please report any errors in this post. (There are simplifications and strategic omissions all over the place, but if you spot a genuine error, let me know!)
+First comes a short intro to Basque verbs, and then I will demonstrate allocutivity with a GF grammar. The code is available at [gf-agreement-tutorial/allocutive](https://github.com/inariksit/gf-agreement-tutorial/tree/master/allocutive). There are simplifications and strategic omissions all over the place, but if you spot a genuine error, let me know!
 
 #### Basque verbs
 
@@ -391,7 +399,7 @@ oper
 
 These inflection tables match the `ObjAgr` param as follows, with subject agreement added.
 
-| `ObjAgr`            | Inflection table              |
+|: `ObjAgr`           |: Inflection table             |
 |---------------------|-------------------------------|
 | `Intrans`           | `Subj => Str`                 |
 | `Trans Obj`         | `Obj => Subj => Str`          |
@@ -455,7 +463,7 @@ If all verbs had different inflection tables, then I'd need to store inflection 
 
 Regardless of the performance, I think that this design is also nicer to read and write, and reflects the participle--auxiliary situation more accurately.
 
-### Allocutivity in the RGL
+### Controlling allocutivity in an application grammar
 
 This is a bit of an anticlimax, but allocutives are not yet implemented in the full Basque resource grammar. One day I'll have a GF retreat in a [Basque village by the sea](https://duckduckgo.com/?q=pasai+donibane&ia=images&iax=images) and don't emerge until the resource grammar is finished.
 
@@ -526,7 +534,15 @@ TODO
 
 [^5]: In fact, _dituk_ and _ditun_ are ambiguous: in addition to being allocutive forms of the intransitive auxiliary, they are also the ordinary forms of the transitive auxiliary (with `Pl3` object and `Sg2{masc,fem}` subject). With transitive auxiliary, some (not all) of the allocutive forms are ambiguous with ordinary ditransitive auxiliary. With ditransitive auxiliary, there is no further auxiliary to be ambiguous with, so all ditransitive allocutive forms are unique, and genuinely encode 4 arguments.<br/><br/>(This was just a side note; whether the allocutive forms are unique or not, has no effect on how we implement it in GF.)
 
-[^6]: _"Let's imagine that 'watashi wa … mitagatte imasu' were always socially inappropriate, and anyone who says that must be a foreigner or a total weirdo. Would you then call it person agreement?"_<br/><br/>If it's always inappropriate to talk about yourself politely, we can still ask whether people would get confused, or just offended. Contrast with a language that actually has person agreement. If I switched the subjects in English, the sentences would turn out as _*I wants […]_ and _*she want […]_. Most native speakers would argue that those are wrong on a purely grammatical level, not related to any social context.<br/><br/>_"I just said that only foreigners would say 'watashi wa … mitagatte imasu' in my hypothetical Japanese. Now you define that English has person agreement, because saying 'I wants' makes you sound like a foreigner?"_<br/><br/>I agree, sounding like a foreigner is a valuable clue for deeming something 'grammatically incorrect'. If a sociolinguistic rule creates gaps in the possible combinations of subject and verb form---literally nobody ever mixes the 3rd person and plain form, or 1st person and polite form---then in time it can grammaticalise into actual person agreement. As a further development, the formerly offensive deviations might even become neutral, like currently in English: <em>I&nbsp;wants</em> just says I don't speak the language well, not that I'm inappropriate.<br/><br/>_"There's nothing special about being offended about language use. Many people get irrationally angry about grammatical phenomena in English, like split infinitives."_<br/><br/>Look, you're going to like my 3rd post, where I'm going to claim that preposition contraction is person agreement. Now stop hijacking my footnotes and let the poor reader return to the main post.
+<!-- [^6]: _"Okay, I agree that current actual Japanese doesn't have person agreement. But let's suppose that referring to yourself politely were always socially inappropriate, and anyone who says that must be a foreigner or a total weirdo. Would you then call it person agreement?"_<br/><br/>If a sociolinguistic rule creates gaps in the possible combinations of subject and verb form---literally nobody ever mixes the 3rd person and plain form, or 1st person and polite form, consistently with all verbs and constructions---then in time it can grammaticalise into actual person agreement. As a further development, the formerly offensive deviations might even become neutral, like they are in English: <em>I&nbsp;does</em> just says I don't speak the language well.<br/><br/>_"There's nothing special about being offended about language use. Many people get irrationally angry about English grammar, yet we don't consider split infinitives sociolinguistics."_<br/><br/>Look, you're going to like my 3rd post, where I'm going to claim that preposition contraction is person agreement. Now stop trolling in my footnotes and let the poor reader return to the main post. -->
+
+<!--
+If it's always inappropriate to talk about yourself politely---with all verbs and constructions, not just wanting in particular---that's stronger evidence for person agreement.
+
+Wanting is actually a bad example, because polite speech in Japanese tries to avoid using wanting altogether. So you may be right about _mitagatte imasu_, that it's always weird with 1st person, but that weirdness isn't consistent with all possible verbs in Japanese. So I still think that actual Japanese in 2020 doesn't have pereson agreement.
+
+We can still ask whether people would get confused as to who is the subject, or rather feel awkward due to a social rule violation. Contrast with a language that actually has person agreement. If I switched the subjects in English, the sentences would turn out as _*I wants […]_ and _*she want […]_. Most native speakers would argue that those are wrong on a purely grammatical level, not related to any social context.<br/><br/>_"I just said that only foreigners would ever say 'watashi wa … mitagatte imasu' in my Japanese. Now you define that English has person agreement, because saying 'I wants' makes you sound like a foreigner?"_<br/><br/>I agree, sounding like a foreigner is a valuable clue for deeming something grammatically incorrect. -->
+
 
 
 <!-- [^5]: Technically the full `Valency` parameter is overkill in `V`, `V2` and `V3`, because all `V`s are intransitive, all `V2`s are transitive and so on. But `VP` needs the full type anyway, because it can come from any of `V{,2,3}`, so I put the `Valency` parameter already in the lexical categories to save me some keystrokes. The inefficiency is optimised away in the PGF, when compiled with `--optimize-pgf`. For example, `UseV` expands to only 1 concrete function (instead of 25 without optimisation), reflecting the fact that there's only one real valency alternative for `V`. -->
