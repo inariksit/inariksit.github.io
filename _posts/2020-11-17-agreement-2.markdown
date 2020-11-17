@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Agreement, part II: Addressee and other implicit arguments"
+title:  "Generalising agreement, part II: Addressee and other implicit arguments"
 date:   2020-11-17
 categories: gf
 tags: "gf linguistics"
