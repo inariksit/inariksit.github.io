@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Generalising agreement: part I"
+title:  "Generalising agreement, part I: Introduction"
 date:   2020-05-14
 categories: gf
 tags: "gf linguistics"
@@ -385,7 +385,7 @@ See how the first <font color="purple">ni</font> is translated as *I*, and secon
 
 Let's translate now "Inari is" and "I have Inari":
 
- * Inari  da  
+ * Inari  da
    *Inari is*
 <ul>
 <li><font color="green">Nik</font> Inari daukat <br/>
@@ -576,10 +576,10 @@ PredVP np vp = {
 Nothing exciting to see. `ComplV2` picks the right object agreement in v2 and leaves the agent open. `PredVP` completes the job and picks the right form, now that it has an agent. It also picks the right case from the NP, using the VP's `sc` field. Thus we get the following sentences:
 
 ```
-Agreement: PredVP i_NP (UseV sleep_V)  
-AgreementEus: ni lo egin naiz  
+Agreement: PredVP i_NP (UseV sleep_V)
+AgreementEus: ni lo egin naiz
 
-Agreement: PredVP i_NP (ComplV2 drink_V2 water_NP)  
+Agreement: PredVP i_NP (ComplV2 drink_V2 water_NP)
 AgreementEus: nik ura edan dut
 ```
 

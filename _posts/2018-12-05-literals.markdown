@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "String, Int and Float literals in GF: Part I"
+title:  "String, Int and Float literals in GF, part I"
 date:   2018-12-05
 categories: gf
 tags: gf

@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "String, Int and Float literals in GF: Part II"
+title:  "String, Int and Float literals in GF, part II"
 date:   2019-01-26
 categories: gf
 tags: gf
@@ -27,7 +27,7 @@ This time, let's take a more advanced grammar for numerals. And since the RGL al
 ### Abstract syntax
 
 ```haskell
-abstract Modifiers = Numeral 
+abstract Modifiers = Numeral
   ** {
   flags startcat = Clause ;
 cat
@@ -307,7 +307,7 @@ The parser failed at token 4: "incorrectly"
 
 There's one more gotcha: we can't *parse* literals that
 contain spaces. As for explanations, let me quote page 46 in [Krasimir's
-thesis](http://www.cse.chalmers.se/~krasimir/phd-thesis.pdf). 
+thesis](http://www.cse.chalmers.se/~krasimir/phd-thesis.pdf).
 
 > The common in all cases is that the set of values for the literal categories is not
 > enumerated in the grammar but is hard-wired in the compiler and the interpreter.
