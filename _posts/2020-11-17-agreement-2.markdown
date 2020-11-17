@@ -207,7 +207,7 @@ We have seen two strategies for encoding politeness:
 
 #### Choice of verb
 
-Just to be clear: I don't think RGL should support different lexemes as inflection forms of the same verb.[^7] A resource grammar should offer an API to syntactic structures and lexicon, not try to be too clever about usage.
+Just to be clear: I don't think RGL should support different lexemes as inflection forms of the same verb, unless it's a question of well established suppletion. A resource grammar should offer an API to syntactic structures and lexicon, not try to be too clever about usage.
 
 If you need to use _glance at_ and _observe_ as if they belonged to the same verb, I recommend creating a custom type: a record with several `V*` fields, and a custom parameter to control when each of them are used.
 To choose the forms of those verbs, see the next section.
@@ -552,7 +552,7 @@ I'm a bit confused though, because it says _"in the case of bivalent transitives
 
 [^5]: In fact, _dituk_ and _ditun_ are ambiguous: in addition to being allocutive forms of the intransitive auxiliary, they are also the ordinary forms of the transitive auxiliary (with `Pl3` object and `Sg2{masc,fem}` subject). With transitive auxiliary, some (not all) of the allocutive forms are ambiguous with ordinary ditransitive auxiliary. With ditransitive auxiliary, there is no further auxiliary to be ambiguous with, so all ditransitive allocutive forms are unique, and genuinely encode 4 arguments.<br/><br/>(This was just a side note; whether the allocutive forms are unique or not, has no effect on how we implement it in GF.)
 
-[^7]: Unless it's very well established suppletion, like _go_ and _went_.
+<!-- [^7]: Unless it's very well established suppletion, like _go_ and _went_. -->
 
 <!-- [^6]: _"Okay, I agree that current actual Japanese doesn't have person agreement. But let's suppose that referring to yourself politely were always socially inappropriate, and anyone who says that must be a foreigner or a total weirdo. Would you then call it person agreement?"_<br/><br/>If a sociolinguistic rule creates gaps in the possible combinations of subject and verb form---literally nobody ever mixes the 3rd person and plain form, or 1st person and polite form, consistently with all verbs and constructions---then in time it can grammaticalise into actual person agreement. As a further development, the formerly offensive deviations might even become neutral, like they are in English: <em>I&nbsp;does</em> just says I don't speak the language well.<br/><br/>_"There's nothing special about being offended about language use. Many people get irrationally angry about English grammar, yet we don't consider split infinitives sociolinguistics."_<br/><br/>Look, you're going to like my 3rd post, where I'm going to claim that preposition contraction is person agreement. Now stop trolling in my footnotes and let the poor reader return to the main post. -->
 
