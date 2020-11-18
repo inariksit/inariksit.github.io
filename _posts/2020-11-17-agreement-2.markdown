@@ -468,8 +468,8 @@ getAux : NounPhrase -> VerbPhrase -> Str = \np,vp ->
 and in `PredVP{Fem,Masc}` we have this instead:
 
 ```haskell
-getAuxAllocutive : NounPhrase -> VerbPhrase -> Str = \g,np,vp ->
-  case vp.a of {
+getAuxAllocutive : Gender -> NounPhrase -> VerbPhrase -> Str =
+  \g,np,vp -> case vp.a of {
     Intrans => allocutive_intransAux ! g ! ...
     Trans obj => allocutive_transAux ! g ! ...
     Ditrans dobj iobj => allocutive_ditransAux ! g ! ...
