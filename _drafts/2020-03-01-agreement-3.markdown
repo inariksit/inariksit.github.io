@@ -1,13 +1,19 @@
 ---
 layout: post
-title:  "Generalising agreement: part II"
+title:  "Generalising agreement, part III: Oblique"
 date:   2020-03-01
 categories: gf
 tags: "gf linguistics"
 
-# Agreement, part III: Oblique agreement
+_This is the third post in the agreement series. Reading the previous posts ([part I](https://inariksit.github.io/gf/2020/05/14/agreement-1.html), [part II](https://inariksit.github.io/gf/2020/11/17/agreement-2.html)) is recommended for the general context, but as long as you know some basic linguistics and GF, the examples in this post are understandable._
 
-Here all the rambling about how an orthographical word depends on various elements in the tree.
+In the first post, we learned that many languages mark the core argument(s) like subject, object and indirect object in the verb inflection.
+
+In the second post, we learned that some languages mark also the addressee. Then I argued that [register](https://en.wikipedia.org/wiki/Register_(sociolinguistics)) can also be thought of as agreement: the argument that is marked is the situation itself.
+
+In this post, I'm going to take it a bit more general still. If an orthographical word in any category depends on various elements in the tree, I'll call that agreement.
+
+
 
 ## Somali prepositions
 
