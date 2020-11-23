@@ -4,6 +4,7 @@ title:  "Generalising agreement, part III: Oblique"
 date:   2020-03-01
 categories: gf
 tags: "gf linguistics"
+---
 
 _This is the third post in the agreement series. Reading the previous posts ([part I](https://inariksit.github.io/gf/2020/05/14/agreement-1.html), [part II](https://inariksit.github.io/gf/2020/11/17/agreement-2.html)) is recommended for the general context, but as long as you know some basic linguistics and GF, the examples in this post are understandable._
 
@@ -17,7 +18,19 @@ In this post, I'm going to take it a bit more general still. If an orthographica
 
 ## Somali prepositions
 
-First I need to make you appreciate how cool this is. Examples from [Saeed (1999)](https://benjamins.com/catalog/loall.10) page 39.
+First I need to make you appreciate how cool this is. Examples from [Saeed (1999)](https://benjamins.com/catalog/loall.10) pages 39 and 110.
+
+
+### Imperative mood
+
+Somali grammar books like to start with imperative sentences, because imperative is morphologically the simplest verb form, and syntactically the simplest construction.
+As [Saeed (1982)](https://core.ac.uk/download/pdf/161528208.pdf) puts it, _"grammaticalisation of pragmatic functions is at the core of Somali syntax."_
+
+### Prepositional phrase
+
+
+
+![SomaliPrepContr0](https://github.com/inariksit/inariksit.github.io/blob/master/images/somali-preposition-contraction-0.png "A single Somali preposition: 'Cali shaah u samee', translation 'Make some tea for Ali'")
 
 ![SomaliPrepContr1](https://github.com/inariksit/inariksit.github.io/blob/master/images/somali-preposition-contraction-1.png "Somali preposition contraction: 'Faarax sidan ugu samee', gloss 'Faarax si-tan u+u samee', translation 'Do it in this way for Farah'")
 
