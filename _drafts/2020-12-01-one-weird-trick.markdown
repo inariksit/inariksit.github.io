@@ -61,11 +61,16 @@ And here is the situation after fixing the memory leak.
 
 ![gfResourcesAfter](https://github.com/inariksit/inariksit.github.io/blob/master/images/gf-graph-after.png "Graph showing the activity during GF compilation, after fixing the memory leak. Short periods of GC in between active work.")
 
-Now if you want to know how to produce such graphs yourself, keep reading! If not, that's the end of the post. GF is now faster. It's not a miracle cure---if your PGF has over 100 000 concrete categories, it may still take minutes to compile, depending on your computer. But it will use less memory while doing so!
+Now if you want to know how to produce such graphs yourself, keep reading! If not, that's the end of the post. GF is now faster. It's not a miracle cure---if your PGF has over 100 000 concrete categories, it may still take minutes to compile (or fail to compile), depending on your computer. But if it succeeds, it will use less memory while doing so!
 
 ## Step-by-step guide
 
 TODO: write a coherent story
+
+When the program takes too long time to run, you can always press Ctrl-C to abort early. All the statistics are still collected.
+
+You can also look at the heap profile and the event log while the program is running. But the summary (-s) and the cpu profile (-P) is only available when the program has terminated.
+
 
 ```
 +RTS -hc -P -s -l
@@ -77,17 +82,24 @@ TODO: write a coherent story
 
 hp2ps -c gf.hp; ps2pdf gf.ps; open gf.pdf
 
+--
+
 $ threadscope gf.eventlog
 shows a graph of gc time and cpu usage over time
 
+--
 What is ... in
 (27653)>>=.\.\/>>=.\/>>=/goB...
 ?
 
 grep 27653 gf.prof
+--
 
 
-When the program takes too long time to run, you can always press Ctrl-C to abort early. All the statistics are still collected.
+(different bug, adapt to this post)
 
-You can also look at the heap profile and the event log while the program is running. But the summary (-s) and the cpu profile (-P) is only available when the program has terminated.
+grep ' no\. ' -A1 gf.prof ;grep 29956 gf.prof
+COST CENTRE                                                  MODULE                         SRC                                                                                          no.       entries  %time %alloc   %time %alloc  ticks     bytes
+
+                      inferLType                             GF.Compile.TypeCheck.RConcrete src/compiler/GF/Compile/TypeCheck/RConcrete.hs:(79,1)-(322,56)                               29956    1780925    4.0   11.0    34.5   79.6   1053 953211656
 ```
