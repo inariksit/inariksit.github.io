@@ -8,7 +8,8 @@ tags: "gf haskell"
 
 If you've spent any time with GF, you probably have experienced, or at least heard, that GF can be slow. I have written [almost 3000 words](https://inariksit.github.io/gf/2018/09/22/grammar-blowup.html) about how to reduce your grammar size, blurring the line between optimisation and obfuscation. On my spare time, I'm torturing my friends with monologues about parameters and concrete categories.
 
-![gfMonologue](https://github.com/inariksit/inariksit.github.io/blob/master/images/gf-monologue.png "Screenshot showing a series of messages about optimising a GF grammar. That's just a third of the actual monologue.")
+![gfMonologue](https://github.com/inariksit/inariksit.github.io/blob/master/images/gf-monologue.png "Screenshot showing a series of messages about optimising a GF grammar.")
+<em><small>That's just a fourth of the actual monologue.</small></em>
 
 So you could say that the subject is close to my heart. But do you know what had never occurred to me?
 
