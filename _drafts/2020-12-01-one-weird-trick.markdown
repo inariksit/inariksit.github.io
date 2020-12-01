@@ -60,6 +60,8 @@ The third challenge is to interpret the profiling results. I don't know how much
 
 After looking around in the code, it was clear that the `Either Int` part was unnecessary. `value2term` was called in 5 places, and in each of them, the potential `Left` value was treated almost identically: raise an error with the message "variable #n is out of scope". So it wouldn't change anything to just throw that error directly in `value2term`, and change the return type just into `Term`. With this change, none of the `liftM` and `mapM` was needed.
 
+TODO: better explanation on the reasons. `Either Int` was strict, after removing it, the conversion from value to term is lazy. As a rule of thumb, it's useful to be lazy, if you're converting between big data types, and you don't necessarily need to read the whole tree. When the function returned an `Either Int Term`, all functions that were using the result, had to wait for the whole computation to finish, to know whether it returned a `Right term` or a `Left int`. With the pure function, any caller can start lazily consuming the result whenever, and how much or little of it as they need.
+
 The results were absolutely dramatic. The grammar that was using >50GB memory, was now using 42MB. Compiling the French resource grammar never went over 700 MB. Much more of the time was actually spent compiling instead of garbage collection.
 
 This was the situation before. Green is activity, orange is garbage collection.
