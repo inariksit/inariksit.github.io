@@ -39,7 +39,7 @@ oper
 
   -- …and for terms
   a : A = {s = "a"} ;
-  b : B = a ** {s2 = "b"} ;    -- {s = "a" ; s2 = "b} 
+  b : B = a ** {s2 = "b"} ;    -- {s = "a" ; s2 = "b}
 ```
 
 ## Examples
@@ -57,48 +57,44 @@ clause missing a complement: just like VPSlash, but it also has a
 subject.
 
 Here are types for VP, VPSlash and ClSlash in an unnamed RGL
-language<sup>[1](#ok-its-basque)</sup>: 
+language<sup>[1](#ok-its-basque)</sup>:
 
 
 ```haskell
 oper
- 
- VPhrase : Type = {- details don't matter -} ; 
- VPhraseSlash : Type =
-   VPhrase ** { post : Postposition ;
-                missing : MissingArg } ;
- ClauseSlash : Type =
-   VPhraseSlash ** { subj : NounPhrase } ;
+  VPhrase : Type = {- details don't matter -} ;
+  VPhraseSlash : Type =
+    VPhrase ** {post : Postposition ;
+                missing : MissingArg} ;
+  ClauseSlash : Type =
+    VPhraseSlash ** {subj : NounPhrase} ;
 
 lincat
-
- VP = VPhrase ;
- VPSlash = VPhraseSlash ;
- ClSlash = ClauseSlash ;
+  VP = VPhrase ;
+  VPSlash = VPhraseSlash ;
+  ClSlash = ClauseSlash ;
 ```
 
 And here is the oper `insertAdv`, which inserts an adverb into a `VPhrase`.
 
 ```haskell
 oper
-
- insertAdv :  VPhrase -> {s : Str} -> VPhrase = \vp,a ->
-   vp ** { adv = vp.adv ++ a.s } ;
+  insertAdv : VPhrase -> {s : Str} -> VPhrase = \vp,a ->
+    vp ** {adv = vp.adv ++ a.s} ;
 ```
 
 We can reuse the same oper `insertAdv` for all subtypes of `VPhrase`:
 
 ```haskell
 lin
+  -- : VP -> Adv -> VP ;            -- sleep here
+  AdvVP = insertAdv ;
 
- -- : VP -> Adv -> VP ;            -- sleep here
- AdvVP = insertAdv ;
+  -- : VPSlash -> Adv -> VPSlash ;  -- use (it) here
+  AdvVPSlash vps adv = vps ** insertAdv vps adv ;
 
- -- : VPSlash -> Adv -> VPSlash ;  -- use (it) here
- AdvVPSlash vps adv = vps ** insertAdv vps adv ;
-
- -- : ClSlash -> Adv -> ClSlash ;  -- (whom) he sees today
- AdvSlash cls adv = cls ** insertAdv cls adv ; 
+  -- : ClSlash -> Adv -> ClSlash ;  -- (whom) he sees today
+  AdvSlash cls adv = cls ** insertAdv cls adv ;
 ```
 
 `AdvVP` is straightforward: the lincats of `VP` and `Adv` match
@@ -113,7 +109,7 @@ any of its subtypes, such as `VPSlash` and `ClSlash`. Thus calling
 `insertAdv` also *returns* a `VPhrase`, but `AdvVPSlash` and
   `AdvSlash` expect more informative types. Thus the following would
   be wrong:
-  
+
 <div class="language-haskell highlighter-rouge"><div
 class="highlight">
 <pre class="highlight"><code><span class="err">ΑdvSlash cls adv = insertAdv cls adv ;</span></code></pre></div></div>
@@ -124,13 +120,13 @@ needs to return a `ClSlash`. The `subj`, `post` and `missing` fields were
 already present in the argument `cls`, and inserting an adverb doesn't
 change that, so we add `cls ** ` before calling `insertAdv`: this
 *extends* the original `cls` by the changes made by `insertAdv`. We
-could be more verbose and write the same thing like this: 
+could be more verbose and write the same thing like this:
 
 ```haskell
 AdvSlash cls adv =
-  insertAdv cls adv ** { subj = cls.subj ;
-                         post = cls.post ;
-                         missing = cls.missing } ;
+  insertAdv cls adv ** {subj = cls.subj ;
+                        post = cls.post ;
+                        missing = cls.missing} ;
 ```
 
 ### Interlude
@@ -140,37 +136,34 @@ IP` make the following code work?
 
 ```haskell
 lin
- -- : Det -> CN -> NP          -- the songs
- DetCN det cn = {- actual implementation here -} ;
+  -- : Det -> CN -> NP          -- the songs
+  DetCN det cn = {- actual implementation here -} ;
 
- -- : IDet -> CN -> IP ;       -- which five songs
- IdetCN = DetCN ;
-
+  -- : IDet -> CN -> IP ;       -- which five songs
+  IdetCN = DetCN ;
 ```
 
 (Obviously, `Det = Idet` and `NP = IP`, but what if they have to be different?)
 
 We [return to this question](#interlude-2), and meanwhile I explain that by the way,
-we can also reuse `lin`s, not just opers! 
+we can also reuse `lin`s, not just opers!
 
 ### Reuse `lin`s
 
 
 ```haskell
 oper
-
- insertComp : Comp -> VPhrase -> VPhrase = \c,vp ->
-   vp ** { comp = {- details don't matter -} } ; 
+  insertComp : Comp -> VPhrase -> VPhrase = \c,vp ->
+    vp ** {comp = {- details don't matter -}} ;
 
 lin
+  -- : VV  -> VP -> VP ;
+  ComplVV vv vp =
+   let vcomp : Comp = mkComp vp ;
+    in insertComp vcomp (useV vv) ;
 
- -- : VV  -> VP -> VP ;
- ComplVV vv vp = 
-  let vcomp : Comp = mkComp vp ;
-   in insertComp vcomp (useV vv) ;
-
- -- : VV  -> VPSlash -> VPSlash ;
- SlashVV vv vps = vps ** ComplVV vv vps ;
+  -- : VV  -> VPSlash -> VPSlash ;
+  SlashVV vv vps = vps ** ComplVV vv vps ;
 ```
 
 Look, we just reused `ComplVV` for implementing `SlashVV`! As before,
@@ -196,21 +189,21 @@ And if you've looked around in the resource grammars, you may have seen this kin
 
 ```haskell
 oper
- Noun : Type = { s : NForm => Str ; g : Gender }
+  Noun : Type = {s : NForm => Str ; g : Gender} ;
 
 lincat
- N  = Noun ;
- N2 = Noun ** {c2 : Preposition} ;
- N3 = Noun ** {c2,c3 : Preposition} ;
+  N  = Noun ;
+  N2 = Noun ** {c2 : Preposition} ;
+  N3 = Noun ** {c2,c3 : Preposition} ;
 ```
 
 So here we define `N2` and `N3` as subtypes of `N`, except that we do
 it in an awkward way, extending an *oper* `Noun` instead of the lincat
-`N`. 
+`N`.
 
 When you write a lincat for some cat, you make it into some concrete
 record type. You can use the same concrete record for many different
-lincats, e.g. `lincat Adv, Conj = {s : Str} ;`. 
+lincats, e.g. `lincat Adv, Conj = {s : Str} ;`.
 To you these are identical, but the GF compiler inserts a hidden field,
 so actually `Adv` is `{s : Str ; lock_Adv : {}}` and Conj is `{s : Str ; lock_Conj : {}}`.
 
@@ -218,34 +211,34 @@ That's why we don't write `lincat N2 = N ** {c2 : Prep}`: it would
 make `N2` into the following type:
 
 ```haskell
-{ s : NForm => Str ; g : Gender ; lock_N : {} ;
- c2 : Prep ; lock_N2 : {} } ;
+{s : NForm => Str ; g : Gender ; lock_N : {} ;
+ c2 : Prep ; lock_N2 : {}} ;
 ```
 
-This is also the reason why you might have seen `lin X` in the 
+This is also the reason why you might have seen `lin X` in the
 paradigms, like in the following:
 
 ```haskell
 oper
- mkNoun : Str -> Noun = {- details don't matter -} ;
+  mkNoun : Str -> Noun = {- details don't matter -} ;
 
- mkN  : Str -> N = \s -> lin N (mkNoun s) ;
+  mkN  : Str -> N = \s -> lin N (mkNoun s) ;
 
- mkN2 : Str -> Prep -> N2 =
-  \s,prep -> lin N2 (mkNoun s ** { c2 = prep }) ;
+  mkN2 : Str -> Prep -> N2 =
+   \s,prep -> lin N2 (mkNoun s ** {c2 = prep}) ;
 
- mkN3 : Str -> Prep -> N3 =
-  \s,p,r -> lin N3 (mkNoun s ** { c2 = p ; c3 = r }) ;
+  mkN3 : Str -> Prep -> N3 =
+   \s,p,r -> lin N3 (mkNoun s ** {c2 = p ; c3 = r}) ;
 ```
 
-The oper `mkNoun` creates a record with fields `{ s : NForm => Str ; g : Gender }`.
+The oper `mkNoun` creates a record with fields `{s : NForm => Str ; g : Gender}`.
 Since `N`, `N2` and `N3` all share those two fields, it makes sense to
 reuse the common parts. Then we make the resulting `Noun ** {c2 :
 Prep}` into an actual `N2` by wrapping it in `lin N2`.
 
 ```haskell
-        mkNoun s ** { c2 = prep }  -- : Noun ** {c2:Prep}
-lin N2 (mkNoun s ** { c2 = prep }) -- : N2
+        mkNoun s ** {c2 = prep}  -- : Noun ** {c2:Prep}
+lin N2 (mkNoun s ** {c2 = prep}) -- : N2
 ```
 <!--
 TODO: include this gotcha.
@@ -259,7 +252,7 @@ This is the expected use of such an oper.
 
 ```haskell
 lin foobar_1_N = compoundN "foo" bar_N ;
-``` 
+```
 
 But if we have more lincats that are the same as N's lincat, we can abuse the `compoundN` oper and apply it to them.
 
@@ -294,11 +287,11 @@ Now we get back to the [earlier question](#interlude): which subtype relations h
 
 ```haskell
 lin
- -- : Det -> CN -> NP          -- the songs
- DetCN det cn = {- actual implementation here -} ;
+  -- : Det -> CN -> NP          -- the songs
+  DetCN det cn = {- actual implementation here -} ;
 
- -- : IDet -> CN -> IP ;       -- which five songs
- IdetCN = DetCN ;
+  -- : IDet -> CN -> IP ;       -- which five songs
+  IdetCN = DetCN ;
 ```
 
 * We can *give* an `Idet` as an argument to `DetCN`, which expects a `Det`. Thus `Idet` has to have *more* fields than `Det`.
