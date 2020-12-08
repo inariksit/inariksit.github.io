@@ -65,10 +65,10 @@ lin
 
   -- Hacky, and produces "1 cars"
   NItemsLiteral int kind =
-    let sym : NP = symb int ;
-        item : NP = mkNP aPl_Det kind ; -- indefinite plural
-        symItem : NP = item ** {s = \\c => sym.s ! c ++ item.s ! c} ;
-     in mkS (mkCl symItem) ;
+    let sym : Symb = mkSymb int.s ; -- mkSymb : Str -> Symb ;
+        card : Card = symb sym ;    -- symb : Symb -> Card ;
+        det : Det = mkDet card ;
+     in mkS (mkCl (mkNP det kind)) ;
 
   -- Comes from the RGL, produces "1 car"
   NItemsDig num kind = mkS (mkCl (mkNP (mkDet num) kind)) ;
@@ -144,48 +144,27 @@ NItemsDig (IIDig D_9 (IIDig D_9 (IDig D_9))) Car
 
 ## Arbitrary strings as modifiers
 
-As you can see from the implementation of `NItemsLiteral`, there is no
-nice way to insert arbitrary `Int`s as a modifier; you need to bypass
-the API and access the fields of the NP, like this:
+As you can see from the implementation of `NItemsLiteral`, we can make a `Det` out of an Int in three steps:
+
+1. Call `mkSymb` to the string inside the `Int`
+2. Use the `Symb -> Card` instance of `symb`
+3. Use `mkDet : Card -> Det`.
 
 ```haskell
-NItemsLiteral int kind =
-  let sym : NP = symb int ;
-      item : NP = mkNP aPl_Det kind ; -- indefinite plural
-      symItem : NP = item ** {s = \\c => sym.s ! c ++ item.s ! c} ;
-   in mkS (mkCl symItem) ;
+  NItemsLiteral int kind =
+    let sym : Symb = mkSymb int.s ; -- mkSymb : Str -> Symb ;
+        card : Card = symb sym ;    -- symb : Symb -> Card ;
+        det : Det = mkDet card ;
+     in mkS (mkCl (mkNP det kind)) ;
 ```
 
-### String to NP
+Technically, we can do this to any other literal category, because all of them have the lincat `{s : Str}`, and the first step is just `Str -> Symb`.
+However, a `Det` formed out of `Card` is always plural, so if you need a singular determiner, you need to do something else.
 
-`NItemsLiteral` is dangerous, because one day someone might change the lincat of
-NP in the English RGL, and then code like this stops working. But with
-that disclaimer out of the way, if you *need* to do this for strings,
-you *can* do the following. Remember that `symb` is overloaded for
-`String`, `Int` and `Float`, so you can use `symb` just like
-previously. In fact, the code is identical, except that now we choose
-another `mkNP` instance for `item`.
-
-
-```haskell
-fun
-  LiteralKind : String -> Kind -> Clause ;
-
-lin
-  LiteralKind string kind =
-    let sym : NP = symb string ;
-        item : NP = mkNP kind ; -- MassNP, i.e. singular and no article
-        symItem : NP = item ** {s = \\c => sym.s ! c ++ item.s ! c} ;
-     in mkS (mkCl symItem) ;
-```
 ### String to Det
 
-You might wonder, why not make the `String` literal into a `Det` and
-call a proper `mkNP` instance for `sym` (which is now Det) and the
-`kind`? Well, we can of course do that: create a new `Det` where we
-insert the string from the `String` in the right field. The
-linearisation for `LiteralKind` would look like following, with ???
-replaced by actual content.
+We need to find some function that makes a singular determiner out of a literal.
+Let's write down a skeleton:
 
 ```haskell
 fun
@@ -193,13 +172,12 @@ fun
 
 lin
   LiteralDetKind string kind =
-    let symDet : Det = ??? string ; -- Wishful thinking
-        symItem : NP = mkNP symDet kind ;
-     in mkS (mkCl symItem) ;
+    let det : Det = ??? string ; -- Wishful thinking
+     in mkS (mkCl (mkNP det kind)) ;
 ```
 
-*But what if there is some `mkDet` constructor in
- ParadigmsEng or ResEng, can't we use that?* Let's examine
+*Is there some `mkDet` constructor in
+ ParadigmsEng or ResEng that we can  use?* Let's examine
  [StructuralEng](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/StructuralEng.gf#L56)
  to see how they make `Det`s: by using
  [mkDeterminerSpec](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/MorphoEng.gf#L22-L28),
@@ -250,9 +228,8 @@ So let's say that we want our determiner to be singular indefinite. Then we can 
 
 ```haskell
 LiteralDetKind string kind =
-  let symDet : Det = a_Det ** {s = a_Det.s ++ string.s} ;
-      symItem : NP = mkNP symDet kind ;
-   in mkS (mkCl symItem) ;
+  let det : Det = a_Det ** {s = a_Det.s ++ string.s} ;
+   in mkS (mkCl (mkNP det kind)) ;
 ```
 
 ### Output of the grammar
@@ -343,4 +320,4 @@ Krasimir's thesis before I get out of the bed, it's so good.
 
 ## Read more
 
-I might eventually put some links here. But here's a teaser: my next blog post will be about going beyond the API, and how to limit the dangers of using low-level opers in your application grammar.
+I might eventually put some links here. But here's a teaser: my [next blog post](https://inariksit.github.io/gf/2019/02/17/beyond-API.html) will be about going beyond the API, and how to limit the dangers of using low-level opers in your application grammar.
