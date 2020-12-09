@@ -15,6 +15,62 @@ In the second post, we learned that some languages mark also the addressee. Then
 In this post, I'm going to take it a bit more general still. If an orthographical word in any category depends on various elements in the tree, I'll call that agreement.
 
 
+## Zulu predicative
+
+Let's start with easy mode.
+I'll quote [Wikipedia](https://en.wiktionary.org/wiki/Appendix:Zulu_copulatives):
+
+> While Zulu does have a copula verb -ba (“to be”), it is not used in the present indicative.
+> Instead, various ways of expressing the copula exist in this case. [--] The copulative form [--] is formed by prefixing the __copulative particle__ to the full form of the noun.
+
+Let's take an example.
+
+| Zulu         | English                        |
+|--------------|--------------------------------|
+| umngane      | 'a friend'                     |
+| nginomngane  | 'I have a friend'              |
+| anginamngane | 'I don't have a friend'        |
+| unomngane    | 'he/she has a friend'          |
+| awunamngane  | 'he/she doesn't have a friend' |
+
+
+No verb involved, but a bunch of agreement. We can identify at least subject and polarity. Unclear from this sample what exactly the subject agrees with, we just see that it's different for P1 Sg and P3 Sg. Let's look at some more evidence.
+
+
+| Zulu                 | English              |
+|----------------------|----------------------|
+| imilenze             | 'legs'               |
+| inyoni inemilenze    | 'the bird has legs'  |
+| isihlalo sinemilenze | 'the chair has legs' |
+| izihlalo zinemilenze | 'chairs have legs'   |
+
+So what is this an evidence of? _Chair_ and _chairs_ behave differently as possessors, as well as _bird_ to any of the furniture.
+
+https://github.com/LauretteM/gf-rgl-zul/blob/master/src/zulu/ResZul.gf#L31
+VPType = CopIdent | CopAssoc | CopDescr | CopEq | … (non-copula VP types)
+
+the associative copula can, if I understand correctly, be translated as "X has Y"
+In ExtraZul, there are bunch of copula funs, of type NP -> VP, among them [AssocCop](https://github.com/LauretteM/gf-rgl-zul/blob/master/src/zulu/ExtraZulAbs.gf#L8)
+
+In English, you'd say "I have a nose" with this tree
+`PredVP (UsePron i_Pron) (ComplSlash (SlashV2a have_V2) (DetCN (DetQuant IndefArt NumSg) (UseN nose_N)))`
+
+And in Zulu, with this tree
+`PredVP (UsePron i_Pron) (AssocCop (DetCN (DetQuant IndefArt NumSg) (UseN nose_N)))`
+
+<!--
+In the current (unfinished) Zulu grammar, `have_V2` isn't even implemented.
+Of course, it's perfectly possible to implement `have_V2` in a way that `ComplSlash (SlashV2a have_V2) np` linearises the same as `AssocCop np`.
+In such a grammar, `have_V2` wouldn't contribute with an independent verb form, instead, it would just carry the param `CopAssoc` over to the `VP`, and finally `PredVP` does all the magic.
+
+(If GF still had a working `def` feature, it would be a natural choice to make a def rule between  `ComplSlash (SlashV2a have_V2) np` and `AssocCop np`. But that feature isn't supported by practically anything.)
+-->
+
+Again, there's technically no verb form there. Just bunch of noun class agreement attached to other nouns. Skip the verb altogether, nouns can do agreement perfectly fine without a verb!
+
+But in the GF RGL, we see that the most practical place to put all of this in place is `PredVP`.
+
+If you read the Basque post, we also did lots of complicated decisions in PredVP. It's not a coincidence. That's just a very good place to make decisions! That's when you finally know the subject.
 
 ## Somali prepositions
 
@@ -35,3 +91,11 @@ As [Saeed (1982)](https://core.ac.uk/download/pdf/161528208.pdf) puts it, _"gram
 ![SomaliPrepContr1](https://github.com/inariksit/inariksit.github.io/blob/master/images/somali-preposition-contraction-1.png "Somali preposition contraction: 'Faarax sidan ugu samee', gloss 'Faarax si-tan u+u samee', translation 'Do it in this way for Farah'")
 
 ![SomaliPrepContr2](https://github.com/inariksit/inariksit.github.io/blob/master/images/somali-preposition-contraction-2.png "Somali preposition contraction: 'Cali lacagta nooga soo qaad', gloss 'Cali lacag-ta na+u+ka soo qaad', translation 'Get the money for us from Ali'")
+
+### Blah
+
+The theme lately has been "postpone all decisions to PredVP, only boring normies are done with verb inflection by ComplSlash".
+
+I'm glad to tell you that in Somali, we choose the actual preposition combination in `UseCl`.
+
+Technically, we could wait even longer, because it's still possible to add adverbs to a `S`, but … we just need to draw the line somewhere. If you need a different word order than `AdvVP` and `AdVVP`, make as many custom funs on the VP level. The current `Adv` has 4 fields, to cover for 4 different placements in the VP. Exactly for the reason that we can avoid the need to add adverbs after it's become a Cl. Want it before the subject? There's a field for that. When you add the Adv to the `VP`, it just goes into a field in VP that will be added in front of the future subject. Before the object? Sure, there's a field for that. As the last thing in the whole sentence? There's a field for that. If I've missed a critical use case, just add one more field. Fields are cheap.
