@@ -94,8 +94,22 @@ As [Saeed (1982)](https://core.ac.uk/download/pdf/161528208.pdf) puts it, _"gram
 
 ### Blah
 
-The theme lately has been "postpone all decisions to PredVP, only boring normies are done with verb inflection by ComplSlash".
+The theme lately has been "postpone all decisions to Cl, only boring normies are done with verb inflection by VP".
 
-I'm glad to tell you that in Somali, we choose the actual preposition combination in `UseCl`.
+I'm glad to tell you that in Somali, we choose the actual preposition combination in `UseCl : Temp -> Pol -> Cl  -> S`.
+
+Why wait for so long? Don't we know all the arguments of the preposition combination already since VP?
+
+Yes, but those aren't actually all the arguments. The phrase is open for polarity until `S`. Negation is, in fact, yet another possible component in the string. Here's an example from [Nilsson](http://morgannilsson.se/Kort%20somalisk%20grammatik.pdf).
+
+| Somali                       | English                 |
+|------------------------------|-------------------------|
+| Waan <font color="red">ka</font> dul boodi karaa. | I can jump <font color="red">over</font> it.     |
+| <font color="blue">I</font><font color="red">ga</font><font color="green">ma</font> dul boodi kartid.  | You can<font color="green">not</font> jump <font color="red">over</font> <font color="blue">me</font>. |
+
+
+The example is not so clear because it differs in more than negation, but that's what Nilsson gives us. The negation morpheme, _ma_, is the final thing that fuses together with the preposition(s), object pronoun and other stuff there might be. I don't know if passive also gets attached. None of the sources I've read are complete about all combinations. (When you write a generative grammar, you notice how incomplete paper grammars are. :-P)
+
+Of course, I can construct the two forms
 
 Technically, we could wait even longer, because it's still possible to add adverbs to a `S`, but … we just need to draw the line somewhere. If you need a different word order than `AdvVP` and `AdVVP`, make as many custom funs on the VP level. The current `Adv` has 4 fields, to cover for 4 different placements in the VP. Exactly for the reason that we can avoid the need to add adverbs after it's become a Cl. Want it before the subject? There's a field for that. When you add the Adv to the `VP`, it just goes into a field in VP that will be added in front of the future subject. Before the object? Sure, there's a field for that. As the last thing in the whole sentence? There's a field for that. If I've missed a critical use case, just add one more field. Fields are cheap.
