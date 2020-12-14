@@ -162,7 +162,7 @@ possibilities and impossibilities for a language or genre". -->
 If you want to read more, here's Wen's [blog post](https://wenkokke.github.io/2016/constraint-grammar-can-count/).
 There will also be a section in my thesis on this.
 
-Part III coming up sometime.
+[Part III](https://inariksit.github.io/research/2018/06/11/my-research-3.html).
 
 ---
 
@@ -171,4 +171,3 @@ wanted to get to 20, but the 19 already worked better (on a specific
 corpus) than 300 (probably hand-tailored for another corpus) and I was
 bored so it became 19. But believe me, I have *read* a whole lot of CG
 rules!
-
