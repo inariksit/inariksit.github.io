@@ -174,7 +174,7 @@ also whether you really want variants--e.g. in the thread in question,
 it is much better to separate European and Brazilian Portuguese into
 distinct modules.
 
-### Variants vs. `|`
+### `variants` vs. `|`
 
 You may have come across the use of `variants` while reading GF
 code. Except for the behaviour of [empty variants](#empty-variants),
@@ -184,7 +184,7 @@ code. Except for the behaviour of [empty variants](#empty-variants),
 
 It is clear that `{s = "ink well" | "ink-well"}` is the same as `{s =
 "ink well"} | {s = "ink-well}`, but which is better? Both will compile
-to the same thing at the PGF level, but the former is clearer and less
+to the same thing [at the PGF level](../../06/13/pmcfg.html#variants), but the former is clearer and less
 repetitive. Just be careful with examples which are not actually
 equivalent, such as `{s = "Auto" ; g = Neutr} | {s = "Wagen" ; g =
 Masc}` and `{s = "Auto" | "Wagen" ; g = Neutr | Masc}`.
