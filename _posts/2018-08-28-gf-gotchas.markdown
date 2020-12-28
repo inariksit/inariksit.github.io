@@ -6,13 +6,14 @@ categories: gf
 tags: gf
 ---
 
-![duck](/images/gf-rubber-duck.png "Your favourite companion for writing GF")
-Latest update: 2020-09-09
+![gf_rubberduck](/images/gf-rubber-duck.png "Your favourite companion for writing GF")
+Latest update: 2020-12-28
 
 This post contains real-life examples when I or my friends have been
 confused in the past. It might be updated whenever someone is confused
 again.
 
+- [Unsupported token gluing](#unsupported-token-gluing)
 - [Restricted inheritance](#restricted-inheritance)
 - [linref](#linref)
 - [What's the problem with variants in resource grammar?](#whats-the-problem-with-variants-in-resource-grammar)
@@ -33,6 +34,127 @@ again.
   - [variants {}](#empty-variants)
 - [Too good linearisations for some RGL functions](#too-good-linearisations-for-some-rgl-functions)
 - [Re-export RGL opers in application grammar](#re-export-rgl-opers-in-application-grammar)
+
+## Unsupported token gluing
+
+In my experience from teaching GF, the most common source of confusion is:
+**when are you allowed to glue strings with `+` and pattern match?**
+
+### The operations
+
+Gluing strings with `+` is shown below. Apply `addBar` to "foo" and you get "foobar".
+
+```haskell
+oper
+  addBar : Str -> Str ;
+  addBar x = x + "bar" ;
+```
+
+Pattern matching is shown below.
+<!-- As expected, `isPlural "car"` returns `False`, and `isPlural "cars"` returns `True`. -->
+
+```haskell
+oper
+  isPlural : Str -> Bool ;
+  isPlural str = case str of {
+    _ + "s" => True ;
+    _       => False } ;
+```
+
+You can use these operations when constructing lexicon, but not in a function that takes arguments.
+
+### Restrictions
+
+To quote the [GF tutorial for Python programmers](https://daherb.github.io/GF-for-Python-programmers/Tutorial.html#compile-time-tokens-vs-run-time-strings):
+
+<!-- > This is as good a time as any to point out the difference between the operators `+` and `++`. This is a common source of problems. GF scrupulously observes the difference between compile-time string operations and run-time string operations. But this distinction is more obvious to GF than it is to you, and can be the source of mysterious errors. -->
+<!-- > -->
+> GF requires that every token – every separate word – be known at compile-time. Rearranging known tokens in new ways, no problem: GF can generate an infinite variety of different combinations of words.
+>
+> But they have to be words known to GF at compile-time. GF is not improv: as Shakespeare might have said, if anybody’s going to make up new words around here, it’ll be the playwright, not the actor. You can `+` tokens together but only at compile-time. If you try to do it at run-time, you will get weird errors, like `unsupported token gluing` or, worse, `Internal error in GeneratePMCFG`.
+
+So how do you know whether a line of code is executing at compile-time or at run-time?
+
+### Run-time string operations
+
+Look at the functions' type signatures. If the function takes an argument, we're only allowed to use run-time string operations on them.
+
+```haskell
+fun
+  Pred : Item -> Quality -> Comment ; -- 2 args: Item and Quality
+  Mod  : Quality -> Kind -> Kind ;    -- 2 args: Quality and Kind
+  Very : Quality -> Quality ;         -- 1 arg: Quality
+```
+
+<!-- All of these functions take arguments. `Pred` and `Mod` take two arguments, `Very` takes one. -->
+In the linearisation of these functions, you may only use `++`.
+
+This is correct.
+
+```haskell
+lin
+  Very qual = {s = "very" ++ qual.s} ;
+```
+
+This would be wrong.
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">lin</span>
+  <span class="kt">Very</span> <span class="n">qual</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span> <span class="o">=</span> <span class="s">"very"</span> <span class="err">+</span> <span class="n">qual</span><span class="o">.</span><span class="n">s</span><span class="p">}</span> <span class="p">;</span>
+</code></pre></div></div>
+
+<!-- ```haskell -->
+<!-- lin -->
+<!--   Very qual = {s = "very" +… qual.s} ; -->
+<!-- ``` -->
+
+
+### Compile-time string operations
+
+In contrast, these functions take no arguments.
+
+```haskell
+fun
+  Pizza : Kind ;
+  Vegan : Quality ;
+```
+
+How do you know? There's no arrow in the type. The types are just `Kind` and `Quality`, as opposed to something like `Kind -> Quality -> Kind`.
+
+This means that in the linearisation of `Pizza`, you can use as many single `+`s and pattern matches as you want.
+Doesn't matter if they're directly in the `lin`, or via `oper`s that are called in the `lin`.
+
+```haskell
+lin
+  Pizza = mkN "pizza" ; -- mkN calls addS, which
+                        -- uses plus and pattern match
+oper
+  mkN : Str -> Str -> {s : Number => Str} ;
+  mkN str = {s = table {Sg => str ; Pl => addS str}} ;
+
+  addS : Str -> Str ;
+  addS str = case str of {
+    bab + "y" => bab + "ies" ; -- y -> ie, e.g. babies
+    _         => str + "s" ; -- regular, e.g. dogs
+    } ;
+```
+
+The oper `mkN` takes the string `"pizza"` as an argument, but that's no problem. The string `"pizza"` is not a _runtime argument_ to the fun `Pizza`.
+
+That line, `lin Pizza = mkN "pizza"`, really means this:
+
+```haskell
+lin
+  Pizza = {s = table {Sg => "pizza" ; Pl => "pizzas"}} ;
+```
+
+So you can ignore all the opers, the only meaningful question is whether the fun has arguments. `Pizza` has none---we're only constructing what will become a runtime argument for other GF funs.
+
+### How to debug
+
+If you get the error for unsupported token gluing, even though you're certain that you don't have any lins with `+`, check two things.
+
+1. Are you sure you are not using a chain of opers calling opers calling opers, where some oper sneakily uses `+` or pattern match?
+2. Do you have nonexhaustive pattern in some *legal* pattern match? There is a [known bug in the GF compiler](https://github.com/GrammaticalFramework/gf-core/issues/52) that blames unsupported token gluing, when the actual failure is due to nonexhaustive patterns.
 
 
 ## Restricted inheritance
@@ -98,10 +220,10 @@ GrammarEng.gf:
 
 An anonymous GF developer had a problem with the Czech concrete syntax of an application grammar. The grammar worked fine in the ordinary GF shell, but it crashed when using the C runtime.
 
-> I am experiencing something strange with the Czech grammar. When compiling to PGF and loading with the C runtime, I get:  
+> I am experiencing something strange with the Czech grammar. When compiling to PGF and loading with the C runtime, I get:
 > ```
-> Abstract category A is missing  
-> pgf_read_cnccat (pgf/reader.c:1067): assertion failed  
+> Abstract category A is missing
+> pgf_read_cnccat (pgf/reader.c:1067): assertion failed
 >   cnccat->abscat != NULL
 > ```
 >
@@ -284,7 +406,7 @@ Another unexpected use case for `ma` is if your grammar is extremely ambiguous. 
 Lang> p "작은 고양이가 좋습니다" | ? wc
      359   11232   86068
 
-Lang> ma "작은 고양이가 좋습니다" 
+Lang> ma "작은 고양이가 좋습니다"
 작은
 small_A : s (VAttr Pos)
 short_A : s (VAttr Pos)
@@ -296,11 +418,11 @@ cat_N : s Subject
 good_A : s (VF Formal Pos)
 ```
 
-This is much more readable than 359 trees. The subject is a small or short cat, and the predicate is that the cat is good. Just by seeing the morphological parameters from the inflection tables, we can infer that `small` is attributive and `good` is predicative. 
+This is much more readable than 359 trees. The subject is a small or short cat, and the predicate is that the cat is good. Just by seeing the morphological parameters from the inflection tables, we can infer that `small` is attributive and `good` is predicative.
 
 ### ca
 
-If your grammar includes bind tokens (`&+`), the standard GF shell can't parse it out of the box. You can either switch to the C shell (install GF with C runtime support and then type `gf -cshell`), or preprocess your input with `clitic_analyse`, `ca` for short. For this to work, you need a list of clitics in the GF grammar. 
+If your grammar includes bind tokens (`&+`), the standard GF shell can't parse it out of the box. You can either switch to the C shell (install GF with C runtime support and then type `gf -cshell`), or preprocess your input with `clitic_analyse`, `ca` for short. For this to work, you need a list of clitics in the GF grammar.
 
 The Korean RG uses clitics for Conj (e.g. 고, 하고, 며, 이며), Prep (e.g. 와, 과) and Predet (e.g. 마다), and a few other things. If the grammar uses a the BIND token a lot, it's honestly pretty terrible to try to gather them all in order use `ca`, but let's just show this for the sake of example. Let's go back to the sentence we couldn't parse in the [`ma`](#ma) section: "책과 고양이가 좋습니다".
 
