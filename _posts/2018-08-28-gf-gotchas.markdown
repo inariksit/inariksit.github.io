@@ -39,7 +39,7 @@ again.
 
 In my experience from teaching GF, the most common source of confusion is what you're allowed to do with strings. Why is it sometimes okay to use `+`, and other times you get an error about "unsupported token gluing"?
 
-The short answer is [in the GF tutorial](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc67). I've written this longer answer, because I've found that many beginners need a longer explanation.
+The short answer is [in the GF tutorial](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc67). I've written this longer answer, because I've found that it's often needed.
 
 ### Restricted string operations
 
