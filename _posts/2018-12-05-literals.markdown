@@ -155,6 +155,8 @@ It's perfectly fine to use an oper like `mkNum : Str -> Num` when you're constru
 But all of these functions, like `Call : Int -> Command`, take an argument. When a function takes an argument, we can manipulate the argument (literal or not) in much more limited ways.
 So in this case, you may only take the literal's string value unchanged---you can't even look at it!---and construct a few limited categories out of it. That's what `symb` does.
 
+(For a longer explanation on when you can or cannot pattern match and glue tokens, see [the gotchas post](../../08/28/gf-gotchas.html#unsupported-token-gluing).)
+
 <!-- TODO: a canonical "no pattern matching/gluing on runtime tokens" explanation -->
 
 ## Part II

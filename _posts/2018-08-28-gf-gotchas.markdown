@@ -7,7 +7,7 @@ tags: gf
 ---
 
 ![gf_rubberduck](/images/gf-rubber-duck.png "Your favourite companion for writing GF")
-Latest update: 2020-12-28
+Latest update: 2020-12-29
 
 This post contains real-life examples when I or my friends have been
 confused in the past. It might be updated whenever someone is confused
@@ -37,33 +37,37 @@ again.
 
 ## Unsupported token gluing
 
-In my experience from teaching GF, the most common source of confusion is:
-**when are you allowed to glue strings with `+` and pattern match?**
+In my experience from teaching GF, the most common source of confusion is what you're allowed to do with strings. Why is it sometimes okay to use `+`, and other times you get an error about "unsupported token gluing"?
 
-### The operations
+The short answer is [in the GF tutorial](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc67). I've written this longer answer, because I've found that many beginners need a longer explanation.
 
-Gluing strings with `+` is shown below. Apply `addBar` to "foo" and you get "foobar".
+### Restricted string operations
 
-```haskell
-oper
-  addBar : Str -> Str ;
-  addBar x = x + "bar" ;
-```
 
-Pattern matching is shown below.
+* Gluing strings with `+`
+
+  ```haskell
+  oper
+    addBar : Str -> Str ;
+    addBar x = x + "bar" ;
+
+   -- addBar "foo" returns "foobar"
+  ```
+
+* Pattern matching strings
 <!-- As expected, `isPlural "car"` returns `False`, and `isPlural "cars"` returns `True`. -->
 
-```haskell
-oper
-  isPlural : Str -> Bool ;
-  isPlural str = case str of {
-    _ + "s" => True ;
-    _       => False } ;
-```
+  ```haskell
+  oper
+    isPlural : Str -> Bool ;
+    isPlural str = case str of {
+      _ + "s" => True ;
+      _       => False } ;
+  ```
 
 You can use these operations when constructing lexicon, but not in a function that takes arguments.
 
-### Restrictions
+### Tokens need to be known at compile-time
 
 To quote the [GF tutorial for Python programmers](https://daherb.github.io/GF-for-Python-programmers/Tutorial.html#compile-time-tokens-vs-run-time-strings):
 
@@ -77,7 +81,7 @@ So how do you know whether a line of code is executing at compile-time or at run
 
 ### Run-time string operations
 
-Look at the functions' type signatures. If the function takes an argument, we're only allowed to use run-time string operations on them.
+Look at the functions' type signatures. If the `fun` takes an argument, that's a run-time argument.
 
 ```haskell
 fun
@@ -86,8 +90,11 @@ fun
   Very : Quality -> Quality ;         -- 1 arg: Quality
 ```
 
+When you write the grammar, you tell a function like `Pred` *how* to do its thing. When you run the grammar in a GF shell and tell it to linearise `Pred (This Pizza) Italian`, then it will *actually do* its thing, with the actual arguments `This Pizza` and `Italian`. Hence, run-time arguments.
+
+
 <!-- All of these functions take arguments. `Pred` and `Mod` take two arguments, `Very` takes one. -->
-In the linearisation of these functions, you may only use `++`.
+In the linearisation of these functions, you are working on tokens that come from the arguments. You may concatenate them with `++`, introduce new tokens (like "very" in the example below), even duplicate or remove some of the arguments. But you may not use `+` or pattern match.
 
 This is correct.
 
@@ -96,15 +103,30 @@ lin
   Very qual = {s = "very" ++ qual.s} ;
 ```
 
-This would be wrong.
+This is wrong.
 
 <div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">lin</span>
   <span class="kt">Very</span> <span class="n">qual</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span> <span class="o">=</span> <span class="s">"very"</span> <span class="err">+</span> <span class="n">qual</span><span class="o">.</span><span class="n">s</span><span class="p">}</span> <span class="p">;</span>
 </code></pre></div></div>
 
+This is also wrong. (But if you *really* wanted to prevent multiple "very" and don't know how, follow the footnote<sup>[1](#pattern-match-params)</sup><a name="fn-1"></a>.)
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">lin</span>
+  <span class="kt">Very</span> <span class="n">qual</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="err">case qual.s of {</span> <span class="c1">-- don't add a second very</span>
+         <span class="err">"very" + x =&gt; qual.s ;</span>
+         <span class="err">_ =&gt; "very" + qual.s }</span>
+    <span class="p">}</span> <span class="p">;</span>
+</code></pre></div></div>
+
+
 <!-- ```haskell -->
 <!-- lin -->
-<!--   Very qual = {s = "very" +… qual.s} ; -->
+<!--   Very qual = { -->
+<!--     s = case qual.s of { -- don't add a second very -->
+<!--          "very" + x => qual.s ; -->
+<!--          _          => "very" + qual.s} -->
+<!--     } ; -->
 <!-- ``` -->
 
 
@@ -138,7 +160,7 @@ oper
     } ;
 ```
 
-The oper `mkN` takes the string `"pizza"` as an argument, but that's no problem. The string `"pizza"` is not a _runtime argument_ to the fun `Pizza`.
+The oper `mkN` takes the string `"pizza"` as an argument, but that's no problem. The string `"pizza"` is not a _run-time argument_ to the fun `Pizza`.
 
 That line, `lin Pizza = mkN "pizza"`, really means this:
 
@@ -147,7 +169,12 @@ lin
   Pizza = {s = table {Sg => "pizza" ; Pl => "pizzas"}} ;
 ```
 
-So you can ignore all the opers, the only meaningful question is whether the fun has arguments. `Pizza` has none---we're only constructing what will become a runtime argument for other GF funs.
+So you can ignore all the opers, the only meaningful question is whether the fun has arguments. `Pizza` has none---we're only constructing what will become a run-time argument for other GF funs.
+
+<!-- ### Pattern matching `param`s is always allowed -->
+
+<!-- All these restrictions only apply to strings. You may pattern match `param`s in any context, no restrictions. -->
+
 
 ### How to debug
 
@@ -156,6 +183,7 @@ If you get the error for unsupported token gluing, even though you're certain th
 1. Are you sure you are not using a chain of opers calling opers calling opers, where some oper sneakily uses `+` or pattern match?
 2. Do you have nonexhaustive pattern in some *legal* pattern match? There is a [known bug in the GF compiler](https://github.com/GrammaticalFramework/gf-core/issues/52) that blames unsupported token gluing, when the actual failure is due to nonexhaustive patterns.
 
+____
 
 ## Restricted inheritance
 
@@ -251,6 +279,7 @@ concrete NumeralCze of Numeral =
 
   CatCze [Numeral,Digits] ** {
 ```
+___
 
 ## linref
 
@@ -281,6 +310,7 @@ Here's some
 [English linrefs](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/CatEng.gf#L129-L149)
 if you want to have a look.
 
+___
 
 ## What's the problem with variants in resource grammar?
 
@@ -311,10 +341,13 @@ repetitive. Just be careful with examples which are not actually
 equivalent, such as `{s = "Auto" ; g = Neutr} | {s = "Wagen" ; g =
 Masc}` and `{s = "Auto" | "Wagen" ; g = Neutr | Masc}`.
 
+___
 
 ## A bit about types
 
 **Update 2018-12-28**: I thought this part deserved its own post, go and [read it](/gf/2018/12/28/dependent-types.html).
+
+___
 
 ## Some overlooked GF shell commands
 
@@ -536,6 +569,7 @@ LangFin: (Cl:3 (NP:1 (Language:0 norjaa)) (VP:2 väsyttää))
 
 Find out the rest by typing `help l` in the GF shell.
 
+___
 
 ## Generating MissingXxx
 
@@ -566,6 +600,8 @@ And remember to add the ending brace to the `MissingXxx` file.
 It won't work straight out of the box, because it only greps the abstract files, and some old definitions are in the file commented out. Just fix those as you try to build and get an error.
 
 If you also haven't implemented `SymbolXxx`, then you need to find missing lins from there as well. Open SymbolXxx in GF shell, do `pg -missing` and complete the same procedure.  And on the first line you need to add `resource MissingXxx = open GrammarXxx,` **SymbolXxx**`, Prelude in …`.
+
+___
 
 ## Metavariables, or those question marks that appear when parsing
 
@@ -634,6 +670,8 @@ let subj = case np.isPron of {
 So why do they even appear in the first place? Quoting http://www.cse.chalmers.se/alumni/bringert/publ/pgf/pgf.pdf
 > Metavariables are an extension useful for several purposes. In particular, they are usedfor encoding suppressed arguments when parsing grammars with erasing linearization rules (Section 4.5). In dependent type checking, they are used for unifying type dependencies,and in interactive syntax editors (Khegai et al. 2003), they are used for marking unfinished parts of syntax trees.
 -->
+
+___
 
 ## Placeholders/empty linearisations
 
@@ -726,7 +764,7 @@ application, let them take care to always choose the plural.
 Okay, *scissor* is not such a controversial thing to put in an
 inflection table. After all, the form does exist e.g. in
 [compound words](http://images4.fanpop.com/image/photos/16700000/Edward-Scissorhands-edward-scissorhands-16774394-488-720.jpg). But
-in my personal opinion<sup>[1](#opinion)</sup>,<a name="fn-1"></a>
+in my personal opinion<sup>[2](#opinion)</sup>,<a name="fn-2"></a>
 this is a feasible option even for more questionable forms.
 
 I'm mostly thinking about RGL, which is already full
@@ -765,7 +803,7 @@ person singular) is the only way to go.
 Despite this, I decided to linearise nonexisting forms: the
 morpheme for e.g. 1st person as a subject exists, so does the morpheme
 for 1st person as an object, just put the morphemes together and call
-it a theoretical form<sup>[2](#def)</sup>.<a name="fn-2"></a>
+it a theoretical form<sup>[3](#def)</sup>.<a name="fn-3"></a>
 
 This approach is definitely not for all use cases. For instance, don't
 use it in applications where you provide suggestions for the next
@@ -815,12 +853,16 @@ If we had defined `beer_N` as a table `\\_ => nonExist`, then
 linearising the sentence would have produced no output whatsoever. Now
 at least we get *I like* part properly linearised.
 
+___
+
 ## Too good linearisations for some RGL functions
 
 For instance, `DetNP every_Det` returns "everything" for English.
 One can argue that it's better for as many RGL trees as possible to return something that makes sense;
 in such a case, "everything is blue" or "I see everything" is preferrable to "every is blue" and "I see every".
 On the other hand, such (over)engineered solution creates ambiguity: now "everything" is a linearisation of both `everything_NP` and `DetNP every_Det`. Furthermore, it forces other languages to do something that makes equally much sense, because now you will get more nonsensical trees while parsing text that makes sense.
+
+___
 
 ## Re-export RGL opers in application grammar
 
@@ -910,11 +952,39 @@ The full grammar, including my additions, is [here](https://github.com/inariksit
 
 
 
-1.<a name="opinion"> </a>My nick *inariksit* is a combination of Finnish morphemes
-in an illegal way, so maybe I just like breaking the
-~~law~~ morphotactics. <a href="#fn-1">↩</a>
+1.<a name="pattern-match-params"> </a>Suppose you wanted to prevent "very very Italian pizza", and wrote this code, which pattern matches a string at run-time.
 
-2.<a name="def"> </a>Actually, I wonder if the
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">lin</span>
+  <span class="kt">Very</span> <span class="n">qual</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="err">case qual.s of {</span> <span class="c1">-- don't add a second very</span>
+         <span class="err">"very" + x =&gt; qual.s ;</span>
+         <span class="err">_ =&gt; "very" + qual.s }</span>
+    <span class="p">}</span> <span class="p">;</span>
+</code></pre></div></div>
+
+Instead, you can add a parameter in the lincat of `Quality`, which tells whether `Very` has been applied or not.
+
+```haskell
+lincat
+  Quality = {s : Str ; hasVery : HasVery} ;
+param
+  HasVery = ZeroVery | OneVery ;
+lin
+  Italian = {s = "Italian" ; hasVery = ZeroVery} ;
+  Very qual = {
+    s = case qual.hasVery of { -- don't add a second very
+         OneVery  => qual.s ;
+         ZeroVery => "very" + qual.s } ;
+    hasVery = OneVery ;
+    } ;
+```
+This is legal, because you're pattern matching against a *finite* type. You just defined all possible values of `HasVery`, we know there are only 2. In contrast, there are infinitely many strings, so it's not feasible to be prepared for *all of them* at run-time. <a href="#fn-1">↩</a>
+
+2.<a name="opinion"> </a>My nick *inariksit* is a combination of Finnish morphemes
+in an illegal way, so maybe I just like breaking the
+~~law~~ morphotactics. <a href="#fn-2">↩</a>
+
+3.<a name="def"> </a>Actually, I wonder if the
 [def](http://www.grammaticalframework.org/doc/gf-refman.html#toc19)
 feature would work here--just define all trees of form
 
@@ -930,4 +1000,4 @@ PredVP (UsePron p) (ReflVP (SlashV2a v))
 
 In practice, it won't work in the RGL, because relevant funs are defined as `fun`, and they'd need to be defined as `data`.
 
-However, if you want to make such a thing work for your own application, here's a [pull request](https://github.com/GrammaticalFramework/gf-rgl/pull/8) that you can use in your own copy of the RGL. <a href="#fn-2">↩</a>
+However, if you want to make such a thing work for your own application, here's a [pull request](https://github.com/GrammaticalFramework/gf-rgl/pull/8) that you can use in your own copy of the RGL. <a href="#fn-3">↩</a>
