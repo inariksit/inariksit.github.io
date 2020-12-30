@@ -460,21 +460,21 @@ If your grammar includes bind tokens (`&+`), the standard GF shell can't parse i
 The Korean RG uses clitics for Conj (e.g. 고, 하고, 며, 이며), Prep (e.g. 와, 과) and Predet (e.g. 마다), and a few other things. If the grammar uses a the BIND token a lot, it's honestly pretty terrible to try to gather them all in order use `ca`, but let's just show this for the sake of example. Let's go back to the sentence we couldn't parse in the [`ma`](#ma) section: "책과 고양이가 좋습니다".
 
 ```
-ca -lang=Kor -clitics=와,과,고,하고,며,이며 "책과 고양이가 좋습니다"
+Lang> ca -clitics=와,과,고,하고,며,이며 "책과 고양이가 좋습니다"
 책 &+ 과 고양이가 좋습니다
 ```
 
 `ca` gives a hint why we couldn't parse it: the first word is in fact two tokens, `책 &+ 과`. The output of the `ca` command can be directly piped into other commands.
 
 ```
-Lang> ca -lang=Kor -clitics=와,과,고,하고,며,이며 "책과 고양이가 좋습니다" | p | ? wc
+Lang> ca -clitics=와,과,고,하고,며,이며 "책과 고양이가 좋습니다" | p | ? wc
     1799   62920  496268
 ```
 
 As you can see, `p` is more than happy to parse that stuff, it can find 1799 trees for those 3 words! What an improvement to `The parser failed at token 1: "\52293\44284"`. Let's try `ma`:
 
 ```
-Lang> ca -lang=Kor -clitics=와,과,고,하고,며,이며 "책과 고양이가 좋습니다" | ma
+Lang> ca -clitics=와,과,고,하고,며,이며 "책과 고양이가 좋습니다" | ma
 책
 book_N : s Bare
 
