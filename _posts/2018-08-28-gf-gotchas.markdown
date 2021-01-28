@@ -894,7 +894,7 @@ esa tortilla es deliciosa
 </span></code></pre></div></div>
 
 
-Unfortunately this won't work exactly like that. But you can get very close. Let's look at the [concrete syntax](https://github.com/inariksit/gf-contrib/blob/master/foods/FoodsSpa.gf#L1-L28):
+Unfortunately this won't work exactly like that. But you can get very close. Let's look at the [concrete syntax](https://github.com/inariksit/gf-contrib/blob/re-export/foods/FoodsSpa.gf#L1-L28):
 
 ```haskell
 lincat
@@ -946,7 +946,7 @@ To be used in the GF shell like this:
 estas tortillas son veganas
 ```
 
-The full grammar, including my additions, is [here](https://github.com/inariksit/gf-contrib/blob/master/foods/FoodsSpa.gf#L29).
+The full grammar, including my additions, is [here](https://github.com/inariksit/gf-contrib/blob/re-export/foods/FoodsSpa.gf#L29).
 
 ## Footnotes
 
