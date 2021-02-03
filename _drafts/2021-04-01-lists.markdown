@@ -1,0 +1,125 @@
+---
+layout: post
+title:  "Lists in GF"
+date:   2021-02-01
+categories: gf
+tags: "gf programming"
+---
+
+<em><small>This post is linked from the [GF reference manual](http://www.grammaticalframework.org/doc/gf-refman.html). Feel free to adapt this text into a proper section. I'd do it myself if I were capable of writing short posts. :-P</small></em>
+
+## Basics
+
+Quoting from the [GF book](TODO).
+
+> #### C.4.3 List categories
+> Since categories of lists of elements of another category are a common idiom, the following syntactic sugar is available:
+> ```
+> cat [C] {n}
+> ```
+> abbreviates a set of three judgements:
+> ```
+> cat ListC ;
+> fun BaseC : C -> … -> C -> ListC ; --n C’s
+> fun ConsC : C -> ListC -> ListC
+> ```
+>
+> The functions `BaseC` and `ConsC` are automatically generated in the abstract syntax, but their linearizations, as well as the linearization type of `ListC`,
+> must be defined manually. The type expression `[C]` is in all contexts interchangeable with `ListC`.
+
+### Choice of `n`
+
+The parameter `n` in `cat [C]{n}` determines the size of the base list. For instance,
+
+    cat [C]{1}
+
+generates the following functions
+
+    BaseC : C -> ListC ;
+    ConsC : C -> ListC -> ListC ;
+
+Likewise,
+
+    cat [C]{0}
+
+generates the following functions
+
+    BaseC : ListC ;
+    ConsC : C -> ListC -> ListC ;
+
+
+In fact, the choice of `n` only affects the `BaseC` function. `ConsC` is always the same, adding a single C to a list.
+
+If you're used to lists from other programming languages, you might wonder what's the purpose of a `n > 0`. An empty list is such a useful concept, why force the minimum size of a list to be 1, 2 or even more?
+
+The answer is that it depends on an application. In the next sections, I'll cover the use of lists for natural and formal languages.
+
+
+## Lists in natural language
+
+The purpose of lists in the RGL is to allow coordination. I'll start with an example and explain the functions right after.
+<!-- Consider `NP` like “John, Mary, Alice, Bob and Charlie”. Instead of specific rules for NPs with 1, 2, 3… nouns, lists offer a general way to include arbitrarily many. -->
+<!-- so you don’t need a different syntactic function for , but just one for an `NP` object, which you can build out of a `ListNP`. -->
+
+Here's the tree for "I walk".
+
+```haskell
+PredVP              -- : NP -> VP -> Cl
+  (UsePron i_Pron)  -- : NP
+  (UseV walk_V)     -- : VP
+  -- : Cl
+```
+
+And here's the tree for “John and I walk”.
+
+```haskell
+PredVP
+  (ConjNP and_Conj
+          (BaseNP (UsePN john_PN)
+                  (UsePron i_Pron)
+          )  -- : ListNP
+  ) -- : NP
+  (UseV walk_V)
+```
+
+### In RGL, `n = 2`
+
+In RGL, the base list size is 2. You can see that `BaseNP` is applied to two arguments: `BaseNP (UsePN john_PN) (UsePron i_Pron)`.
+
+Lists for less than 2 aren't needed in the RGL. For one subject NP, we can just use the NP directly, like in the tree for "I walk". We only start needing lists when we want to coordinate 2 or more elements. This wouldn't make sense:
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">PredVP</span>
+  <span class="err">(</span><span class="err">ConjNP </span><span class="err">and_Conj </span><span class="err">(</span><span class="err">BaseNP </span><span class="err">(</span><span class="err">UsePron </span><span class="err">i_Pron</span><span class="err">)))</span>
+  <span class="err">(</span><span class="err">UseV </span><span class="err">walk_V</span><span class="err">)</span>
+</code></pre></div></div>
+
+<!-- ```haskell -->
+<!-- PredVP -->
+<!--   (ConjNP and_Conj (BaseNP (UsePron i_Pron))) -->
+<!--   (UseV walk_V) -->
+<!-- ``` -->
+
+
+### Introducing ConjC
+
+For all categories `C` that have a `ListC`, the RGL offers a corresponding function
+
+    ConjC : Conj -> ListC -> C
+
+which turns a list back into a single instance of the category, with the help of a conjunction. For example, "[Alice, Bob, Charlie]" is a list of NPs, whereas "Alice, Bob and Charlie" is a single NP.
+<!-- , and can be used anywhere that just "Alice" can be used. -->
+
+Notice that `ConjC` is different from `BaseC` and `ConsC`, which are derived automatically whenever `ListC` is defined. In contrast, `ConjC` is manually defined in the RGL.
+
+
+`ListC` is usually implemented as exactly like the lincat of `C`, but with two `s` fields `{s1, s2 : Str}`.
+You can see examples in [ConjunctionEng] (https://github.com/GrammaticalFramework/GF/blob/master/lib/src/english/ConjunctionEng.gf#L52-L61).
+
+
+You might find lists more restricted than you’re used to; there’s not really much else to do than concatenate the lists using a conjunction. For instance, you cannot peek into a list and decide “if the 3th element has parameter Foo, then do something”.
+
+## Lists in formal language
+
+## Advanced topics
+
+Korean RG
