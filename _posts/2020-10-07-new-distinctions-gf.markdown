@@ -76,6 +76,9 @@ fun
 
 -- Exercise to the interested reader:
 -- update the rest of the abstract syntax to match!
+
+-- Hint: you can keep Kind as it is, but then you'll
+-- need a parameter in the lincat of Kind.
 ```
 
 With a more restrictive abstract syntax, you're more likely to get sentences that make sense, whether you hit `gr` on the GF shell or use [gftest](https://github.com/GrammaticalFramework/gftest#readme). However, for the purposes of this post, we continue with the original design, and only change it when the need arises.
