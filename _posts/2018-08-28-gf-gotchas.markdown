@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Programming in GF: random tips and gotchas"
+title:  "Programming in GF: tips and gotchas"
 date:   2018-08-28
 categories: gf
 tags: gf
@@ -9,7 +9,7 @@ tags: gf
 ![gf_rubberduck](/images/gf-rubber-duck.png "Your favourite companion for writing GF")
 Latest update: 2020-12-29
 
-This post contains real-life examples when I or my friends have been
+This post contains real-life examples when I or others have been
 confused in the past. It might be updated whenever someone is confused
 again.
 
