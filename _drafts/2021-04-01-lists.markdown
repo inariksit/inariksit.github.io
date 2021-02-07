@@ -6,7 +6,29 @@ categories: gf
 tags: "gf programming"
 ---
 
-<em><small>This post is linked from the [GF reference manual](http://www.grammaticalframework.org/doc/gf-refman.html). Feel free to adapt this text into a proper section. I'd do it myself if I were capable of writing short posts. :-P</small></em>
+<!-- <em><small>This post is linked from the [GF reference manual](http://www.grammaticalframework.org/doc/gf-refman.html). Feel free to adapt this text into a proper section. I'd do it myself if I were capable of writing short posts. :-P</small></em> -->
+
+This post is about lists in GF. It's aimed for multiple audiences, so possibly some parts won't interest you. If you have a good grasp of the basics, feel free to jump directly to [Advanced topics](TODO).
+
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+**Table of Contents**
+
+- [-](#-)
+- [Basics](#basics)
+    - [Choice of `n`](#choice-of-n)
+    - [Lists in natural language](#lists-in-natural-language)
+        - [Baseline](#baseline)
+        - [ListNP](#listnp)
+        - [In RGL, `n = 2`](#in-rgl-n--2)
+        - [Introducing `ConjC`](#introducing-conjc)
+            - [Conj](#conj)
+            - [DConj ("both __ and __")](#dconj-both-__-and-__)
+        - [Implementation of `ListC`](#implementation-of-listc)
+    - [Lists in formal language](#lists-in-formal-language)
+    - [Advanced topics](#advanced-topics)
+
+<!-- markdown-toc end -->
+
 
 ## Basics
 
@@ -14,13 +36,13 @@ Quoting from the [GF book](TODO).
 
 > #### C.4.3 List categories
 > Since categories of lists of elements of another category are a common idiom, the following syntactic sugar is available:
-> ```
+> ```haskell
 > cat [C] {n}
 > ```
 > abbreviates a set of three judgements:
-> ```
+> ```haskell
 > cat ListC ;
-> fun BaseC : C -> … -> C -> ListC ; --n C’s
+> fun BaseC : C -> ... -> C -> ListC ; --n C’s
 > fun ConsC : C -> ListC -> ListC
 > ```
 >
@@ -31,67 +53,134 @@ Quoting from the [GF book](TODO).
 
 The parameter `n` in `cat [C]{n}` determines the size of the base list. For instance,
 
-    cat [C]{1}
+```haskell
+cat [C]{1}
+```
 
-generates the following functions
+generates the following functions:
 
-    BaseC : C -> ListC ;
-    ConsC : C -> ListC -> ListC ;
+```haskell
+BaseC : C -> ListC
+ConsC : C -> ListC -> ListC
+```
 
 Likewise,
 
-    cat [C]{0}
+```haskell
+cat [C]{0}
+```
 
-generates the following functions
+generates the following functions:
 
-    BaseC : ListC ;
-    ConsC : C -> ListC -> ListC ;
+```haskell
+BaseC : ListC
+ConsC : C -> ListC -> ListC
+```
 
+In fact, the choice of `n` only affects the `BaseC` function. `ConsC` is always the same, adding a single `C` to an already existing list.
 
-In fact, the choice of `n` only affects the `BaseC` function. `ConsC` is always the same, adding a single C to a list.
-
-If you're used to lists from other programming languages, you might wonder what's the purpose of a `n > 0`. An empty list is such a useful concept, why force the minimum size of a list to be 1, 2 or even more?
+If you're used to lists from other programming languages, you might wonder what's the purpose of `n > 0`.
+An empty list is such a useful concept, why force the minimum size of a list to be 1, 2 or even more?
 
 The answer is that it depends on an application. In the next sections, I'll cover the use of lists for natural and formal languages.
 
 
 ## Lists in natural language
 
-The purpose of lists in the RGL is to allow coordination. I'll start with an example and explain the functions right after.
+The purpose of lists in the [Resource Grammar Library](http://www.grammaticalframework.org/lib/doc/synopsis/index.html) (RGL) is to allow coordination. I'll start with an example and explain the functions right after.
 <!-- Consider `NP` like “John, Mary, Alice, Bob and Charlie”. Instead of specific rules for NPs with 1, 2, 3… nouns, lists offer a general way to include arbitrarily many. -->
 <!-- so you don’t need a different syntactic function for , but just one for an `NP` object, which you can build out of a `ListNP`. -->
 
-Here's the tree for "I walk".
+### Baseline: single NP
+
+Here's the RGL API and the underlying tree for "I walk". No lists yet, this is just for comparison.
 
 ```haskell
-PredVP              -- : NP -> VP -> Cl
-  (UsePron i_Pron)  -- : NP
-  (UseV walk_V)     -- : VP
+-- RGL API, what you'd write in application grammar
+lin I_walk_Cl = mkCl i_NP walk_V ;
+
+-- Underlying RGL tree
+  PredVP              -- : NP -> VP -> Cl
+    (UsePron i_Pron)  -- : NP
+    (UseV walk_V)     -- : VP
   -- : Cl
 ```
 
-And here's the tree for “John and I walk”.
+If you've only ever used the RGL API and never seen `PredVP`, `UsePron` etc. before, you can read [an explanation here](TODO). Knowing the RGL abstract syntax is not necessary for writing application grammars, but for this deep dive post, it's useful to understand that the two levels exist.
+<!-- you can safely ignore the underlying RGL tree. But if you're interested in writing or improving resource grammars, it's good to know the RGL abstract syntax. -->
+__(TODO: write post/section about RGL API vs. abstract syntax)__
+
+### List of NPs
+
+Here's the corresponding GF code for “they, you and I walk”. This time, the subject is constructed from a list of three `NP`s, which are put back together into one `NP`.
 
 ```haskell
-PredVP
-  (ConjNP and_Conj
-          (BaseNP (UsePN john_PN)
-                  (UsePron i_Pron)
-          )  -- : ListNP
-  ) -- : NP
-  (UseV walk_V)
+-- RGL API, what you'd write in application grammar
+lin They_You_and_I_walk_Cl =
+   mkCl
+     (mkNP and_Conj
+           (mkListNP they_NP
+                     (mkListNP you_NP
+                               i_NP)
+           )  -- : ListNP
+     ) -- : NP
+     walk_V ;
+```
+
+The RGL API [overloads the `mkListNP` oper](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#ListNP). In the underlying RGL abstract syntax tree, we see their true names `BaseNP` and `ConsNP`.
+
+```haskell
+-- Underlying RGL tree
+{- PredVP
+    (ConjNP and_Conj -}
+            (ConsNP (UsePron they_Pron)
+                    (BaseNP (UsePron you_Pron)
+                            (UsePron i_Pron))
+            )  -- : ListNP
+    ) -- : NP
+-- (UseV walk_V)
 ```
 
 ### In RGL, `n = 2`
+Looking at the examples, we see that the base list size in RGL is 2.
+We saw that the first (innermost) `mkListNP` was applied to two arguments:
 
-In RGL, the base list size is 2. You can see that `BaseNP` is applied to two arguments: `BaseNP (UsePN john_PN) (UsePron i_Pron)`.
+```haskell
+(mkListNP you_NP i_NP)
+```
 
-Lists for less than 2 aren't needed in the RGL. For one subject NP, we can just use the NP directly, like in the tree for "I walk". We only start needing lists when we want to coordinate 2 or more elements. This wouldn't make sense:
+And that translated to a `BaseNP`, which took 2 arguments. So we know that `BaseNP` and `ConsNP` are automatically generated from the following expression.
 
-<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">PredVP</span>
-  <span class="err">(</span><span class="err">ConjNP </span><span class="err">and_Conj </span><span class="err">(</span><span class="err">BaseNP </span><span class="err">(</span><span class="err">UsePron </span><span class="err">i_Pron</span><span class="err">)))</span>
-  <span class="err">(</span><span class="err">UseV </span><span class="err">walk_V</span><span class="err">)</span>
+```haskell
+cat [NP]{2}
+```
+
+<!-- In the RGL abstract syntax tree, we see the actual `BaseNP`, which is generated from -->
+
+<!--     BaseNP (UsePron you_Pron) (UsePron i_Pron) -->
+
+Lists for less than 2 aren't needed in the RGL.
+<!-- For one subject NP, we can just use the NP directly, like in the tree for "I walk".  -->
+If we had `n = 1`, even a single NP could be a list, like in the following.
+
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mkCl</span>
+  <span class="err">(mkNP and_Conj (mkListNP i_NP))</span>
+  <span class="n">walk_V</span>
 </code></pre></div></div>
+
+<!-- ```haskell -->
+<!-- mkCl -->
+<!--   --(mkNP and_Conj (mkListNP i_NP)) -->
+<!--   walk_V -->
+<!-- ``` -->
+
+<!-- <div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">PredVP</span> -->
+<!--   <span class="err">(</span><span class="err">ConjNP </span><span class="err">and_Conj </span><span class="err">(</span><span class="err">BaseNP </span><span class="err">(</span><span class="err">UsePron </span><span class="err">i_Pron</span><span class="err">)))</span> -->
+<!--   <span class="p">(</span><span class="kt">UseV</span> <span class="n">walk_V</span><span class="p">)</span> -->
+<!-- </code></pre></div></div> -->
+
+  <!-- <span class="err">(</span><span class="err">UseV </span><span class="err">walk_V</span><span class="err">)</span> -->
 
 <!-- ```haskell -->
 <!-- PredVP -->
@@ -99,21 +188,85 @@ Lists for less than 2 aren't needed in the RGL. For one subject NP, we can just 
 <!--   (UseV walk_V) -->
 <!-- ``` -->
 
+<!-- Zero subject NPs is even weirder.  -->
 
-### Introducing ConjC
+But why write `mkNP and_Conj (mkListNP i_NP)`, when you can just write `i_NP`?
+Clearly, we only start needing lists when we want to coordinate 2 or more elements.
 
-For all categories `C` that have a `ListC`, the RGL offers a corresponding function
 
-    ConjC : Conj -> ListC -> C
+### Back to `C` from `ListC`: introducing `ConjC`
+
+We've seen how to construct lists with `mkListNP`
+We've already seen `mkNP and_Conj` applied to a `ListNP`
+
+We've already seen how to construct lists in the RGL. Next, we want to put a `ListC` back to a `C`.
+
+For all categories `C` that have a `ListC`, the RGL includes a corresponding function
+
+```haskell
+ConjC : Conj -> ListC -> C
+```
 
 which turns a list back into a single instance of the category, with the help of a conjunction. For example, "[Alice, Bob, Charlie]" is a list of NPs, whereas "Alice, Bob and Charlie" is a single NP.
 <!-- , and can be used anywhere that just "Alice" can be used. -->
 
 Notice that `ConjC` is different from `BaseC` and `ConsC`, which are derived automatically whenever `ListC` is defined. In contrast, `ConjC` is manually defined in the RGL.
 
+#### Conj
 
-`ListC` is usually implemented as exactly like the lincat of `C`, but with two `s` fields `{s1, s2 : Str}`.
-You can see examples in [ConjunctionEng] (https://github.com/GrammaticalFramework/GF/blob/master/lib/src/english/ConjunctionEng.gf#L52-L61).
+Naturally, RGL also includes the category `Conj`, with examples such as
+
+```haskell
+and_Conj        : Conj ;
+or_Conj         : Conj ;
+```
+
+Suppose we have a list like `[Alice, Bob, Charlie]`. The actual GF code is as follows:
+
+```haskell
+ConsNP Alice_NP (BaseNP Bob_NP Charlie_NP) -- : [NP]
+```
+
+but I'll use the shorthand `[Alice, Bob, Charlie]` when talking about that list.
+
+We can use `ConjNP` with any conjunction to get an `NP` out of that list. For example,
+
+```haskell
+ConjNP or_Conj [Alice, Bob, Charlie]       -- : NP
+```
+
+returns "Alice, Bob or Charlie".
+
+#### DConj ("both __ and __")
+
+In the `Conj` category, there are also conjunctions that put a string before the list.
+
+```haskell
+both7and_DConj  : Conj ; -- both...and
+either7or_DConj : Conj ; -- either...or
+```
+
+`ConjNP both7and_DConj [Alice, Bob, Charlie]` to get "both Alice, Bob and Charlie".
+
+
+### Implementation of `ListC`
+
+`ListC` is usually implemented as exactly like the lincat of `C`, but with two `s` fields, `(s1, s2)`.
+
+For example, if `C` is defined as
+
+```haskell
+lincat C   = {s     : Number => Str ; g : Gender} ;
+```
+
+then `ListC` will split its `s` field into two, and retain its other fields as
+
+```haskell
+lincat [C] = {s1,s2 : Number => Str ; g : Gender} ;
+```
+
+
+You can see examples in [ConjunctionEng](https://github.com/GrammaticalFramework/GF/blob/master/lib/src/english/ConjunctionEng.gf#L52-L61).
 
 
 You might find lists more restricted than you’re used to; there’s not really much else to do than concatenate the lists using a conjunction. For instance, you cannot peek into a list and decide “if the 3th element has parameter Foo, then do something”.
