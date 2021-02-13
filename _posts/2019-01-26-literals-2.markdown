@@ -92,7 +92,7 @@ there are 1 cars
 That's what was bound to happen. How about other numbers?
 
 ```
-My> p "there are 2 cars"
+Mofifiers> p "there are 2 cars"
 NItemsDig (IDig D_2) Car
 NItemsLiteral 2 Car
 ```
