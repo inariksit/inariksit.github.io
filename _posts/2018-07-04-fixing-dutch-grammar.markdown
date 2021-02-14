@@ -116,7 +116,7 @@ and *right* **[TODO: or is it only those?]**, the article *de* (*de
 linker* 'the left one').
 
 In addition, the grammar has a separate construction for combining a numeral
-and a superlatice adjective, e.g. "tenth best". Since the tests
+and a superlative adjective, e.g. "tenth best". Since the tests
 were generated per function, the main tester didn't read those
 sentences at the same time. After noticing the additional function, we
 asked another informant how to say *Nth best*, and got an alternative
