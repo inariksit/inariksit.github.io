@@ -433,7 +433,7 @@ good_A : s (VF Formal Pos)
 
 You still don't know what the whole sentence is about, but at least you know its subject is a cat 😺 and something is good.
 
-Another unexpected use case for `ma` is if your grammar is extremely ambiguous. Say you have a few empty strings in strategic places, or are using a large lexicon with tons of synonyms--you'll easily get hundreds or even thousands of parses for a 3-word sentence. Example:
+<a name="ma-for-ambiguity"></a>Another unexpected use case for `ma` is if your grammar is extremely ambiguous. Say you have a few empty strings in strategic places, or are using a large lexicon with tons of synonyms--you'll easily get hundreds or even thousands of parses for a 3-word sentence. Example:
 
 ```
 Lang> p "작은 고양이가 좋습니다" | ? wc
