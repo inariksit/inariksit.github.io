@@ -13,19 +13,10 @@ This post is about lists in GF. It's aimed for multiple audiences, so possibly s
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
-- [-](#-)
 - [Basics](#basics)
-    - [Choice of `n`](#choice-of-n)
-    - [Lists in natural language](#lists-in-natural-language)
-        - [Baseline](#baseline)
-        - [ListNP](#listnp)
-        - [In RGL, `n = 2`](#in-rgl-n--2)
-        - [Introducing `ConjC`](#introducing-conjc)
-            - [Conj](#conj)
-            - [DConj ("both __ and __")](#dconj-both-__-and-__)
-        - [Implementation of `ListC`](#implementation-of-listc)
-    - [Lists in formal language](#lists-in-formal-language)
-    - [Advanced topics](#advanced-topics)
+- [Lists in natural language](#lists-in-natural-language)
+- [Lists in formal language](#lists-in-formal-language)
+- [Advanced topics](#advanced-topics)
 
 <!-- markdown-toc end -->
 
@@ -106,9 +97,8 @@ lin I_walk_Cl = mkCl i_NP walk_V ;
   -- : Cl
 ```
 
-If you've only ever used the RGL API and never seen `PredVP`, `UsePron` etc. before, you can read [an explanation here](TODO). Knowing the RGL abstract syntax is not necessary for writing application grammars, but for this deep dive post, it's useful to understand that the two levels exist.
+If you've only ever used the RGL API and never seen `PredVP`, `UsePron` etc. before, you can read [an explanation here](../../02/15/rgl-api-core-extensions.html). Knowing the RGL abstract syntax is not necessary for writing application grammars, but for this deep dive post, it's useful to understand that the two levels exist.
 <!-- you can safely ignore the underlying RGL tree. But if you're interested in writing or improving resource grammars, it's good to know the RGL abstract syntax. -->
-__(TODO: write post/section about RGL API vs. abstract syntax)__
 
 ### List of NPs
 
@@ -137,9 +127,18 @@ The RGL API [overloads the `mkListNP` oper](http://www.grammaticalframework.org/
                     (BaseNP (UsePron you_Pron)
                             (UsePron i_Pron))
             )  -- : ListNP
-    ) -- : NP
+--  ) -- : NP
 -- (UseV walk_V)
 ```
+
+As long as you have `GF_LIB_PATH` set up, you can open the RGL abstract syntax in the GF shell and run the commands below.
+
+```
+$ gf alltenses/LangEng.gfo
+…
+Lang> l PredVP (ConjNP and_Conj (ConsNP (UsePron they_Pron) (BaseNP (UsePron youSg_Pron) (UsePron i_Pron)))) (UseV walk_V)
+```
+
 
 ### In RGL, `n = 2`
 Looking at the examples, we see that the base list size in RGL is 2.
@@ -196,10 +195,10 @@ Clearly, we only start needing lists when we want to coordinate 2 or more elemen
 
 ### Back to `C` from `ListC`: introducing `ConjC`
 
-We've seen how to construct lists with `mkListNP`
-We've already seen `mkNP and_Conj` applied to a `ListNP`
+<!-- We've seen how to construct lists with `mkListNP` -->
+<!-- We've already seen `mkNP and_Conj` applied to a `ListNP` -->
 
-We've already seen how to construct lists in the RGL. Next, we want to put a `ListC` back to a `C`.
+<!-- We've already seen how to construct lists in the RGL. Next, we want to put a `ListC` back to a `C`. -->
 
 For all categories `C` that have a `ListC`, the RGL includes a corresponding function
 
@@ -212,32 +211,33 @@ which turns a list back into a single instance of the category, with the help of
 
 Notice that `ConjC` is different from `BaseC` and `ConsC`, which are derived automatically whenever `ListC` is defined. In contrast, `ConjC` is manually defined in the RGL.
 
+#### ConjC in the API: just another instance of mkC
+
+In the RGL API, all these `ConjC` funs are accessible from `mkC`. Here are two versions of `mkNP`, which under the hood call `ConjNP`:
+
+<a href="http://www.grammaticalframework.org/lib/doc/synopsis/index.html#NP"><img src="/images/mkNP-for-Conj-ListNP.png" alt="Screenshot of the RGL API, showing mkNP : Conj -> NP -> NP -> NP" /></a>
+
+If you only want to coordinate two `NP`s, you can skip constructing `ListNP`, and call `mkNP` directly for a conjunction and two NPs.
+
+```haskell
+-- RGL API
+mkNP or_Conj i_NP they_NP
+mkNP or_Conj (mkListNP i_NP they_NP)
+
+-- both correspond to the RGL abstract syntax
+ConjNP or_Conj (BaseNP i_NP they_NP)
+```
+
 #### Conj
 
 Naturally, RGL also includes the category `Conj`, with examples such as
 
 ```haskell
-and_Conj        : Conj ;
-or_Conj         : Conj ;
+and_Conj : Conj ;
+or_Conj  : Conj ;
 ```
 
-Suppose we have a list like `[Alice, Bob, Charlie]`. The actual GF code is as follows:
-
-```haskell
-ConsNP Alice_NP (BaseNP Bob_NP Charlie_NP) -- : [NP]
-```
-
-but I'll use the shorthand `[Alice, Bob, Charlie]` when talking about that list.
-
-We can use `ConjNP` with any conjunction to get an `NP` out of that list. For example,
-
-```haskell
-ConjNP or_Conj [Alice, Bob, Charlie]       -- : NP
-```
-
-returns "Alice, Bob or Charlie".
-
-#### DConj ("both __ and __")
+#### DConj ("both ﹍ and ﹍")
 
 In the `Conj` category, there are also conjunctions that put a string before the list.
 
@@ -246,12 +246,20 @@ both7and_DConj  : Conj ; -- both...and
 either7or_DConj : Conj ; -- either...or
 ```
 
-`ConjNP both7and_DConj [Alice, Bob, Charlie]` to get "both Alice, Bob and Charlie".
+For instance,
+
+```
+mkNP either7or_DConj everybody_NP nobody_NP
+```
+
+returns "either everybody or nobody".
 
 
-### Implementation of `ListC`
+### Implementation of `ListC` in RGL
 
-`ListC` is usually implemented as exactly like the lincat of `C`, but with two `s` fields, `(s1, s2)`.
+<!-- _This section is useful if you want to implement a resource grammar. If you only want to use the RGL API, you can skip this._ -->
+
+`ListC` is usually implemented as exactly like the lincat of `C`, but with two `s` fields, called `s1` and `s2`.
 
 For example, if `C` is defined as
 
@@ -266,12 +274,165 @@ lincat [C] = {s1,s2 : Number => Str ; g : Gender} ;
 ```
 
 
-You can see examples in [ConjunctionEng](https://github.com/GrammaticalFramework/GF/blob/master/lib/src/english/ConjunctionEng.gf#L52-L61).
+You can see examples in [ConjunctionEng](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/ConjunctionEng.gf#L52-L61):
 
+```haskell
+lincat
+  [S] = {s1,s2 : Str} ;
+  [Adv] = {s1,s2 : Str} ;
+  [NP] = {s1,s2 : NPCase => Str ; a : Agr} ;
+  [AP] = {s1,s2 : Agr => Str ; isPre : Bool} ;
+  [RS] = {s1,s2 : Agr => Str ; c : NPCase} ;
+  [CN] = {s1,s2 : Number => Case => Str} ;
+```
 
-You might find lists more restricted than you’re used to; there’s not really much else to do than concatenate the lists using a conjunction. For instance, you cannot peek into a list and decide “if the 3th element has parameter Foo, then do something”.
+If you look at the lins of a given Conjunction module, it probably looks rather cryptic. Most of it is just calling opers like `twoTable` and `consTable`. These opers, and many more, are found in the module [gf-rgl/prelude/Coordination.gf](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/prelude/Coordination.gf).
+
+The only documentatio of Coordination (that I'm aware of) is in the comments of the module itself, [for example](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/prelude/Coordination.gf#L17-L22):
+
+```haskell
+-- Create a ListX from two Xs. Example:
+--     x = {s = "here"} ;
+--     y = {s = "there"} ;
+-- twoSS x y ==> {s1 = "here" ; s2 = "there"}
+twoSS : (_,_ : SS) -> ListX = \x,y -> twoStr x.s y.s ;
+```
+It's likely that the opers still look very cryptic, so as prerequisite knowledge, you should read the first half of [this post on types in GF](../../../2018/12/28/dependent-types.html). You can stop when you see the subheading "Dependent types".
+
+If you're implementing a new resource grammar and are struggling to understand Conjunction, the best way is to look at other languages' implementation of Conjunction, and read the comments of Coordination.
+<!-- The [Resource Grammar Tutorial](http://www.grammaticalframework.org/lib/doc/rgl-tutorial/index.html) on thew GF home page doesn't explicitly cover  -->
+Later on, I might add a section in this post to be more of a hands-on guide for resource grammarians, but for now I've prioritised other things.
 
 ## Lists in formal language
+
+Suppose that I'm defining my own object-oriented programming language. Here's a class definition:
+
+```ruby
+class Business = {
+  bus_name : String ;
+  is_legal : Boolean ;
+  } ;
+```
+
+Let's ignore any other language constructs for the sake of this example, and just concentrate on the class definition.
+
+All classes should have a name, and some amount of fields. I'm also happy to accept an empty class, with no fields---that'd just be written as follows:
+
+```ruby
+class Business ;
+```
+
+Since this whole blog post is about lists, you might see where this is going.
+
+
+### Abstract syntax
+
+Here's my abstract syntax for the GF grammar which describes this programming language fragment.
+
+```haskell
+abstract MyOOP = {
+  cat
+    Class ;      -- class ClassName : { [Field] }
+
+    Field ;      -- field_name : BuiltinType
+    [Field]{0} ; -- generates funs BaseField, ConsField
+
+    BuiltinType ;
+
+  fun
+    ClassDef : String -> [Field] -> Class ;
+    MkField : String -> BuiltinType -> Field ;
+
+    BoolType, StringType : BuiltinType ;
+}
+```
+
+In this case, it's a good idea to allow an empty list. If I had done like in the RGL, and made the minimum size of `[Field]` >0, then I would've needed two versions of `ClassDef`: one for 0 fields, other for >0 fields. Instead, with `[Field]{0}`, I can express empty and non-empty classes with the same fun.
+
+### Concrete syntax
+
+I still want to print out different strings for empty and non-empty classes. But that's no problem---I just make a parameter for it. Here's my concrete syntax.
+
+```haskell
+concrete MyOOPCnc of MyOOP = {
+  lincat
+    [Field] = {s : Str ; isEmpty : IsEmpty} ;
+
+  param
+    IsEmpty = Empty | NonEmpty ;
+
+  lin
+    -- : String -> [Field] -> Class ;
+    ClassDef name flds = {
+      s = "class" ++ name.s ++
+             case flds.isEmpty of {
+               Empty    => flds.s ; -- just empty string
+               NonEmpty => "= {" ++ flds.s ++ "}"
+             } ++ ";"
+      } ;
+
+    -- : String -> BuiltinType -> Field ;
+    MkField name typ = {s = name.s ++ ":" ++ typ.s} ;
+
+    -- : BuiltinType ;
+    BoolType = {s = "Boolean"} ;
+    StringType = {s = "String"} ;
+
+-- These funs automatically generated from [Field]{0}
+
+    -- : [Field]
+    BaseField = {s = [] ; isEmpty = Empty} ;
+
+    -- : Field -> [Field] -> [Field]
+    ConsField f fs =
+      let sep : Str = case fs.isEmpty of {
+                        Empty => [] ;
+                        NonEmpty => ";" } ;
+       in {s = f.s ++ sep ++ fs.s ; isEmpty = NonEmpty} ;
+}
+```
+
+I'm using the parameter `IsEmpty` twice:
+* In `ClassDef` to decide whether to print `= { }` around the field names
+* In `ConsField` to decide whether to put `;` after the first argument.
+
+_Side note: in `ClassDef`, I use the string from `flds` even when `flds` is empty. The reason is explained [in my gotchas post](../../../2018/08/28/gf-gotchas.html#metavariables-or-those-question-marks-that-appear-when-parsing). In GF, every argument needs to contribute with a string, otherwise it isn’t recognised when parsing. This happens even if there is no ambiguity._
+
+### Natural language concrete
+
+Next, I want to do a natural language interface in my programming language!
+
+English presents new challenges with lists of different sizes. But there's still nothing to worry about: the English concrete just needs to use a different set of internal params. Here's a fragment:
+
+```haskell
+lincat
+  Class = S ;
+  Field = NP ;
+  [Field] = {s : ListNP ;
+             first : NP ; -- if only 1 Field in the list
+             size : Size} ;
+param
+  Size = Empty | One | More ;
+
+lin
+  ClassDef name flds = let
+    subj : NP = symb name ;
+    pred = mkVP (
+      case attrs.size of {
+        Empty
+          => mkNP (mkPN "a class with no fields") ;
+        One
+          => mkNP (mkCN (mkN2 "a class with the field")
+                        attrs.first) ;
+        More
+          => mkNP (mkCN (mkN2 "a class with the fields")
+                        (mkNP and_Conj attrs.s))
+          }) ;
+     in mkS (mkCl subj pred) ;
+```
+### Blah
+
+You might find lists more restricted than you’re used to; there’s not really much else to do than concatenate the lists using a conjunction. For instance, you cannot peek into a list and decide “if the 3th element has parameter Foo, then do something”.
 
 ## Advanced topics
 

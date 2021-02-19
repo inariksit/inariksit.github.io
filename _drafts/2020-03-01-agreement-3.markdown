@@ -13,6 +13,7 @@ In the first post, we learned that many languages mark the core argument(s) like
 In the second post, we learned that some languages mark also the addressee. Then I argued that [register](https://en.wikipedia.org/wiki/Register_(sociolinguistics)) can also be thought of as agreement: the argument that is marked is the situation itself.
 
 In this post, I'm going to take it a bit more general still. If an orthographical word in any category depends on various elements in the tree, I'll call that agreement.
+<!-- This calls for one of those [alignment chart memes](https://knowyourmeme.com/memes/alignment-charts). -->
 
 
 ## Zulu predicative
@@ -44,7 +45,13 @@ No verb involved, but a bunch of agreement. We can identify at least subject and
 | isihlalo sinemilenze | 'the chair has legs' |
 | izihlalo zinemilenze | 'chairs have legs'   |
 
-So what is this an evidence of? _Chair_ and _chairs_ behave differently as possessors, as well as _bird_ to any of the furniture.
+So what is this an evidence of? _Bird_, _chair_ and _chairs_ all behave differently as possessors, and that difference is marked in the possessed noun.
+
+If you want to play linguistic detective, stop reading here and try to form your own hypothesis. Once you're done, you can resume the post.
+
+### GF implementation
+
+
 
 https://github.com/LauretteM/gf-rgl-zul/blob/master/src/zulu/ResZul.gf#L31
 VPType = CopIdent | CopAssoc | CopDescr | CopEq | … (non-copula VP types)
@@ -53,10 +60,23 @@ the associative copula can, if I understand correctly, be translated as "X has Y
 In ExtraZul, there are bunch of copula funs, of type NP -> VP, among them [AssocCop](https://github.com/LauretteM/gf-rgl-zul/blob/master/src/zulu/ExtraZulAbs.gf#L8)
 
 In English, you'd say "I have a nose" with this tree
-`PredVP (UsePron i_Pron) (ComplSlash (SlashV2a have_V2) (DetCN (DetQuant IndefArt NumSg) (UseN nose_N)))`
 
-And in Zulu, with this tree
-`PredVP (UsePron i_Pron) (AssocCop (DetCN (DetQuant IndefArt NumSg) (UseN nose_N)))`
+```haskell
+PredVP
+  (UsePron i_Pron)
+  (ComplSlash
+     (SlashV2a have_V2)
+     (DetCN (DetQuant IndefArt NumSg) (UseN nose_N)))
+```
+
+And in Zulu, with this tree.
+
+```haskell
+PredVP
+  (UsePron i_Pron)
+  (AssocCop
+     (DetCN (DetQuant IndefArt NumSg) (UseN nose_N)))
+```
 
 <!--
 In the current (unfinished) Zulu grammar, `have_V2` isn't even implemented.
@@ -70,7 +90,7 @@ Again, there's technically no verb form there. Just bunch of noun class agreemen
 
 But in the GF RGL, we see that the most practical place to put all of this in place is `PredVP`.
 
-If you read the Basque post, we also did lots of complicated decisions in PredVP. It's not a coincidence. That's just a very good place to make decisions! That's when you finally know the subject.
+If you read the [latest agreement post on Basque](../../../2020/11/17/agreement-2.html#allocutive-agreement-in-basque), we also did lots of complicated decisions in `PredVP`. It's not a coincidence. That's just a very good place to make decisions! That's when you finally know the subject.
 
 ## Somali prepositions
 
@@ -85,12 +105,11 @@ As [Saeed (1982)](https://core.ac.uk/download/pdf/161528208.pdf) puts it, _"gram
 ### Prepositional phrase
 
 
+![SomaliPrepContr0](/images/somali-preposition-contraction-0.png "A single Somali preposition: 'Cali shaah u samee', translation 'Make some tea for Ali'")
 
-![SomaliPrepContr0](https://github.com/inariksit/inariksit.github.io/blob/master/images/somali-preposition-contraction-0.png "A single Somali preposition: 'Cali shaah u samee', translation 'Make some tea for Ali'")
+![SomaliPrepContr1](/images/somali-preposition-contraction-1.png "Somali preposition contraction: 'Faarax sidan ugu samee', gloss 'Faarax si-tan u+u samee', translation 'Do it in this way for Farah'")
 
-![SomaliPrepContr1](https://github.com/inariksit/inariksit.github.io/blob/master/images/somali-preposition-contraction-1.png "Somali preposition contraction: 'Faarax sidan ugu samee', gloss 'Faarax si-tan u+u samee', translation 'Do it in this way for Farah'")
-
-![SomaliPrepContr2](https://github.com/inariksit/inariksit.github.io/blob/master/images/somali-preposition-contraction-2.png "Somali preposition contraction: 'Cali lacagta nooga soo qaad', gloss 'Cali lacag-ta na+u+ka soo qaad', translation 'Get the money for us from Ali'")
+![SomaliPrepContr2](/images/somali-preposition-contraction-2.png "Somali preposition contraction: 'Cali lacagta nooga soo qaad', gloss 'Cali lacag-ta na+u+ka soo qaad', translation 'Get the money for us from Ali'")
 
 ### Blah
 
@@ -104,11 +123,13 @@ Yes, but those aren't actually all the arguments. The phrase is open for polarit
 
 | Somali                       | English                 |
 |------------------------------|-------------------------|
-| Waan <font color="red">ka</font> dul boodi karaa. | I can jump <font color="red">over</font> it.     |
-| <font color="blue">I</font><font color="red">ga</font><font color="green">ma</font> dul boodi kartid.  | You can<font color="green">not</font> jump <font color="red">over</font> <font color="blue">me</font>. |
+| Waan <span style="background-color: PaleGreen">ka dul</span> boodi karaa. | I can jump <span style="background-color: PaleGreen">over</span> it.     |
+| <span style="background-color: Wheat">I</span><span style="background-color: PaleGreen">ga</span><strong><span style="background-color: Yellow"><font color="crimson">ma</font></span></strong> <span style="background-color: PaleGreen">dul</span> boodi kartid.  | You can<span style="background-color: Yellow"><font color="crimson">not</font></span> jump <span style="background-color: PaleGreen">over</span> <span style="background-color: Wheat">me</span>. |
 
 
-The example is not so clear because it differs in more than negation, but that's what Nilsson gives us. The negation morpheme, _ma_, is the final thing that fuses together with the preposition(s), object pronoun and other stuff there might be. I don't know if passive also gets attached. None of the sources I've read are complete about all combinations. (When you write a generative grammar, you notice how incomplete paper grammars are. :-P)
+The example is not so clear because it differs in more than negation, but that's what Nilsson gives us. (My guess for "you can jump over me" would be *waad iga dul boodi kartaa*, but I really need to check it with someone who knows Somali.)
+
+The negation morpheme, _ma_, is the final thing that fuses together with the preposition(s), object pronoun and other stuff there might be. I don't know if passive also gets attached. None of the sources I've read are complete about all combinations. (When you write a generative grammar, you notice how incomplete paper grammars are. :-P)
 
 Of course, I can construct the two forms
 
