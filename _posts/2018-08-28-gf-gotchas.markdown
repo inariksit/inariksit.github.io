@@ -297,10 +297,12 @@ English? Well, that's because the Dutch grammar has no `linref` for
 `VP`.
 
 `linref` is defined in the
-[reference manual](http://www.grammaticalframework.org/doc/gf-refman.html#toc24_r)
+[reference manual](http://www.grammaticalframework.org/doc/gf-refman.html#linearization-reference-definitions-linref)
 as the "reference linearization of category C, i.e. the function
 applicable to an object of the linearization type of C to make it into
-a string". So if your `VP` is a record with a bunch of fields,
+a string".
+
+So if your `VP` is a record with a bunch of fields,
 and you don't have a linref, then the GF shell shows only the thing
 in the `s` field. If you have a linref, then the function is applied
 to the record, and GF shell shows a string that makes sense, like *be
