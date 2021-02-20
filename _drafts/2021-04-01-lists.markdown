@@ -379,7 +379,6 @@ concrete MyOOPCnc of MyOOP = {
     StringType = {s = "String"} ;
 
 -- These funs automatically generated from [Field]{0}
-
     -- : [Field]
     BaseField = {s = [] ; isEmpty = Empty} ;
 
@@ -393,47 +392,54 @@ concrete MyOOPCnc of MyOOP = {
 ```
 
 I'm using the parameter `IsEmpty` twice:
-* In `ClassDef` to decide whether to print `= { }` around the field names
+* In `ClassDef` to decide whether to print `= { }` after the class name.
 * In `ConsField` to decide whether to put `;` after the first argument.
 
-_Side note: in `ClassDef`, I use the string from `flds` even when `flds` is empty. The reason is explained [in my gotchas post](../../../2018/08/28/gf-gotchas.html#metavariables-or-those-question-marks-that-appear-when-parsing). In GF, every argument needs to contribute with a string, otherwise it isn’t recognised when parsing. This happens even if there is no ambiguity._
+That's all I need to make `ClassDef` handle empty and non-empty lists.
+
+_Side note: in `ClassDef`, I use the string from `flds` even when `flds` is empty, and only contains the empty string. The reason is explained [in my gotchas post](../../../2018/08/28/gf-gotchas.html#metavariables-or-those-question-marks-that-appear-when-parsing). In GF, every argument needs to contribute with a string, otherwise it isn’t recognised when parsing. This happens even if there is no ambiguity._
 
 ### Natural language concrete
 
-Next, I want to do a natural language interface in my programming language!
+Next, I want to do a natural language interface in my programming language! Wouldn't this be cool:
+
+```
+> p "class Business ;" | l -lang=Eng
+Business is a class with no fields
+
+> p "class Business = { is_legal : Boolean } ;" | l -lang=Eng
+Business is a class with a Boolean field is_legal
+
+> p "class Business = { is_legal : Boolean ; bus_name : String } ;" | l -lang=Eng
+Business is a class with fields is_legal of type Boolean and bus_name of type String
+```
 
 English presents new challenges with lists of different sizes. But there's still nothing to worry about: the English concrete just needs to use a different set of internal params. Here's a fragment:
 
 ```haskell
-lincat
-  Class = S ;
-  Field = NP ;
-  [Field] = {s : ListNP ;
-             first : NP ; -- if only 1 Field in the list
-             size : Size} ;
-param
-  Size = Empty | One | More ;
-
-lin
-  ClassDef name flds = let
-    subj : NP = symb name ;
-    pred = mkVP (
-      case attrs.size of {
-        Empty
-          => mkNP (mkPN "a class with no fields") ;
-        One
-          => mkNP (mkCN (mkN2 "a class with the field")
-                        attrs.first) ;
-        More
-          => mkNP (mkCN (mkN2 "a class with the fields")
-                        (mkNP and_Conj attrs.s))
-          }) ;
-     in mkS (mkCl subj pred) ;
+ClassDef name fields =
+ let classname : NP = symb name ;
+     with_fields : Adv = case fields.size of {
+       Zero => mkAdv with_Prep (mkNP noPl_Det field_N) ;
+       One  => withField fields.firstField ;
+       Many => withField fields.s
+     } ;
+     descr : NP = mkNP a_Det (mkCN class_N with_fields)
+ in mkS (mkCl classname descr) ;
 ```
-### Blah
 
-You might find lists more restricted than you’re used to; there’s not really much else to do than concatenate the lists using a conjunction. For instance, you cannot peek into a list and decide “if the 3th element has parameter Foo, then do something”.
+You can see that I'm using a three-valued parameter for list size, for the cases 0, 1 or >2. I chose those cases, because I wanted to use three different verbalisation strategies:
+* no fields
+* a [type] field [name]
+* fields [name1] of type [type1], … and [nameN] of type [typeN]
+
+I'm not going to paste the whole English concrete, but you can see everything---the abstract and the two concretes---in [this link](https://gist.github.com/inariksit/76e34b5746ab1d13ec7dcd5cf0b7eb19).
+
 
 ## Advanced topics
+
+You probably find lists in GF more restricted than you’re used to in other languages. For instance, you can't retain the individual elements---they just get concatenated into one long string, separated by commas in the RGL, or a separator of your choice in programming languages. So you can't peek into a list and decide, for an arbitrary `n`, “if the `n`<sup>th</sup> element has parameter `Foo`, then do something”.
+
+
 
 Korean RG
