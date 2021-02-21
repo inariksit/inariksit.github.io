@@ -79,6 +79,8 @@ The answer is that it depends on an application. In the next sections, I'll cove
 ## Lists in natural language
 
 The purpose of lists in the [Resource Grammar Library](http://www.grammaticalframework.org/lib/doc/synopsis/index.html) (RGL) is to allow coordination. I'll start with an example and explain the functions right after.
+
+While the example is for `NP` (noun phrase), exactly the same principle holds for other list categories in the RGL ([AP](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#ListAP), [RS](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#ListRS), TODO rest).
 <!-- Consider `NP` like “John, Mary, Alice, Bob and Charlie”. Instead of specific rules for NPs with 1, 2, 3… nouns, lists offer a general way to include arbitrarily many. -->
 <!-- so you don’t need a different syntactic function for , but just one for an `NP` object, which you can build out of a `ListNP`. -->
 
@@ -142,17 +144,18 @@ Lang> l PredVP (ConjNP and_Conj (ConsNP (UsePron they_Pron) (BaseNP (UsePron you
 
 ### In RGL, `n = 2`
 Looking at the examples, we see that the base list size in RGL is 2.
-We saw that the first (innermost) `mkListNP` was applied to two arguments:
+We saw that the innermost `mkListNP` was applied to two arguments:
 
 ```haskell
 (mkListNP you_NP i_NP)
 ```
 
-And that translated to a `BaseNP`, which took 2 arguments. So we know that `BaseNP` and `ConsNP` are automatically generated from the following expression.
+And that translated to a `BaseNP`, which took 2 arguments. So we know that `BaseNP` and `ConsNP` were generated from the following expression.
 
 ```haskell
 cat [NP]{2}
 ```
+<em><small>We can even verify that this was the expression: look at the [RGL abstract syntax](TODO)!</small></em>
 
 <!-- In the RGL abstract syntax tree, we see the actual `BaseNP`, which is generated from -->
 
@@ -206,7 +209,7 @@ For all categories `C` that have a `ListC`, the RGL includes a corresponding fun
 ConjC : Conj -> ListC -> C
 ```
 
-which turns a list back into a single instance of the category, with the help of a conjunction. For example, "[Alice, Bob, Charlie]" is a list of NPs, whereas "Alice, Bob and Charlie" is a single NP.
+which turns a list back into a single instance of the category, with the help of a conjunction. For example, "[Alice, Bob, Charlie]" is a list of `NP`s, whereas "Alice, Bob and Charlie" is a single `NP`.
 <!-- , and can be used anywhere that just "Alice" can be used. -->
 
 Notice that `ConjC` is different from `BaseC` and `ConsC`, which are derived automatically whenever `ListC` is defined. In contrast, `ConjC` is manually defined in the RGL.
@@ -217,7 +220,7 @@ In the RGL API, all these `ConjC` funs are accessible from `mkC`. Here are two v
 
 <a href="http://www.grammaticalframework.org/lib/doc/synopsis/index.html#NP"><img src="/images/mkNP-for-Conj-ListNP.png" alt="Screenshot of the RGL API, showing mkNP : Conj -> NP -> NP -> NP" /></a>
 
-If you only want to coordinate two `NP`s, you can skip constructing `ListNP`, and call `mkNP` directly for a conjunction and two NPs.
+If you only want to coordinate two `NP`s, you can skip constructing `ListNP`, and call `mkNP` directly for the two `NP`s (and a conjunction).
 
 ```haskell
 -- RGL API
@@ -237,9 +240,7 @@ and_Conj : Conj ;
 or_Conj  : Conj ;
 ```
 
-#### DConj ("both ﹍ and ﹍")
-
-In the `Conj` category, there are also conjunctions that put a string before the list.
+There are also conjunctions that put a string before the list.
 
 ```haskell
 both7and_DConj  : Conj ; -- both...and
@@ -288,7 +289,7 @@ lincat
 
 If you look at the lins of a given Conjunction module, it probably looks rather cryptic. Most of it is just calling opers like `twoTable` and `consTable`. These opers, and many more, are found in the module [gf-rgl/prelude/Coordination.gf](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/prelude/Coordination.gf).
 
-The only documentatio of Coordination (that I'm aware of) is in the comments of the module itself, [for example](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/prelude/Coordination.gf#L17-L22):
+The only documentatio of Coordination (that I'm aware of) is in the comments of the module itself, and it looks like [the following](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/prelude/Coordination.gf#L17-L22):
 
 ```haskell
 -- Create a ListX from two Xs. Example:
@@ -302,6 +303,11 @@ It's likely that the opers still look very cryptic, so as prerequisite knowledge
 If you're implementing a new resource grammar and are struggling to understand Conjunction, the best way is to look at other languages' implementation of Conjunction, and read the comments of Coordination.
 <!-- The [Resource Grammar Tutorial](http://www.grammaticalframework.org/lib/doc/rgl-tutorial/index.html) on thew GF home page doesn't explicitly cover  -->
 Later on, I might add a section in this post to be more of a hands-on guide for resource grammarians, but for now I've prioritised other things.
+
+<em><small>That was the end of the natural language/RGL part. Next section is about lists in formal languages.</small></em>
+
+_____
+
 
 ## Lists in formal language
 
@@ -362,7 +368,7 @@ concrete MyOOPCnc of MyOOP = {
     IsEmpty = Empty | NonEmpty ;
 
   lin
-    -- : String -> [Field] -> Class ;
+    -- : String -> [Field] -> Class
     ClassDef name flds = {
       s = "class" ++ name.s ++
              case flds.isEmpty of {
@@ -371,10 +377,10 @@ concrete MyOOPCnc of MyOOP = {
              } ++ ";"
       } ;
 
-    -- : String -> BuiltinType -> Field ;
+    -- : String -> BuiltinType -> Field
     MkField name typ = {s = name.s ++ ":" ++ typ.s} ;
 
-    -- : BuiltinType ;
+    -- : BuiltinType
     BoolType = {s = "Boolean"} ;
     StringType = {s = "String"} ;
 
@@ -397,22 +403,33 @@ I'm using the parameter `IsEmpty` twice:
 
 That's all I need to make `ClassDef` handle empty and non-empty lists.
 
-_Side note: in `ClassDef`, I use the string from `flds` even when `flds` is empty, and only contains the empty string. The reason is explained [in my gotchas post](../../../2018/08/28/gf-gotchas.html#metavariables-or-those-question-marks-that-appear-when-parsing). In GF, every argument needs to contribute with a string, otherwise it isn’t recognised when parsing. This happens even if there is no ambiguity._
+_Side note: in `ClassDef`, I use the string from `flds` even when `flds` is empty, and only contains the empty string. The reason is [explained in my gotchas post](../../../2018/08/28/gf-gotchas.html#metavariables-or-those-question-marks-that-appear-when-parsing). In GF, every argument needs to contribute with a string, otherwise it isn’t recognised when parsing. This happens even if there is no ambiguity._
 
 ### Natural language concrete
 
 Next, I want to do a natural language interface in my programming language! Wouldn't this be cool:
 
-```
-> p "class Business ;" | l -lang=Eng
-Business is a class with no fields
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">MyOOP&gt;</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="s">"class Business ;"</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="n">-lang=Eng</span><span class="w">
+</span><span class="n">Business</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">class</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">no</span><span class="w"> </span><span class="n">fields</span><span class="w">
 
-> p "class Business = { is_legal : Boolean } ;" | l -lang=Eng
-Business is a class with a Boolean field is_legal
+</span><span class="nb">MyOOP&gt;</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="s">"class Business = { is_legal : Boolean } ;"</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="n">-lang=Eng</span><span class="w">
+</span><span class="n">Business</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">class</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">Boolean</span><span class="w"> </span><span class="n">field</span><span class="w"> </span><span class="n">is_legal</span><span class="w">
 
-> p "class Business = { is_legal : Boolean ; bus_name : String } ;" | l -lang=Eng
-Business is a class with fields is_legal of type Boolean and bus_name of type String
-```
+</span><span class="nb">MyOOP&gt;</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="s">"class Business = { is_legal : Boolean ; bus_name : String } ;"</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="n">-lang=Eng</span><span class="w">
+</span><span class="n">Business</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">class</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">is_legal</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="n">Boolean</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">bus_name</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="n">String</span><span class="w">
+</span></code></pre></div></div>
+
+
+<!-- ``` -->
+<!-- > p "class Business ;" | l -lang=Eng -->
+<!-- Business is a class with no fields -->
+
+<!-- > p "class Business = { is_legal : Boolean } ;" | l -lang=Eng -->
+<!-- Business is a class with a Boolean field is_legal -->
+
+<!-- > p "class Business = { is_legal : Boolean ; bus_name : String } ;" | l -lang=Eng -->
+<!-- Business is a class with fields is_legal of type Boolean and bus_name of type String -->
+<!-- ``` -->
 
 English presents new challenges with lists of different sizes. But there's still nothing to worry about: the English concrete just needs to use a different set of internal params. Here's a fragment:
 
@@ -428,10 +445,10 @@ ClassDef name fields =
  in mkS (mkCl classname descr) ;
 ```
 
-You can see that I'm using a three-valued parameter for list size, for the cases 0, 1 or >2. I chose those cases, because I wanted to use three different verbalisation strategies:
+You can see that I'm using a three-valued parameter for list size: 0, 1 or >=2 (i.e. "many"). I chose those cases, because I wanted to use three different verbalisation strategies:
 * no fields
-* a [type] field [name]
-* fields [name1] of type [type1], … and [nameN] of type [typeN]
+* a *type* field *name*
+* fields *name¹* of type *type¹*, … and *nameⁿ* of type *typeⁿ*
 
 I'm not going to paste the whole English concrete, but you can see everything---the abstract and the two concretes---in [this link](https://gist.github.com/inariksit/76e34b5746ab1d13ec7dcd5cf0b7eb19).
 
