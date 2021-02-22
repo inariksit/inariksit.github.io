@@ -5,7 +5,7 @@ date:   2018-12-28
 categories: gf
 ---
 *The first half of this post was originally included in [GF gotchas](/gf/2018/08/28/gf-gotchas.html).*
-*If you've read the original post, feel free to jump directly to the [second half](#dependent-types)!*
+*If you've read the original post, feel free to jump directly to the [second half](#dependent-types-in-abstract-syntax)!*
 
 You may have heard that GF is dependently typed, and wondered what
 that means. (Or maybe this is the first time, and now you sure are
@@ -36,15 +36,44 @@ type* something!
 
 ```haskell
 param
-  Case = Nom | Acc | ... ;
+  Case = Nom | Acc | Dat ;
 ```
 
 The values `Nom`, `Acc` etc. are of type `Case`, and `Case` is of type
-`PType`. Check out
-[here](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/prelude/Coordination.gf#L38-L39)
-and
-[here](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/ConjunctionEng.gf#L39)
-to see some `PType` in action.
+`PType`. I could've written the same thing like this:
+
+```haskell
+oper
+  Case : PType ;
+  Nom : Case ;
+  Acc : Case ;
+  Dat : Case ;
+```
+
+### Coordination module
+
+Why is this useful for anything? Well, in
+[prelude/Coordination.gf](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/prelude/Coordination.gf#L57-L60), we have constructors that take parameters (i.e. `PType`s) as an argument, and return a table with those parameters on the left-hand side. Here's an example with one parameter:
+
+```haskell
+oper
+  ListTable : PType -> Type = \P -> {s1,s2 : P => Str} ;
+```
+
+So this function takes a parameter (`PType`) and returns another type (`Type`). Let's look at a concrete example:
+
+```haskell
+ListTable Case
+
+-- expands to
+{s1, s2 : Case => Str}
+```
+
+That wasn't so much shorter---why do this? I think parts of it have to do with how much it shortens the [Conjunction modules](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/ConjunctionEng.gf#L39-L50) of different RGL languages. In the average case, you can pretty much copy and paste the English approach, just adjust the arity of the opers (e.g. call `twoTable3` instead of `twoTable2`) and the parameters itself.
+
+<!-- (If you're reading this specifically to understand Coordination, you might also want to read [my post about lists](../../../2021/02/TODO/lists.html#natural-language-strategies-beyond-a-b-and-c). If you came here from the list post, feel free to break the loop.) -->
+
+### Functors
 
 Another place you can see `PType` is in functors, i.e. *parameterised modules*. (If you come from another background and have learned a different meaning for functors, don't get confused, in GF it just means parameterised module.)
 
@@ -151,7 +180,7 @@ we gave `if_then_else` two strings as arguments, but we still needed
 to give the *type* `Str` as the first argument.
 
 
-## Dependent types
+## Dependent types in abstract syntax
 
 The "types can be *of type*" thing, as well as "annotate the
 hell out of everything because the type checker seems like a clueless
