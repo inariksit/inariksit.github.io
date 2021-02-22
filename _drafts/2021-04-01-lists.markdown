@@ -25,7 +25,7 @@ This post is about lists in GF. It's aimed for multiple audiences, so possibly s
 
 Quoting from the [GF book](TODO).
 
-> #### C.4.3 List categories
+#### C.4.3 List categories
 > Since categories of lists of elements of another category are a common idiom, the following syntactic sugar is available:
 > ```haskell
 > cat [C] {n}
@@ -289,7 +289,7 @@ lincat
 
 If you look at the lins of a given Conjunction module, it probably looks rather cryptic. Most of it is just calling opers like `twoTable` and `consTable`. These opers, and many more, are found in the module [gf-rgl/prelude/Coordination.gf](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/prelude/Coordination.gf).
 
-The only documentatio of Coordination (that I'm aware of) is in the comments of the module itself, and it looks like [the following](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/prelude/Coordination.gf#L17-L22):
+The only documentation of Coordination (that I'm aware of) is in the comments of the module itself, and it looks like [the following](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/prelude/Coordination.gf#L17-L22):
 
 ```haskell
 -- Create a ListX from two Xs. Example:
@@ -298,9 +298,9 @@ The only documentatio of Coordination (that I'm aware of) is in the comments of 
 -- twoSS x y ==> {s1 = "here" ; s2 = "there"}
 twoSS : (_,_ : SS) -> ListX = \x,y -> twoStr x.s y.s ;
 ```
-It's likely that the opers still look very cryptic, so as prerequisite knowledge, you should read the first half of [this post on types in GF](../../../2018/12/28/dependent-types.html). You can stop when you see the subheading "Dependent types".
+It's likely that the opers still look very cryptic, so as prerequisite knowledge, you should read the first half of [this post on types in GF](../../../2018/12/28/dependent-types.html). You can stop when you see the subheading "Dependent types in abstract syntax".
 
-If you're implementing a new resource grammar and are struggling to understand Conjunction, the best way is to look at other languages' implementation of Conjunction, and read the comments of Coordination.
+If you're implementing a new resource grammar and are struggling to understand Conjunction, the best way is to look at other languages' implementation of Conjunction, and read the comments of Coordination. If your language uses converbs or conjunctions as suffixes, you can read the section later in this post [Natural language strategies beyond *A, B and C*](#natural-language-strategies-beyond-a-b-and-c).
 <!-- The [Resource Grammar Tutorial](http://www.grammaticalframework.org/lib/doc/rgl-tutorial/index.html) on thew GF home page doesn't explicitly cover  -->
 Later on, I might add a section in this post to be more of a hands-on guide for resource grammarians, but for now I've prioritised other things.
 
@@ -455,8 +455,175 @@ I'm not going to paste the whole English concrete, but you can see everything---
 
 ## Advanced topics
 
-You probably find lists in GF more restricted than you’re used to in other languages. For instance, you can't retain the individual elements---they just get concatenated into one long string, separated by commas in the RGL, or a separator of your choice in programming languages. So you can't peek into a list and decide, for an arbitrary `n`, “if the `n`<sup>th</sup> element has parameter `Foo`, then do something”.
+First, I'll talk about the problem that everything gets flattened to a string. Second, I'll talk about natural languages like Turkish and Korean, whose conjunctions work a bit differently than the standard RGL model, and how to implement them.
+
+<!-- Also, I assume that you have read the post until here, or otherwise understand the notation. -->
+
+### Problem: everything flattens to string
+
+You probably find lists in GF more restricted than you’re used to in other languages. For instance, you can't retain the individual elements---they just get concatenated into one long string, separated by commas in the RGL, or a separator of your choice in formal languages. So you can't peek into a list and decide, for an arbitrary `n`, “if the `n`<sup>th</sup> element has parameter `Foo`, then do something”.
+
+Of course, for a finite `n`, you can always have a lincat with `n` fields, and pattern match them as much as you like. For example:
+
+```haskell
+lincat
+  Elem = {s : Str ; foo : FooBar} ;
+  [Elem] = {
+    s1,s2,s3,s4,s5 = {s : Str ; foo : FooBar} ;
+    numElems : NumElems ;
+   } ;
+
+param
+  FooBar = Foo | Bar ;
+  NumElems = Zero | One | Two | Three | Four | Five ;
+
+lin
+  BaseElem = {
+    s1,s2,s3,s4,s5 = { -- dummy values in all 5 fields
+      s = "NOTHING HERE YET" ;
+      foo = Foo} ;
+    numElems = Zero
+    } ;
+
+  ConsElem e es =
+    case es.numElems of {
+      Zero => es ** {s1 = e ; numElems = One} ;
+      ...
+      Four => es ** {s5 = e ; numElems = Five} ;
+      Five => error "The list already has 5 elements"
+    } ;
+```
+
+This hypothetical list of elements has 5 fields `s1‥s5`, and a parameter `NumElems` to keep track of which of the 5 fields contains some actual value. (If you're familiar with [grammar blowup due to lots of parameters](../../../2018/09/22/grammar-blowup.html), here's an exercise to you: which one is cheaper, this solution or the alternative in the footnote<a name="fn-1-home" href="#fn-1"><sup>1</sup></a>?)
+
+While this type of solution can work for a finite `n`, the much more scalable method is to do any list manipulation [from an external program](../../../2019/12/12/embedding-grammars.html).
+
+### Natural language strategies beyond *A, B and C*
+
+The RGL [Conjunction module](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/abstract/Conjunction.gf) was primarily designed for the following natural language strategy:
+* Coordinated phrases appear in the same form as uncoordinated.
+* The two last phrases are separated by a conjunction. Any additional phrases are separated by commas (*A, B, … and X*).
+
+But that's not the only strategy natural languages use to connect words and phrases. Other strategies include:
+
+* Coordinated phrases appear in a special form, different from stand-alone phrase. For example, [in Turkish](https://elon.io/learn-turkish/lesson/subordinating-suffixes-%28y%29ip) you would not have full finite sentences like "I went to the market *and* bought cigarettes". Instead, all but the last sentence are in a non-finite form, like "having gone to market, I bought cigarettes".
+* The conjunction can be inserted between every coordinated phrase, like [in Korean](https://books.google.com/books?id=Pvl6DwAAQBAJ&pg=PT155&q=%22connector%20particles%20can%20be%20used%20after%20every%20noun%20in%20the%20list%22).
+
+### Special form with coordination
+
+<!-- (The term for this is [converb](https://en.wikipedia.org/wiki/Converb)). -->
+Linguistically, this seems like a more exotic thing than just repeating the conjunction. But as long as the coordinated forms are still separated by commas (or anything else that doesn't depend on the final conjunction chosen), this modification is the easier of the two.
+
+Let's take a hypothetical `AP` in a hypothetical language. Here's the spec:
+
+* The house is *blue.PRED*
+* A *blue.ATTR* house
+* The house is *blue.CONJ , green.CONJ and red.PRED*
+* A *blue.CONJ , green.CONJ and red.ATTR* house
+
+So we have three forms: attributive, predicative and conjunctive. Here's an inflection table:
+
+```haskell
+lincat
+  AP = {s : AForm => Str} ;
+param
+  AForm = AAttr | APred | AConj ;
+```
+
+And here's what we do in `BaseAP` and `ConsAP`. We need to choose the `AConj` form of all of the `AP`s except for the last one.
+
+```haskell
+lincat
+  [AP] = {s1, s2 : AForm => Str} ;
+lin
+  BaseAP a1 a2 = {
+    s1 = \\_ => a1.s ! AConj ; -- Always conj. form
+    s2 = a2.s    -- Retain full inflection table
+    }
+
+  ConsAP a as = as ** {
+    s1 = \\x => a.s ! AConj ++ -- Always conj. form
+                "," ++         -- Any separator you want
+                as.s1 ! x      -- (already in AConj)
+    } ;
+
+```
+
+We need to have the `AConj` form in `AP`, because any `AP` can potentially appear before a conjunction---even an `AP` that is already built out of several. (*The house is [big and blue] or [small and green]*.) But if the `AP` has ever been in a coordinated chain, then it won't ever go back to a non-conjunctive form.
+
+Of course, in real languages the inflection tables tend to be much larger, with agreement, polarity, tense and whatnot. I have implemented similar languages in the RGL and GF works very well---I just chose a minimal example for the blog post.
+
+### Repeated conjunctions
+
+Consider the API of lists in the RGL. First, we construct a list: `[scallions, onions, garlic]`, and only after that, we apply a conjunction to the list.
+<!-- *scallions, onions and garlic*, or *neither scallions, onions nor garlic*.  -->
+As we saw [earlier in this post](#implementation-of-listc-in-rgl), this is implented as a record with two `s` fields: `s1` contains the string `"scallions , onions"` and `s2` contains the string `"garlic"`. Then all we need to do is to put the conjunction between the two strings in `s1` and `s2`.
+
+But now the conjunction is repeated after every element. So we need to be prepared for *scallions and onions and garlic*, as well as *scallions or onions or garlic*, even before `ConjC <someConj>` has been called. What to do?
+
+
+#### Conjunctions as parameter
+
+Luckily, there are a finite amount of conjunctions. So we can make it into a parameter:
+
+```haskell
+param
+  ConjType = And | Or ;
+```
+
+Or to be a bit more interesting, we use a different version of the conjunctions depending on the part of speech.
+
+```haskell
+param
+  ConjType = And POS | Or POS ;
+  POS = Noun | Verb ;
+```
 
 
 
-Korean RG
+## Footnotes
+
+1.<a name="fn-1"> </a>Below is an alternative method to implement the list of up to 5 Elems. In light of [grammar blowup](../../../2018/09/22/grammar-blowup.html), which version is better?  <a href="#fn-1-home">↩</a>
+
+
+```haskell
+lincat
+  Elem = {s : Str ; foo : FooBar} ;
+  [Elem] = {
+    s1,s2,s3,s4,s5 = {s : Str ; foo : MaybeFooBar}
+   } ;
+
+param
+  FooBar = Foo | Bar ;
+  -- This is not the place to teach polymorphism in GF
+  MaybeFooBar = Just FooBar | Nothing ;
+
+lin
+  BaseElem = {
+    s1,s2,s3,s4,s5 = { -- dummy values in all 5 fields
+      s = "NOTHING HERE YET" ;
+      foo = Nothing}
+    } ;
+
+  ConsElem e es =
+    case es.s1.foo of {
+      Nothing
+        => es ** {s1 = {s = e.s ; foo = Just e.foo}} ;
+      _ => case es.s2.foo of {
+             Nothing
+               => es ** {s2 = {s = e.s ; foo = Just e.foo}} ;
+             _ => case es.s3.foo of {
+                    Nothing
+                      => es ** {s3 = {s = e.s ; foo = Just e.foo}} ;
+                    _ => case es.s4.foo of {
+                           Nothing
+                             => es ** {s4 = {s = e.s ; foo = Just e.foo}} ;
+                           _ => case es.s5.foo of {
+                                  Nothing
+                                    => es ** {s5 = {s = e.s ; foo = Just e.foo}} ;
+                                  _ => error "The list already has 5 elements"}}}}
+
+    } ;
+```
+
+The solution is [here](https://www.wolframalpha.com/input/?i=(2%5Ex)(x%2B1)+vs+3%5Ex+from+1+to+5).
