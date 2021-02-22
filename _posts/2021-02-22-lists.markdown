@@ -25,7 +25,7 @@ This post is about lists in GF. It's aimed for multiple audiences, so possibly s
 
 ## Basics
 
-Quoting from the [GF book](TODO).
+Quoting from the [GF book](http://www.grammaticalframework.org/gf-book/).
 
 #### C.4.3 List categories
 > Since categories of lists of elements of another category are a common idiom, the following syntactic sugar is available:
@@ -82,7 +82,7 @@ The answer is that it depends on an application. In the next sections, I'll cove
 
 The purpose of lists in the [Resource Grammar Library](http://www.grammaticalframework.org/lib/doc/synopsis/index.html) (RGL) is to allow coordination. I'll start with an example and explain the functions right after.
 
-While the example is for `NP` (noun phrase), exactly the same principle holds for other list categories in the RGL ([AP](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#ListAP), [RS](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#ListRS), TODO rest).
+While the example is for `NP` (noun phrase), exactly the same principle holds for other list categories in the RGL ([AP](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#ListAP), [Adv](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#ListAdv),[RS](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#ListRS), [S](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#ListS)).
 <!-- Consider `NP` like “John, Mary, Alice, Bob and Charlie”. Instead of specific rules for NPs with 1, 2, 3… nouns, lists offer a general way to include arbitrarily many. -->
 <!-- so you don’t need a different syntactic function for , but just one for an `NP` object, which you can build out of a `ListNP`. -->
 
@@ -157,7 +157,7 @@ And that translated to a `BaseNP`, which took 2 arguments. So we know that `Base
 ```haskell
 cat [NP]{2}
 ```
-<em><small>We can even verify that this was the expression: look at the [RGL abstract syntax](TODO)!</small></em>
+<em><small>We can even verify that this was the expression: look at the [RGL abstract syntax](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/abstract/Conjunction.gf#L39)!</small></em>
 
 <!-- In the RGL abstract syntax tree, we see the actual `BaseNP`, which is generated from -->
 
