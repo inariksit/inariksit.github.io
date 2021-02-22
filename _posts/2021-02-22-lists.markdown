@@ -1,22 +1,24 @@
 ---
 layout: post
 title:  "Lists in GF"
-date:   2021-02-01
+date:   2021-02-22
 categories: gf
 tags: "gf programming"
 ---
 
 <!-- <em><small>This post is linked from the [GF reference manual](http://www.grammaticalframework.org/doc/gf-refman.html). Feel free to adapt this text into a proper section. I'd do it myself if I were capable of writing short posts. :-P</small></em> -->
 
-This post is about lists in GF. It's aimed for multiple audiences, so possibly some parts won't interest you. If you have a good grasp of the basics, feel free to jump directly to [Advanced topics](TODO).
+This post is about lists in GF. It's aimed for multiple audiences, so possibly some parts won't interest you. If you have a good grasp of the basics, feel free to jump directly to [Advanced topics](#advanced-topics).
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
-**Table of Contents**
 
 - [Basics](#basics)
 - [Lists in natural language](#lists-in-natural-language)
 - [Lists in formal language](#lists-in-formal-language)
 - [Advanced topics](#advanced-topics)
+     - [Problem: everything flattens to string](#problem-everything-flattens-to-string)
+     - [Natural language strategies beyond *A, B and C*](#natural-language-strategies-beyond-a-b-and-c)
+- [Footnotes](#footnotes)
 
 <!-- markdown-toc end -->
 
@@ -562,24 +564,98 @@ As we saw [earlier in this post](#implementation-of-listc-in-rgl), this is imple
 But now the conjunction is repeated after every element. So we need to be prepared for *scallions and onions and garlic*, as well as *scallions or onions or garlic*, even before `ConjC <someConj>` has been called. What to do?
 
 
-#### Conjunctions as parameter
+#### Conjunction as parameter
 
 Luckily, there are a finite amount of conjunctions. So we can make it into a parameter:
 
 ```haskell
 param
-  ConjType = And | Or ;
+  ConjType = And | Or | Nor ;
 ```
 
-Or to be a bit more interesting, we use a different version of the conjunctions depending on the part of speech.
+<!-- Or to be a bit more interesting, we use a different version of the conjunctions depending on the part of speech. -->
+
+<!-- ```haskell -->
+<!-- param -->
+<!--   ConjNoun = AndNoun | OrNoun ; -->
+<!--   POS = Noun | Verb ; -->
+<!-- ``` -->
+
+This `ConjType` will be on the left-hand side of our list type. Like this:
 
 ```haskell
-param
-  ConjType = And POS | Or POS ;
-  POS = Noun | Verb ;
+-- Assuming that lincat of NP is {s : Case => Str ; a : Agr}
+lincat
+  [NP] = {s : ConjType => Case => Str ; a : Agr} ;
 ```
 
+And here comes the important part: the `ConjType` parameter is used to insert the desired conjunctions after each new addition to the list.
 
+```haskell
+lin
+  BaseNP np1 np2 = {
+    s = table {
+          And => \\c => np1.s ! c ++ "and" ++ np2.s ! c ;
+          Or  => \\c => np1.s ! c ++ "or" ++ np2.s ! c ;
+          Nor => \\c => np1.s ! c ++ "nor" ++ np2.s ! c
+      } ;
+    a = conjAgr np1.a np2.a
+    } ;
+
+  ConsNP np nps = nps ** {
+    s = table {
+          And => \\c => np.s ! c ++ "and" ++ nps.s ! And ! c ;
+          Or  => \\c => np.s ! c ++ "or" ++ nps.s ! Or ! c ;
+          Nor => \\c => np.s ! c ++ "nor" ++ nps.s ! Nor ! c
+      }
+    } ;
+```
+
+And how to get the right string out of the `ListNP`? Let's look at the implementation of `ConjNP`.
+
+```haskell
+lincat
+  Conj = {c : ConjType} ; -- Conj string already in the list
+
+lin
+  ConjNP conj nps = {s = nps.s ! conj.c} ;
+```
+
+How about if your language uses different conjunctions for different parts of speech? That's no problem at all. Each `BaseC` and `ConsC` decides which strings to insert, so `BaseNP` might use the string "and" for the parameter `And`, and `BaseAP` might put a different string for the same parameter.
+
+### Complex morphology
+
+What if the conjunctions have many allomorphs depending on the words they attach to? That definitely happens, for instance in Korean. Here's a peek into the [Korean RG](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/korean/ParamKor.gf#L61-L86), where we have a type
+
+```haskell
+conjTable : POS => ConjType => Phono => Str
+```
+
+That's a bit more things to consider than just output the string "and" after the parameter `And`, but nothing that GF can't handle. Here's some [code in action](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/korean/ConjunctionKor.gf#L103-L107), where we choose the right allomorphs:
+
+```haskell
+oper
+  mkFirstAP : AdjPhrase -> VForm => ConjType => Str = \ap ->
+    \\af,conj => ap.compar ++ case isPos af of {
+       True  => glue (ap.s ! VStem Pos) (conjTable ! VStar ! conj ! ap.p) ;
+       False => glue (ap.s ! VStem Neg) (conjTable ! VStar ! conj ! ap.pNeg)
+    } ;
+```
+
+The lincat for `AP` includes a parameter `p` which tell us whether the `VStem Pos` form ends in a consonant or vowel, and `pNeg`, which tells whether the `VStem Neg` form ends in a consonant or vowel.
+
+If you find that the code is getting very complicated, maybe a better approach would be to store the forms with the conjunction included, already before any lists are made. So your `AP` would contain forms like
+
+* blue.ATTR
+* blue.PRED
+* blue.CONJ+and
+* blue.CONJ+or
+
+and `BaseAP` would just choose whatever _blue.*+and_ it needs for a given parameter like `And`.
+
+Of course, the larger your inflection table for just *blue* is, the more it may blow up when you add conjunctions. Writing GF grammars for morphologically complex languages can be tricky, but also very rewarding.
+
+If you are ever writing a resource grammar and struggle with these type of questions, I would love to help. You can write to the [GF mailing list](https://groups.google.com/g/gf-dev) (or to me personally if you're shy), and I'll try to give some tips.
 
 ## Footnotes
 
