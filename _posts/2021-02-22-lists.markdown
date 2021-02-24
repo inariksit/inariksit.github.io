@@ -543,26 +543,38 @@ param
   AForm = AAttr | APred | AConj ;
 ```
 
-And here's what we do in `BaseAP` and `ConsAP`. We need to choose the `AConj` form of all of the `AP`s except for the last one.
+You don't need to do anything special in `BaseAP` and `ConsAP`. The basic design is that the last `AP` is stored in the `s2` field, and the others in `s1`.
+
+<!-- And here's what we do in We need to choose the `AConj` form of all of the `AP`s except for the last one. -->
 
 ```haskell
 lincat
   [AP] = {s1, s2 : AForm => Str} ;
+
 lin
-  BaseAP a1 a2 = {
-    s1 = \\_ => a1.s ! AConj ; -- Always conj. form
-    s2 = a2.s    -- Retain full inflection table
-    }
+  -- BaseAP and ConsAP are like for any RGL language.
+  BaseAP a1 a2 = twoTable AForm a1 a2 ;
+   -- returns: {s1 = a1.s ; s2 = a2.s}
 
-  ConsAP a as = as ** {
-    s1 = \\x => a.s ! AConj ++ -- Always conj. form
-                "," ++         -- Any separator you want
-                as.s1 ! x      -- (already in AConj)
-    } ;
-
+  ConsAP a as = consrTable AForm comma a as ;
+   -- returns the following:
+   --   {s1 = \\af => a.s ! af ++ "," ++ as.s1 ! af ; s2 = as.s2}
 ```
 
-We need to have the `AConj` form in `AP`, because any `AP` can potentially appear before a conjunction---even an `AP` that is already built out of several. (*The house is [big and blue] or [small and green]*.) But if the `AP` has ever been in a coordinated chain, then it won't ever go back to a non-conjunctive form.
+The differences are in `ConjAP`, which chooses the `AConj` form for all but the last `AP`.
+
+```haskell
+lin
+  ConjAP conj as = {
+    s = \\af => as.s1 ! AConj -- All but the last AP in AConj
+             ++ conj.s        -- Conj string, like "and"
+             ++ as.s2 ! af    -- Full inflection table retained
+    } ;
+```
+
+The last `AP` retains the full inflection table, including the `AConj` form. That's because any `AP` can potentially appear before a conjunction---even one that is already built of several `AP`s. (*The house is [big and blue] or [small and green]*.)
+
+But if an `AP` has ever been coordinated, and it was *not* the last one, then it won't ever go back to a non-conjunctive form.
 
 Of course, in real languages the inflection tables tend to be much larger, with agreement, polarity, tense and whatnot. I have implemented similar languages in the RGL and GF works very well---I just chose a minimal example for the blog post.
 
@@ -583,14 +595,6 @@ Luckily, there are a finite amount of conjunctions. So we can make it into a par
 param
   ConjType = And | Or | Nor ;
 ```
-
-<!-- Or to be a bit more interesting, we use a different version of the conjunctions depending on the part of speech. -->
-
-<!-- ```haskell -->
-<!-- param -->
-<!--   ConjNoun = AndNoun | OrNoun ; -->
-<!--   POS = Noun | Verb ; -->
-<!-- ``` -->
 
 This `ConjType` will be on the left-hand side of our list type. Like this:
 
