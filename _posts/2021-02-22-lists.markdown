@@ -123,17 +123,28 @@ lin They_You_and_I_walk_Cl =
 
 The RGL API [overloads the `mkListNP` oper](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#ListNP). In the underlying RGL abstract syntax tree, we see their true names `BaseNP` and `ConsNP`.
 
-```haskell
--- Underlying RGL tree
-{- PredVP
-    (ConjNP and_Conj -}
-            (ConsNP (UsePron they_Pron)
-                    (BaseNP (UsePron you_Pron)
-                            (UsePron i_Pron))
-            )  -- : ListNP
---  ) -- : NP
--- (UseV walk_V)
-```
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">-- Underlying RGL tree</span>
+<span class="cm">   PredVP
+    (ConjNP and_Conj</span>
+            <span class="p">(</span><span class="kt">ConsNP</span> <span class="p">(</span><span class="kt">UsePron</span> <span class="n">they_Pron</span><span class="p">)</span>
+                    <span class="p">(</span><span class="kt">BaseNP</span> <span class="p">(</span><span class="kt">UsePron</span> <span class="n">you_Pron</span><span class="p">)</span>
+                            <span class="p">(</span><span class="kt">UsePron</span> <span class="n">i_Pron</span><span class="p">))</span>
+            <span class="p">)</span>  <span class="c1">-- : ListNP</span>
+<span class="c1">    ) -- : NP</span>
+<span class="c1">   (UseV walk_V)</span>
+</code></pre></div></div>
+
+<!-- ```haskell -->
+<!-- -- Underlying RGL tree -->
+<!-- {- PredVP -->
+<!--     (ConjNP and_Conj -} -->
+<!--             (ConsNP (UsePron they_Pron) -->
+<!--                     (BaseNP (UsePron you_Pron) -->
+<!--                             (UsePron i_Pron)) -->
+<!--             )  -- : ListNP -->
+<!-- --  ) -- : NP -->
+<!-- -- (UseV walk_V) -->
+<!-- ``` -->
 
 As long as you have `GF_LIB_PATH` set up, you can open the RGL abstract syntax in the GF shell and run the commands below.
 
