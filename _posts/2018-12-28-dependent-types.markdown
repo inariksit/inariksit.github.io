@@ -205,7 +205,7 @@ My supervisor tells me that research topics should emerge from a desire to solve
 
 As you know, the GF resource grammar is purely syntactic and overgenerates a lot.
 Application grammars often use more elaborate types in the abstract syntax, such that "Monet painted flowers" is a valid sentence but "flowers painted Monet" isn't.
-We can write such a grammar easily with just any old boring types[^3], like this:
+We can write such a grammar easily with just any old boring types, like this:
 
 ```haskell
 cat
@@ -362,5 +362,3 @@ programming languages, maybe pick up some
 
 
 [^2]: The second half is adapted from my master's thesis which I wrote in 2012. I originally started this blog to get started with PhD thesis writing, so recycling text from two theses back completes the circle.
-
-[^3]: Maybe for those coming from [other](https://en.wikipedia.org/wiki/Python_(programming_language)) [programming](https://en.wikipedia.org/wiki/Common_Lisp) [languages](https://en.wikipedia.org/wiki/Lambda_calculus), even the standard GF types are whoa.
