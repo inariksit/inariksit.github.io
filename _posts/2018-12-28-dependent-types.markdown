@@ -196,6 +196,7 @@ if you have background in other programming languages. -->
 Because this post is about GF, my example of "cool stuff" will be about "make grammars produce sentences that make sense"[^2]. If you find this example too contrived
 but are still curious about dependent types, go and read [something](https://blog.jle.im/entry/practical-dependent-types-in-haskell-1.html) [else](https://www.quora.com/Why-do-dependent-types-matter)!
 
+*Note: the features I'm introducing in the rest of the post are __not available, if you want to use the GF grammar from e.g. Python.__ See [this thread](https://groups.google.com/g/gf-dev/c/mX011o1l0Qk) for more information.*
 
 
 ### The problem
