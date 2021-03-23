@@ -185,7 +185,7 @@ lin
  [regGenitiveS](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/ResEng.gf#L187-L194),
  which ultimately *pattern matches a string*. In the case of
  `LiteralKind`, the string is a runtime string: it comes as an
- argument to a function. So we can't use `mkDeterminerSpec`, because that would give us [unsupported token gluing](https://gist.github.com/inariksit/edde72f43d439571c79f8ef758443c11) exception.
+ argument to a function. So we can't use `mkDeterminerSpec`, because that would give us [unsupported token gluing](../../../2018/08/28/gf-gotchas.html#unsupported-token-gluing) exception.
 
 So, back to the drawing board. Let's see first what is the lincat of
 `Det` in [CatEng](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/CatEng.gf#L73):
@@ -320,4 +320,6 @@ Krasimir's thesis before I get out of the bed, it's so good.
 
 ## Read more
 
-I might eventually put some links here. But here's a teaser: my [next blog post](https://inariksit.github.io/gf/2019/02/17/beyond-API.html) will be about going beyond the API, and how to limit the dangers of using low-level opers in your application grammar.
+Here's a [Stack Overflow answer](https://stackoverflow.com/questions/66740217/proper-names-with-determiners-in-gf/66740911#66740911) which shows a similar solution, but making String literals into APs instead. (Scroll or Ctrl+F to "Arbitrary strings as artists".)
+
+My [next blog post](https://inariksit.github.io/gf/2019/02/17/beyond-API.html) is about going beyond the API more generally (not just with literals), and how to limit the dangers of using low-level opers in your application grammar.
