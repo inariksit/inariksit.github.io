@@ -454,7 +454,7 @@ $ gf
  a = ResEng.AgP3Pl ResEng.Neutr; lock_NP = <>}
 ```
 
-And naturally, I can use this `FullAPIEng` resource module in any application grammar if I wanted to. For actual grammars, better stick to `SyntaxEng` though---it has many more overloaded instances of `mkNP`.
+And naturally, I can use this `FullAPIEng` resource module in any application grammar if I wanted to. For actual grammars, better stick to `SyntaxEng` though---it has many more overloaded instances[^2] of `mkNP`.
 
 <a href="http://www.grammaticalframework.org/lib/doc/synopsis/index.html#NP"><img src="/images/mkNP-api-fragment.png" alt="Screenshot of RGL API, with many overloaded instances of mkNP" /></a>
 
@@ -468,10 +468,12 @@ The actual lins-to-opers mapping happens in [gf-rgl/src/api/Constructors.gf](htt
 
 * Benefits to an API of opers on top of the core abstract/concrete: overloading and  shortcuts.
 
-I have simplified this view in one way: the actual `SyntaxXxx` modules are not technically `resource` modules, but there's an `interface` module `Syntax` with `instance`s for different concrete syntaxes, which in turn open `incomplete resource` modules and whatnot.
+And finally, here's a picture showing what we've just learned. It's not the full picture of the intricacies of GF's module structure[^3], but it shows which things are funs/lins and which are opers.
 
-I have deliberately avoided talking about those parts of the GF module structure, and I will continue doing so.
-You can write perfectly fine GF grammars with just `abstract`, `concrete` and `resource` modules. However, if you want to use constructions as simple as ["John's book"](https://stackoverflow.com/questions/64638106/generating-a-possession-genitive-case-in-gf/) or ["one of my friends"](https://stackoverflow.com/questions/64778280/writing-in-the-form-of-one-of-xxx-plural-in-gf/), you need to learn one more thing: __there are funs and lins in the RGL that are not in the API__.
+[![RGL API and internals in a picture](/images/RGL-opers-lins-funs.svg "API and internals: ovals are opers, rectangles are lins/funs")](/images/RGL-opers-lins-funs.svg)
+
+
+If the API had been continuously updated since the early 2000s, this blog post would end here. However, if you want to use constructions as simple as ["John's book"](https://stackoverflow.com/questions/64638106/generating-a-possession-genitive-case-in-gf/) or ["one of my friends"](https://stackoverflow.com/questions/64778280/writing-in-the-form-of-one-of-xxx-plural-in-gf/), you need to learn one more thing: __there are funs and lins in the RGL that are not in the API__.
 
 
 ## RGL `fun`s and `lin`s outside the API
@@ -656,3 +658,10 @@ I've made a series of [video tutorials](https://github.com/inariksit/comp-syntax
 
 
 [^1]: Slightly offtopic for the purposes of this post, but if you're curious about why do we need `CN` in the full RGL, read on.<br/><br/>In addition to determiners, nouns and noun phrases, we have a category `CN`, *common noun*. It's there to allow modifiers that can be piled on. Adjectives are an example of such modifiers: you can say "big old red house" in standard English. Determiners are not: you can't say "*the a my house".<br/><br/>Since `N` is strictly a lexical category, we need an intermediate category `CN` that can be _modified_ by adding e.g. adjectives (_big_ house), adverbs (house _on the hill_) or relative clauses (house _that was sold_). It's not a `NP` yet, because it doesn't have a determiner, but I hope you agree that "big house" is not just a noun anymore. Hence `CN`.<br/><br/>So adjectives and other such modifiers were the justification for adding an intermediate category `CN`. But we still want to allow also noun phrases without adjectives: "this dog", not just "this small dog". Ideally, we want a single rule to turn "dog" and "small dog" into a `NP`. That is possible, if we allow the smallest `CN` to be just a noun. That's why we have the seemingly useless function `UseN : N -> CN`.
+
+[^2]: "Overload instance" just means all the different arguments you can give to an overloaded oper. For example, `mkNP : N -> NP` is one overload instance, and `mkNP : Det -> CN -> NP` is another.
+
+[^3]: GF has other kinds of module than just `abstract`, `concrete` and `resource`. I have deliberately avoided talking about those parts of the GF module structure, and I will continue to do so. But if you look at the actual files in the [RGL API](https://github.com/GrammaticalFramework/gf-rgl/tree/master/src/api), you'll see words like `interface`, `instance`, `incomplete resource`. If you want to know what those things mean, you can read the [GF tutorial](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc90) from when you first encountered the word _functor_.
+
+<!-- the actual `SyntaxXxx` modules are not technically `resource` modules, but there's an `interface` module `Syntax` with `instance`s for different concrete syntaxes, which in turn open `incomplete resource` modules and whatnot. You can read about the complete  module structure of GF -->
+<!-- You can write perfectly fine GF grammars with just `abstract`, `concrete` and `resource` modules. -->
