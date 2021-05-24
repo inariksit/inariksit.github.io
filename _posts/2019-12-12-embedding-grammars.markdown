@@ -133,9 +133,11 @@ If the import succeeeds, you have the library, and you can skip all the way to [
 
 <!-- If it does work, please let me know ([inari.listenmaa@gmail.com](mailto:inari.listenmaa@gmail.com)) so that I can update this post! -->
 
-### Not using the binary: get PGF library from PyPI
+### Not using the binary
 
-When I wrote this blog post in 2019, this section used to be a multi-step hassle. I'm glad to inform you that since June 2020, the PGF library is [in PyPI](https://pypi.org/project/pgf/). So the installation step, if you're not using the binary, is as follows:
+#### Get PGF library from PyPI
+
+Since June 2020, the PGF library is [in PyPI](https://pypi.org/project/pgf/). So the installation step, if you're not using the binary, is as follows:
 
 ```
 pip install pgf
@@ -144,19 +146,21 @@ pip install pgf
 And that's it. Make sure that you install it for the right Python---substitute with `pip3 install gf` or whichever version you want to use.
 Now you can continue to [Embedding grammars](#embedding-grammars).
 
-*If you have trouble with installing the PGF library, please open an issue at [GF's GitHub](https://github.com/GrammaticalFramework/gf-core/issues) describing your setup, what steps you took and the output.*
 
-<!--
+#### Install manually
+
+
+If `pip install pgf` didn't work for you, you can install it manually.
 
 *I have no experience on installing the libraries in Windows. If it doesn't work, we would appreciate if you open an issue at [GF's GitHub](https://github.com/GrammaticalFramework/gf-core/issues) describing your problem.*
 
-### 1) Install the C runtime
+#### 1) Install the C runtime
 
 If you can't or don't want to download the binary for Mac or Ubuntu (e.g. not having Mac or Ubuntu are pretty solid reasons!), then you need to install the C runtime and the Python bindings separately.
 
 You need to download the source code at [gf-core](https://github.com/GrammaticalFramework/gf-core). Then, go to the directory `gf-core/src/runtime/c`, where you find [installation instructions](https://github.com/GrammaticalFramework/gf-core/blob/master/src/runtime/c/INSTALL). Follow them to install the C runtime.
 
-### 2) Install the Python bindings
+#### 2) Install the Python bindings
 
 After installing the C runtime at `gf-core/src/runtime/c`, go to `gf-core/src/runtime/python` and run the following commands:
 
@@ -167,12 +171,27 @@ $ sudo python setup.py install
 
 If you have several versions of Python on your computer, make sure that you use the right one when installing. If desired, substitute `python` in the above commands for `python3` or the path to your custom Python binary.
 
+**ImportError?**
+On Linux: if you get `ImportError: libgu.so.0: cannot open shared object file: No such file or directory`
+
+```
+$ ~/sudo nano /etc/ld.so.conf
+```
+
+Add `/usr/local/lib` to the file, and then run the following
+
+```
+$ sudo ldconfig
+```
+
 ### 3) Test that it works
 
 Now open a Python shell (with the same Python that you used to build+install in the previous step) and type `import pgf`---if it works, now you can skip to [Embedding grammars](#embedding-grammars).
 
-How about if you have followed the steps until here, and it doesn't work? Please open an issue at [GF's GitHub](https://github.com/GrammaticalFramework/gf-core/issues) describing your setup, what steps you took and the output.
--->
+
+How about if you have followed the steps until here, and it doesn't work? Please open an issue on [GF's GitHub](https://github.com/GrammaticalFramework/gf-core/issues) describing your setup, what steps you took and the output.
+
+<!-- *If you have trouble with installing the PGF library, please open an issue at [GF's GitHub](https://github.com/GrammaticalFramework/gf-core/issues) describing your setup, what steps you took and the output.* -->
 
 ## Installation in Haskell
 
