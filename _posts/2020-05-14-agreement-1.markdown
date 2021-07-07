@@ -385,9 +385,9 @@ See how the first <font color="purple">ni</font> is translated as *I*, and secon
 
 Let's translate now "Inari is" and "I have Inari":
 
- * Inari  da
-   *Inari is*
 <ul>
+<li>Inari da<br/> <em>Inari is</em></li>
+
 <li><font color="green">Nik</font> Inari daukat <br/>
    <em><font color="green">I</font> have Inari</em>
 </li>
