@@ -148,7 +148,7 @@ Once upon a time, there was no RGL. All application grammars looked like the [Fo
 <!-- Soon, it got very tiring to have to define noun inflection, verb conjugation, word order, preposition contraction and whatnot for every new application grammar. The domains of, say, mathematics and healthcare may be very different in vocabulary and style, so it makes sense to write different application grammars for them. But regardless of the domain, Italian adjectives need to agree in number and gender with their head.  -->
 <!-- But it's wasted work to define all the low-level details again for each new application grammar.  -->
 
-But English nouns inflect just the same, no matter if the domain is mathematics of health care. So the obvious first idea is to save those `param`s and `oper`s [from  FoodsEng](https://github.com/GrammaticalFramework/gf-contrib/blob/master/foods/FoodsEng.gf#L29-L42), and reuse them for other English concrete syntaxes of different application grammars.
+But English nouns inflect just the same, no matter if the domain is mathematics or health care. So the obvious first idea is to save those `param`s and `oper`s [from  FoodsEng](https://github.com/GrammaticalFramework/gf-contrib/blob/master/foods/FoodsEng.gf#L29-L42), and reuse them for other English concrete syntaxes of different application grammars.
 
 ```haskell
 param
