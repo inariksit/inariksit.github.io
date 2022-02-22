@@ -88,6 +88,8 @@ The options are: a) download a binary, b) install from Hackage, and c) compile f
 
 If you have **Mac or Ubuntu**, the easiest way is to [download the binary](http://www.grammaticalframework.org/download/index.html). Python bindings are included in the binary.
 
+*2022 update: Python bindings in the binary don't seem to work for M1 Macbooks. In addition, some Mac users report that the Python bindings from binary only work for Python 2, not Python 3. If this happens to you, and you want it to work for Python 3, you may need to follow the steps for [manual installation](#not-using-the-binary).*
+
 If you don't have Mac or Ubuntu, you can install GF in any way you like---see instructions on the [download page](http://www.grammaticalframework.org/download/index.html)---but it won't include the Python bindings, so you will need to set them up separately.
 
 ## I want to use Haskell
