@@ -7,7 +7,7 @@ tags: gf
 ---
 
 ![gf_rubberduck](/images/gf-rubber-duck.png "Your favourite companion for writing GF")
-Latest update: 2020-12-29
+Latest update: 2022-03-04
 
 This post contains real-life examples when I or others have been
 confused in the past. It might be updated whenever someone is confused
@@ -34,6 +34,7 @@ again.
   - [variants {}](#empty-variants)
 - [Too good linearisations for some RGL functions](#too-good-linearisations-for-some-rgl-functions)
 - [Re-export RGL opers in application grammar](#re-export-rgl-opers-in-application-grammar)
+- [Naming conventions](#naming-conventions)
 
 ## Unsupported token gluing
 
@@ -286,7 +287,7 @@ ___
 Does this ever happen to you?
 
 ```
-Lang> gr -cat=VP | l -treebank
+Lang> gr -cat=VP | l -treebank
 Lang: UseComp (CompAP (UseComparA probable_AS))
 LangDut: zijn
 LangEng: be more probable
@@ -308,9 +309,11 @@ in the `s` field. If you have a linref, then the function is applied
 to the record, and GF shell shows a string that makes sense, like *be
 more probable*.
 
-Here's some
+If you want to play around with linrefs, I have an [example grammar](https://gist.github.com/inariksit/83cec5f55ced6bece35a249b9ad73c9e) where you can comment out, uncomment and modify the linref and see what happens.
+
+Here are some
 [English linrefs](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/CatEng.gf#L129-L149)
-if you want to have a look.
+ in the RGL, if you want to see other than toy examples.
 
 ___
 
@@ -949,6 +952,184 @@ estas tortillas son veganas
 ```
 
 The full grammar, including my additions, is [here](https://github.com/inariksit/gf-contrib/blob/re-export/foods/FoodsSpa.gf#L29).
+
+___
+
+## Naming conventions
+
+There is no official style guide for GF, but if you look at the existing grammars, there are many conventions. I also have my own set of practices that I use from grammar to grammar, but which are not necessarily used by others. I share here both kinds of naming schemes.
+
+### Names of categories
+
+The biggest distinction is application grammar categories vs. RGL categories.
+
+#### RGL categories
+The general principle is that RGL cats are purely syntactic, and are named after the part of speech, e.g. `A`, `N`, `V` and their phrasal forms `AP`, `NP`, `VP`. Numbers after the category mean how many arguments they take:
+* `V` means *intransitive verb*: only subject, no object, e.g. `sleep_V`
+* `V2` means *transitive verb*: subject and object, e.g. `break_V2`
+* `V3` means *ditransitive verb*: subject, object and indirect object, e.g. `give_V3`.
+
+Nouns and adjectives follow the same number scheme, so we have adjectives like `married_A2` "*married to X*" and nouns like `distance_N3` "*distance from Y to Z*".
+
+For RGL verbs, we have even more subcategories, such as `VV`, `VA` and `VS`. The names are hopefully compositional enough: `VV` takes a verbal complement (*want [to sleep]*), `VA` an adjectival complement (*become [tired]*) and `VS` takes a whole sentence (*say [that she sleeps]*). These can also be combined with the numbers, so for example `V2A` takes both a direct object and an adjectival complement: *paint [the house] [red]*.
+
+#### Application grammar categories
+
+Often the categories of an application grammar are more fine-grained: not just part-of-speech based like `NP` or `V2`, but more semantic distinctions like `Weekday`, `Currency`, `Language`, `Action`, `State`.
+
+Some application grammars are built from scratch, and all of their categories are like above. Other application grammars [extend the RGL](https://arxiv.org/abs/1406.4057), and thus contain both the RGL categories and more semantically oriented categories. There are not that many conventions, it just depends on your application what is significant.
+
+### Names of fields
+
+#### The `s` field
+
+Most GF records, no matter if in a resource or an application grammar, have a field called `s`, which contains the main element. For instance, the lincat of CN could look like this in many languages:
+
+```haskell
+lincat CN = {
+  s : Number => Str ; -- house / houses
+  postmod : Str ;     -- on a hill
+  } ;
+```
+
+The `s` field is significant to the GF shell: unless we have specified a [linref](#linref), the GF shell will only parse and linearise contents in the `s` field and ignore the rest. Similarly, human GF programmers are used to finding more central contents in the `s` and more peripheral contents in other fields.
+
+
+#### Common field names in the RGL internals
+
+The following names are mostly interesting for RGL implementors, or those who live dangerously and use the RGL not via the API, but touching the raw parameters.
+
+#### `sp`
+
+20 RGL languages use a field called `sp` (source: I went to gf-rgl/src and did `grep  "\<sp :" */*.gf | cut -f 1 -d '/' | sort -u`).
+
+The `sp` field appears in the category `Det` and other categories that may become Det (e.g. `Quant`, `Num`, `Pron`). It is meant to be the field that contains a *standalone* version of the Det. A simplified example for English:
+
+```haskell
+l -table PossPron i_Pron
+s  : my
+sp : mine
+```
+
+The `s` field is then used in the primary function of Det, which is being a determiner. The `sp` field is used when the determiner is promoted into a NP. This is from the actual English resource grammar:
+
+```
+Lang> p -cat=NP "my dog"
+DetCN (DetQuant (PossPron i_Pron) NumSg) (UseN dog_N)
+
+Lang> p -cat=NP "mine"
+DetNP (DetQuant (PossPron i_Pron) NumSg)
+```
+
+
+#### `c2` and `c3`
+
+The field `c2` is used in 39 RGL languages, and `c3` in 34 (source: the same bash oneliner I used for `sp`, but grep for the string `c2` or `c3` instead of `sp`).
+
+These fields appear in categories that take complements, so almost all verb subcategories (`V2`, `VS`, `V2A`…), but also `N2`, `A2` and their ditransitive versions `N3`, `A3`. They belong to the categories that are still waiting for their complement, so `V2`'s `c2` field is inherited to the `VPSlash`, but not to `VP`. A simplified example below:
+
+```haskell
+cat
+  V2 ; VP ; NP ;
+fun
+  ComplV2 : V2 -> NP -> VP ;
+  believe_V2 : V2 ;
+  see_V2 : V2 ;
+
+lincat
+  NP, VP = {s : Str} ;
+  V2 = {
+    s,         -- main verb ('believe', 'see')
+    c2 : Str   -- optional preposition ('in')
+    } ;
+
+lin
+  ComplV2 vp np = {
+    s = vp.s ++ vp.c2 ++ np.s ;
+    } ;
+
+  believe_V2 = {
+    s = "believe" ;
+    c2 = "in"
+    } ;
+
+  see_V2 = {
+    s = "see" ;
+    c2 = []
+    } ;
+```
+
+This works for other concepts than just prepositions, and more complex types than just strings. What kinds of types are used for those fields? You can inspect yourself with this oneliner, running it in the directory gf-rgl/src:
+
+```
+grep -o  "\<c2 : [^ ]*\>" */*.gf | cut -f 3 -d ':' | sort -u
+```
+
+Here are the cleaned up results, merging e.g. `ResNep.Compl` together with `Compl`:
+
+ * Adposition
+ * Agr
+ * Agreement
+ * Case
+ * Clitics
+ * Compl
+ * Complement
+ * ComplementCase
+ * NForm
+ * Prep
+ * PrepCombination
+ * Preposition
+ * Str
+ * {s : Str ; hasPrep : Bool}
+
+The names don't tell much—all of those, except for `Str` and `Bool`, are internal types defined in each concrete RGL language. (For all we know, maybe earlier in the grammar it says `Compl : Type = Str`.) I just wanted to show proof that `c2` fields can contain much more than just strings. If you are interested in their relative frequencies, you can run this command in gf-rgl/src:
+```
+grep -o  "\<c2 : [^ ]*\>" */*.gf | cut -f 3 -d ':' | sort | uniq -c | sort -nr
+```
+
+### My naming scheme for lincats and opers
+
+This is idiosyncratic to me, but I share it because
+* I contribute to quite a few RGL languages, so you may some day debug code I wrote, and
+* I find this practice helpful, and maybe you could benefit from it too in your own grammars.
+
+So, I have a grammar—RGL or application—with some categories, let's call them `Foo` and `Bar`. Then for their lincats, I follow this convention:
+
+```haskell
+cat
+  Foo ; Bar ;
+
+lincat
+  Foo = LinFoo ;
+  Bar = LinBar ;
+
+linref
+  Foo = linFoo ;
+  Bar = linBar ;
+
+oper
+  LinFoo : Type = {- … -} ;
+  linFoo : LinFoo -> Str = \foo -> {- … -} ;
+
+  LinBar : Type = {- … -} ;
+  linBar : LinBar -> Str = \bar -> {- … -} ;
+
+  doStuff : Str -> LinFoo -> Str = \someStr,foo ->
+    someStr ++ linFoo foo ;
+```
+
+1. For a cat `C`, I create a type called `LinC` as an `oper`, and use it for the lincat of `C`.
+1. For a type `LinC`, I create an oper `linC : LinC -> Str`, and use it for the linref of `C`.
+1. The oper `linC` is also useful in many other places where you need to make a `C` into a string, e.g. in `doStuff`.
+
+This is useful, because often many cats share a lincat, and you need to do a `LinC` and `linC` only once per distinct lincat. It also makes the code safer: every time you need to produce a string out a `C`, you just call `linC` instead of manually adding all the fields together. Then when you update the lincat, you only need to update in one place, that is `linC`.
+
+<!--
+If you wonder why I do this, a few reasons:
+* I generally avoid using lincats as arguments for opers, because [lock fields](https://inariksit.github.io/gf/2018/05/25/subtyping-gf.html#lock-fields) sometimes cause mysterious issues. So in big grammars, I don't usually define lincats raw (`lincat Foo = {definition here}`), but first create an oper, which I then use for the lincat (`lincat Foo = LinFoo`).
+* Often many cats have the same lincat, so this is a way to avoid repetition.
+* Often I need to turn some category into a string in a function. and so very often, some field is missing. Even if everything works when you write the grammar, at a later stage someone may modify a lincat, but doesn't update all the places where that lincat is used. With `linC : LinC -> Str`, it only needs to be updated in one place.
+-->
 
 ## Footnotes
 
