@@ -7,7 +7,7 @@ tags: gf
 ---
 
 ![gf_rubberduck](/images/gf-rubber-duck.png "Your favourite companion for writing GF")
-Latest update: 2022-03-04
+Latest update: 2022-03-18
 
 This post contains real-life examples when I or others have been
 confused in the past. It might be updated whenever someone is confused
@@ -32,6 +32,7 @@ again.
   - [Linearise a theoretical form](#linearise-theoretical-forms-and-let-the-application-grammarian-to-deal-with-them)
   - [Raise an exception](#raise-an-exception)
   - [variants {}](#empty-variants)
+- [Wrong claim that some function is unimplemented](#wrong-claim-that-some-function-is-unimplemented)
 - [Too good linearisations for some RGL functions](#too-good-linearisations-for-some-rgl-functions)
 - [Re-export RGL opers in application grammar](#re-export-rgl-opers-in-application-grammar)
 - [Naming conventions](#naming-conventions)
@@ -858,6 +859,52 @@ If we had defined `beer_N` as a table `\\_ => nonExist`, then
 linearising the sentence would have produced no output whatsoever. Now
 at least we get *I like* part properly linearised.
 
+___
+
+## Wrong claim that some function is unimplemented
+
+You're implementing a concrete syntax for some grammar, and try to linearise a test tree. In the example below, we are linearising the tree for "second cat" in English and Malay:
+
+```haskell
+Lang> l AdjCN (AdjOrd (OrdNumeral (num (pot2as3 (pot1as2 (pot0as1 (pot0 n2))))))) (UseN cat_N)
+second cat
+kucing [AdjOrd]
+```
+
+Based on the output, the subtree `UseN cat_N` is implemented in Malay, but the function `AdjOrd` is not. But you are sure that you have implemented `AdjOrd`, so what is the problem?
+
+In this case, the unimplemented function is not `AdjOrd`, but one (or more) of the functions in its subtree(s), so e.g. `OrdNumeral`, `num`, or any of the `pot…` funs. This is confusing, because the shell output puts the blame on a function that actually exists.
+
+If this happens to you, you can start narrowing down which function(s) are missing. We can see that `pot0 n2` linearises:
+
+```haskell
+Lang> l -table (pot0 n2)
+s Indep : dua
+s Attrib : dua
+ord : kedua
+```
+
+But the tree starting with OrdNumeral does not linearise:
+
+```haskell
+Lang> l -table (OrdNumeral (num (pot2as3 (pot1as2 (pot0as1 (pot0 n2))))))
+
+```
+
+This time, we get just an empty string, not "legit output [function name]". Why? Because `OrdNumeral` only takes one argument, so there is nothing to linearise. In contrast, `AdjCN` takes two arguments, and successfully linarised one of them, but got to a halt in the `AdjOrd` subtree, so it expressed the failure with `[AdjOrd]`.
+
+To find out which function is missing, you can continue peeling off the constructors, or replacing them with functions you know exist. Both of the following methods reveal that the problem is `OrdNumeral`.
+
+```haskell
+Lang> l -table             (num (pot2as3 (pot1as2 (pot0as1 (pot0 n2)))))
+s : dua
+ord : kedua
+
+Lang> l -table NumNumeral (num (pot2as3 (pot1as2 (pot0as1 (pot0 n2)))))
+s : dua
+```
+
+So now you know which one is missing, go and implement `OrdNumeral`, and then you can try again linearising the original tree for "second cat".
 ___
 
 ## Too good linearisations for some RGL functions
