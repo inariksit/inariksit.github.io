@@ -4,18 +4,18 @@ title: Curriculum Vitae
 ---
 
 Inari Listenmaa  
-November 2019
+August 2022
 
 ## Contact information
 <table class="hackytable" cellpadding="0" cellspacing="0" border="0">
 <tr>
   <td rowspan="2">🏠</td>
-       <td rowspan="2"> Underåsgatan 16A, lgh 1102 <br/> 41251 Göteborg, Sweden </td>
+       <td rowspan="2"> Kallebäcksvägen 3D, lgh 1101 <br/> 41275 Göteborg, Sweden </td>
 </tr>
 <tr></tr>
 <tr>
   <td>📞</td>️
-       <td> +46 31 772 61 15  </td>
+       <td> +46 70 772 61 15  </td>
 </tr>
 <tr>
   <td> 📧 </td>
@@ -52,6 +52,8 @@ Thesis: “[Ontology-based lexicon management in a multilingual translation syst
 Senior developer at Digital Grammars AB.  
 *Current employment.*
 
+#### June 2020 — May 2022
+Senior Research Scientist – Computational Linguistics at Singapore Management University, Centre for Computational Law
 
 #### September 2013 – September 2018
 
@@ -62,6 +64,11 @@ PhD student at University of Gothenburg and Chalmers University of Technology, D
 Research assistant at University of Helsinki, Department of Modern Languages.
 
 ## Publications
+
+### 2021
+
+* Listenmaa, Inari and Hanafiah, Maryam and Cheong, Regina and Källberg, Andreas (2021). **Towards CNL-based verbalization of computational contracts**. Proceedings of the 7th Workshop on Controlled Natural Language. [<a href="https://aclanthology.org/2021.cnl-1.10/">Link</a>]
+
 
 ### 2019
 
