@@ -875,33 +875,16 @@ Based on the output, the subtree `UseN cat_N` is implemented in Malay, but the f
 
 In this case, the unimplemented function is not `AdjOrd`, but one (or more) of the functions in its subtree(s), so e.g. `OrdNumeral`, `num`, or any of the `pot…` funs. This is confusing, because the shell output puts the blame on a function that actually exists.
 
-If this happens to you, you can start narrowing down which function(s) are missing. We can see that `pot0 n2` linearises:
+To find out which function is the actually missing one, do the following:
 
-```haskell
-Lang> l -table (pot0 n2)
-s Indep : dua
-s Attrib : dua
-ord : kedua
-```
-
-But the tree starting with OrdNumeral does not linearise:
-
-```haskell
-Lang> l -table (OrdNumeral (num (pot2as3 (pot1as2 (pot0as1 (pot0 n2))))))
+1. Import the grammar with the flag `-retain`
+2. Use the command `cc` (compute_concrete) on the same tree
 
 ```
-
-This time, we get just an empty string, not "legit output [function name]". Why? Because `OrdNumeral` only takes one argument, so there is nothing to linearise. In contrast, `AdjCN` takes two arguments, and successfully linarised one of them, but got to a halt in the `AdjOrd` subtree, so it expressed the failure with `[AdjOrd]`.
-
-To find out which function is missing, you can continue peeling off the constructors, or replacing them with functions you know exist. Both of the following methods reveal that the problem is `OrdNumeral`.
-
-```haskell
-Lang> l -table             (num (pot2as3 (pot1as2 (pot0as1 (pot0 n2)))))
-s : dua
-ord : kedua
-
-Lang> l -table NumNumeral (num (pot2as3 (pot1as2 (pot0as1 (pot0 n2)))))
-s : dua
+Lang> i -retain LangMay.gf
+40 msec
+> cc AdjCN (AdjOrd (OrdNumeral (num (pot2as3 (pot1as2 (pot0as1 (pot0 n2))))))) (UseN cat_N)
+constant not found: OrdNumeral
 ```
 
 So now you know which one is missing, go and implement `OrdNumeral`, and then you can try again linearising the original tree for "second cat".
