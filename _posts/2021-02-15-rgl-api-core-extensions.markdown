@@ -28,7 +28,7 @@ PredVP
 and how it is related to the first line.
 In addition, you'll know about the parts of the RGL that are not accessible via the API.
 
-If you already understand the `PredVP …`, you can jump straight to [RGL `fun`s and `lin`s outside the API](#rgl-funs-and-lins-outside-the-api).
+If you already understand both well, you can jump straight to [RGL `fun`s and `lin`s outside the API](#rgl-funs-and-lins-outside-the-api).
 
 If you don't understand yet the `mkCl …`, I recommend that you read the GF tutorial all the way to [Lesson 4](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc69), until you reach the section on [functors](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc89). You can stop when you see the word *functor* and return to this post.
 
