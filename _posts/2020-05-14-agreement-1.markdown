@@ -459,21 +459,23 @@ lin
             Pl3 => "alszanak" }
   } ;
 
-  drink_V2 = {s =
-    table { Def => table { Sg1 => "iszom" ;
+  drink_V2 = {
+    s = table { Def   => table {
+                           Sg1 => "iszom" ;
                            Sg2 => "iszod" ;
                            Sg3 => "issza" ;
                            Pl1 => "isszuk" ;
                            Pl2 => "isszátok" ;
                            Pl3 => "isszák" } ;
-
-            Indef => table { Sg1 => "iszok" ;
-                             Sg2 => "iszol" ;
-                             Sg3 => "iszik" ;
-                             Pl1 => "iszunk" ;
-                             Pl2 => "isztok" ;
-                             Pl3 => "isznak" }
-          }
+                Indef => table {
+                           Sg1 => "iszok" ;
+                           Sg2 => "iszol" ;
+                           Sg3 => "iszik" ;
+                           Pl1 => "iszunk" ;
+                           Pl2 => "isztok" ;
+                           Pl3 => "isznak" }
+              } ;
+    c2 = Acc ;
     } ;
 
   UseV v = v ;
