@@ -1,100 +1,42 @@
 ---
 layout: post
-title:  "Generalising agreement, part III: Oblique"
-date:   2020-03-01
+title:  "Generalising agreement, part III: Obliques"
+date:   2022-10-21
 categories: gf
 tags: "gf linguistics"
 ---
 
-_This is the third post in the agreement series. Reading the previous posts ([part I](https://inariksit.github.io/gf/2020/05/14/agreement-1.html), [part II](https://inariksit.github.io/gf/2020/11/17/agreement-2.html)) is recommended for the general context, but as long as you know some basic linguistics and GF, the examples in this post are understandable._
+_This is the third post in the agreement series. Reading the previous posts ([part I](https://inariksit.github.io/gf/2020/05/14/agreement-1.html), [part II](https://inariksit.github.io/gf/2020/11/17/agreement-2.html)) is recommended for the general context, but as long as you know GF and some basic linguistics, the examples in this post are understandable._
 
 In the first post, we learned that many languages mark the core argument(s) like subject, object and indirect object in the verb inflection.
 
 In the second post, we learned that some languages mark also the addressee. Then I argued that [register](https://en.wikipedia.org/wiki/Register_(sociolinguistics)) can also be thought of as agreement: the argument that is marked is the situation itself.
 
-In this post, I'm going to take it a bit more general still. If an orthographical word in any category depends on various elements in the tree, I'll call that agreement.
-<!-- This calls for one of those [alignment chart memes](https://knowyourmeme.com/memes/alignment-charts). -->
+In this post, I'm going to take it a bit more general still. If an orthographical word in *any category* depends on other elements in the tree, I'll call that agreement.
+The bulk of the post will be dedicated to just a single example: contraction of adpositions, pronouns and negation particle in Somali.
+<!-- There are around 100[^1] unique forms of such contractions, and they exhibit complex morphosyntactic changes. -->
+The way we deal with them in GF in the Somali resource grammar is just like we deal with any agreement.
 
-
-## Zulu predicative
-
-Let's start with easy mode.
-I'll quote [Wikipedia](https://en.wiktionary.org/wiki/Appendix:Zulu_copulatives):
-
-> While Zulu does have a copula verb -ba (“to be”), it is not used in the present indicative.
-> Instead, various ways of expressing the copula exist in this case. [--] The copulative form [--] is formed by prefixing the __copulative particle__ to the full form of the noun.
-
-Let's take an example.
-
-| Zulu         | English                        |
-|--------------|--------------------------------|
-| umngane      | 'a friend'                     |
-| nginomngane  | 'I have a friend'              |
-| anginamngane | 'I don't have a friend'        |
-| unomngane    | 'he/she has a friend'          |
-| awunamngane  | 'he/she doesn't have a friend' |
-
-
-No verb involved, but a bunch of agreement. We can identify at least subject and polarity. Unclear from this sample what exactly the subject agrees with, we just see that it's different for P1 Sg and P3 Sg. Let's look at some more evidence.
-
-
-| Zulu                 | English              |
-|----------------------|----------------------|
-| imilenze             | 'legs'               |
-| inyoni inemilenze    | 'the bird has legs'  |
-| isihlalo sinemilenze | 'the chair has legs' |
-| izihlalo zinemilenze | 'chairs have legs'   |
-
-So what is this an evidence of? _Bird_, _chair_ and _chairs_ all behave differently as possessors, and that difference is marked in the possessed noun.
-
-If you want to play linguistic detective, stop reading here and try to form your own hypothesis. Once you're done, you can resume the post.
-
-### GF implementation
-
-
-
-https://github.com/LauretteM/gf-rgl-zul/blob/master/src/zulu/ResZul.gf#L31
-VPType = CopIdent | CopAssoc | CopDescr | CopEq | … (non-copula VP types)
-
-the associative copula can, if I understand correctly, be translated as "X has Y"
-In ExtraZul, there are bunch of copula funs, of type NP -> VP, among them [AssocCop](https://github.com/LauretteM/gf-rgl-zul/blob/master/src/zulu/ExtraZulAbs.gf#L8)
-
-In English, you'd say "I have a nose" with this tree
-
-```haskell
-PredVP
-  (UsePron i_Pron)
-  (ComplSlash
-     (SlashV2a have_V2)
-     (DetCN (DetQuant IndefArt NumSg) (UseN nose_N)))
-```
-
-And in Zulu, with this tree.
-
-```haskell
-PredVP
-  (UsePron i_Pron)
-  (AssocCop
-     (DetCN (DetQuant IndefArt NumSg) (UseN nose_N)))
-```
 
 <!--
-In the current (unfinished) Zulu grammar, `have_V2` isn't even implemented.
-Of course, it's perfectly possible to implement `have_V2` in a way that `ComplSlash (SlashV2a have_V2) np` linearises the same as `AssocCop np`.
-In such a grammar, `have_V2` wouldn't contribute with an independent verb form, instead, it would just carry the param `CopAssoc` over to the `VP`, and finally `PredVP` does all the magic.
+## Recap on GF: parametric and inherent features
 
-(If GF still had a working `def` feature, it would be a natural choice to make a def rule between  `ComplSlash (SlashV2a have_V2) np` and `AssocCop np`. But that feature isn't supported by practically anything.)
+_(Skip right ahead to [next section](#somali-adpositions) if this is familiar.)_
+
+If you've read any GF tutorial, you have probably heard about
+[parametric and inherent features](http://www.grammaticalframework.org/doc/tutorial/gf-tutorial.html#toc54).
+Expressed in other words,
+
+> When an inflectional category is marked on multiple elements of sentence or phrase, it is usually considered to belong to one element and to express agreement on the others.
+
+<small><em>Lesson #38 from [Linguistic Fundamentals for Natural Language Processing: 100 Essentials from Morphology and Syntax](https://g.co/kgs/R3v8VN) by Emily Bender (2013)</em></small>
+
+We need this principle as soon as we move from Hello World grammar to Foods grammar. Number is a parametric feature in `Kind`, because we need to produce "this pizza" and "these pizzas".
+
 -->
 
-Again, there's technically no verb form there. Just bunch of noun class agreement attached to other nouns. Skip the verb altogether, nouns can do agreement perfectly fine without a verb!
-
-But in the GF RGL, we see that the most practical place to put all of this in place is `PredVP`.
-
-If you read the [latest agreement post on Basque](../../../2020/11/17/agreement-2.html#allocutive-agreement-in-basque), we also did lots of complicated decisions in `PredVP`. It's not a coincidence. That's just a very good place to make decisions! That's when you finally know the subject.
-
-## Somali prepositions
-
-First I need to make you appreciate how cool this is. Examples from [Saeed (1999)](https://benjamins.com/catalog/loall.10) pages 39 and 110.
+<!--
+## Case study: Somali adpositions in the GF RGL
 
 
 ### Imperative mood
@@ -102,16 +44,225 @@ First I need to make you appreciate how cool this is. Examples from [Saeed (1999
 Somali grammar books like to start with imperative sentences, because imperative is morphologically the simplest verb form, and syntactically the simplest construction.
 As [Saeed (1982)](https://core.ac.uk/download/pdf/161528208.pdf) puts it, _"grammaticalisation of pragmatic functions is at the core of Somali syntax."_
 
-### Prepositional phrase
+-->
+
+## Examples of Somali contractions
+
+I'll start by showing 3 examples from [Saeed (1999)](https://benjamins.com/catalog/loall.10) pages 39 and 110, and [Nilsson (2022)](http://morgannilsson.se/BeginnersSomaliGrammar.pdf) page 127.
+
+#### Single adposition
+
+The following pair from Saeed (1999, p. 110) shows a single adposition *u* 'for', introducing the oblique argument *Cali* 'Ali'.
+
+![SomaliContr0](/images/somali-contraction-0.png "A single Somali adposition: 'Cali shaah u samee', translation 'Make some tea for Ali'")
+
+In the English translation, we have a prepositional phrase *for Ali*.
+In Somali, the construction is discontinuous, with the NP *Cali* at the start of the sentence, and the adposition *u* later, before the verb.
+
+Discontinuity in itself is not a hard problem in GF: thanks to the record syntax, linearisation rules can add strings to a record, and postpone building the phrase until more features are known.
+However, what makes Somali adpositions a challenging exercise for GF is their obligatory contractions with other parts of speech.
+
+#### Two adpositions
+
+The next example, Saeed (1999 p. 39), shows two adpositions merging.
+
+![SomaliContr1](/images/somali-contraction-1.png "Somali adposition contraction: 'Faarax sidan ugu samee', gloss 'Faarax si-tan u+u samee', translation 'Do it in this way for Farah'")
+
+Again the English translation features two prepositional phrases as continuous constituents: 'in this way' and 'for Farah'.
+In Somali, the noun phrases *sidan* 'this way' and *Faarax* 'Farah' appear in the beginning of the sentence, and the two adpositions *u* and *u* merge into one orthographic word, *ugu*, before the verb.
+
+<!-- Unlike in English where forms like *don’t* and *do not* coexist, the Somali contractions are obligatory. -->
+
+<!--
+#### Two adpositions + object pronoun
+
+One more example from Saeed (1999 p. 41), featuring two adpositions and an object pronoun.
+
+![SomaliContr2](/images/somali-contraction-2.png "Somali adposition contraction: 'Cali lacagta nooga soo qaad', gloss 'Cali lacag-ta na+u+ka soo qaad', translation 'Get the money for us from Ali'")
+
+The orthographic word *nooga* covers the three English words "for us from".
+-->
+
+#### Adposition + object pronoun + negation particle
+
+The final example features an adposition *ka*, the object pronoun *i* and the negation particle *ma*, all in a single orthographic word *igama*.
+
+![SomaliContr34](/images/somali-contraction-4.png "Somali adposition contraction: 'Igama dul boodi kartid', translation 'You can't jump over me'")
+
+Note that the adposition *ka* on its own has meanings such as 'from' or 'about'. In this expression, it is part of the compound adposition *ka dul* 'over', where the *ka* component merges with the object pronoun and the negation in the beginning of the sentence, and *dul* appears before the infinitive verb.
+
+## Morphology
+
+From the systematic listing in Saeed (1999) pp. 38--41, we count at least 80 distinct combinations, many of which feature nontrivial assimilations and metathesis, and are therefore best stored as full forms, not combined from smaller pieces.
+
+* 4 for adposition (not a *combination* per se, but we include these forms in the count for the sake of implementation, explained later);
+* 4 for impersonal subject pronoun + object pronoun;
+* 6 for adposition + adposition;
+* 24 for adposition + any pronoun; and
+* 42 for adposition + adposition + any pronoun.
 
 
-![SomaliPrepContr0](/images/somali-preposition-contraction-0.png "A single Somali preposition: 'Cali shaah u samee', translation 'Make some tea for Ali'")
+Neither Saeed nor Nilsson cover all of the possible combinations, so it is unclear whether they do not contract, or are just unlikely to occur together in a single verbal group.
+For instance, there is no mention of combining the first item on the list, an impersonal subject pronoun and an object pronoun (4 distinct forms) with one or more adpositions---we assume for the reason that such sentences were not attested in a corpus.
 
-![SomaliPrepContr1](/images/somali-preposition-contraction-1.png "Somali preposition contraction: 'Faarax sidan ugu samee', gloss 'Faarax si-tan u+u samee', translation 'Do it in this way for Farah'")
+However, later examples in Saeed (1999) reveal forms that are missing from the systematic listing on pages 38--41, such as impersonal subject pronoun + reflexive pronoun.
+So in addition to the explicitly listed 80 forms, I have included in the GF implementation all forms I could find elsewhere in the two sources, which brings the total number to 88 unique forms.
 
-![SomaliPrepContr2](/images/somali-preposition-contraction-2.png "Somali preposition contraction: 'Cali lacagta nooga soo qaad', gloss 'Cali lacag-ta na+u+ka soo qaad', translation 'Get the money for us from Ali'")
+This is still not a complete list, but based on the source material, it should cover the bulk of the combinations appearing spontaneously. Later you'll see the params that are the LHS of the inflection tables, and you can count that there are much more than 88 forms---those not found in the sources are at the moment linearised as `"???"`. This is very unsatisfactory, and if you have a more complete resource, get in touch with me!
 
-### Blah
+Negation suffix *ma* can also appear with these 88+ combinations, but its addition is purely concatenative, so I have chosen to attach the negation in a separate step, using [run-time gluing](../../../2018/09/22/grammar-blowup.html#inflection-tables-vs-glu--ing-morph--eme--s) with the `BIND` token.
+
+
+### GF parameters
+
+These 88+ forms are incorporated into an inflection table in GF.
+The inflection table is build out of three parameter types: `Adposition`, `AdpCombination` (adpositions + impersonal subject pronoun) and `AdpObjAgr` (all object pronouns that contract).
+
+#### Adposition
+
+First, we introduce a parameter for single adpositions, called `Adposition`.
+
+```haskell
+param
+  Adposition = NoAdp | U | Ku | Ka | La ;
+```
+
+This parameter `Adposition` is present in lexical categories, such as `Prep`, `Adv`, `V2`
+and others that may introduce a nominal argument with an adposition.
+The lack of adposition, `NoAdp`, is included as an explicit value, corresponding to a direct object.
+
+#### AdpCombination
+
+
+The second parameter, called `AdpCombination`, lists the combinations of adpositions and impersonal subject pronouns.[^1]
+They are represented as one parameter, because both of these components can combine with *object pronouns*: it was a natural way to cluster the parts of speech: object pronouns vs. everything else.
+
+
+```haskell
+param
+  AdpCombination =
+    Single Adposition     -- 0-1 adpositions (0 = NoAdp)
+  | ImpersSubj Adposition -- impersonal subject + 0-1 adpositions
+  | Ugu | Uga | Ula       -- two adpositions (6 distinct forms)
+  | Kaga | Kula | Kala ;
+
+```
+
+The combinations of two adpositions exhibit syncretism: there are only 6 distinct forms, because some of the forms cover many combinations. `AdpCombination` is present in phrasal categories where the full information of all objects and obliques and negation is still open.
+Referring to [the RGL category hierarchy](http://www.grammaticalframework.org/lib/doc/synopsis/index.html#toc3),
+`Adposition` appears in V2*, V3, N2, A2, Prep, Adv, IAdv, and `AdpCombination` in VP, VPSlash and ClSlash.
+
+#### AdpObjAgr
+
+The third parameter, `AdpObjAgr` lists all possible object pronouns that combine with the `AdpCombination` values, to produce the 88+ distinct forms.
+
+```haskell
+param
+  AdpObjAgr =     -- NB. separate from verbal agreement
+    Sg1Obj
+  | Sg2Obj
+  | Pl1Obj Inclusion
+  | Pl2Obj
+  | ReflexiveObj
+  | ZeroObj ;    -- i.e. the AdpCombination value on its own
+
+```
+
+The last value is a zero morpheme, used for third person objects, to add no extra segment into the final contraction.
+Combining an `AdpCombination` with a zero object just returns the combination itself:
+`ZeroObj` + `Ugu` returns  *ugu*,
+ whereas `Sg1Obj` + `Ugu` returns *iigu*.
+
+`AdpObjAgr` appears in the categories where a nominal object or oblique argument can be added: VP, VPSlash, ClSlash and Adv. Note also that `AdpObjAgr` parameter is separate from the parameter that affects the form of the finite verb of the clause. The category `NP` records the full agreement `Agr`, and `AdpObjAgr` is computed from `Agr` whenever a NP becomes the object of a VP or an Adv.
+
+
+#### The full inflection table
+
+The inflection table is of type `AdpObjAgr => AdpCombination => Str`
+and it produces all combinations, within the limits of what data I could find.
+
+```haskell
+allContrs : AdpObjAgr => AdpCombination => Str = table {
+  Sg1Obj => table {
+    Single NoAdp  => "i" ;   -- just the object pronoun
+    Single Ka     => "iga" ;
+    ...
+    ImpersSubj NoAdp => "lay" ; -- impers.subj + obj.pron
+    ...
+    Kala          => "igala" -- object pronoun + Ka + La
+  } ;
+  ...
+  ZeroObj => table {
+    Single NoAdp => "" ;   -- P3 direct object = ∅
+    Single Ka    => "ka" ; -- just the adposition
+    ...
+    ImpersSubj NoAdp => "la" ; -- just impers. subj
+    ImpersSubj U => "loo" ; -- impers. subj + adposition
+    ...
+    Kala         => "kala"
+  }
+} ;
+```
+
+In the table, we see values from an empty string (for `ZeroObj` + `Single NoAdp`, i.e. third person direct object),
+up to combinations of 3 elements, such as *igala* for `Sg1Obj` + `Kala` (which originally comes from `Ka` + `La`).
+
+
+### Combination of parameters
+
+Below is a part of the rules on how to combine two adpositions into a combination parameter.
+
+```haskell
+  combine : Adposition -> Adposition -> AdpCombination
+  combine adp1 adp2 = case <adp1,adp2> of {
+    <U, U|Ku> => Ugu ;
+    <U, Ka>   => Uga ;
+    <U, La>   => Ula ;
+    <Ku|Ka,
+     Ku|Ka>   => Kaga ; -- 4 combinations, same form
+    <Ku, La>  => Kula ;
+    <Ka, La>  => Kala ;
+    <NoAdp, p> => Single p
+  } ;
+```
+Thanks to the syncretism of the contractions, we get away with a much smaller parameter type, which means better performance in the GF code.
+Suppose that a VP that inherits the adposition `Ku` from a V2 and the adposition `Ka` from an Adv. Instead of storing the pair `<Ku,Ka>`,  the `combine` function merges them into a single `AdpCombination` value `Kaga`.
+
+### Updating the AdpCombination value
+
+As explained previously, lexical categories have an `Adposition` field, which is elevated to `AdpCombination` in phrasal categories.
+Below are some examples of how the values are updated at the application of different functions.
+
+* `UseV : V -> VP` elevates an intransitive verb into a VP, and inserts a `Single NoAdp` as the VP's `AdpCombination`. This value can still be updated, if an adverbial is added to the VP.
+* `PassV2 : V2 -> VP` makes a V2 into a passive VP, for which the corresponding construction in Somali is to use an impersonal subject: ``one saw me'' for ``I was seen''. The function `PassV2` elevates the V2s inherent `Adposition` into an `AdpCombination` with the constructor `ImpersSubj`.
+* Any other `V2* -> VP` function uses the constructor `Single` to wrap the verb's `Adposition` into an `AdpCombination`
+* `AdvVP : VP -> Adv -> VP` adds an adverbial into a VP. This process updates the VP's `AdpCombination` with the `Adposition` of the adverb, with rules similar to [previously shown](#combination-of-parameters), but this time taking an `Adposition` and an `AdpCombination`.
+<!-- Note that the description is imperfect due to lack of data in the source material: for instance, ImpersSubj cannot combine with two adpositions, even though we can easily construct a GF tree by first applying `PassV2` to some `V2` that introduces its object with an adposition (i.e. some other value than `NoAdp`), followed by a single application of `AdvVP`. -->
+
+The same happens in questions: `QuestIAdv : IAdv -> Cl -> QCl` updates the Cl's `AdpCombination` with the IAdv's `Adposition`, and stores the result into the newly constructed QCl.
+
+### Parameters' journey in the syntax tree
+
+Below is a GF parse tree for [*igama dul boodi kartid* 'you cannot jump over me'](#adposition--object-pronoun--negation-particle), where the concrete strings are shown in black Times New Roman, and the internal parameters in colourful Courier font with dotted lines from the lexical categories. The string *igama* is only linearized when all three contributing parameters are known: negation from `Pol`, adposition from `Prep` and object pronoun from `Pron`.
+
+![SomaliParseTree](/images/somali-syntax-tree-params.png "Modified parse tree for 'igama dul boodi kartid' 'you cannot jump over me', with internal parameters added in the tree alongside the strings.")
+
+
+
+All these arguments propagate their inherent parameter up to the S level, at which time the [inflection table `allContrs`](#the-full-inflection-table) is consulted.
+The VP didn't contain any other adposition, so the full value of the `AdpCombination` became `Single Ka`.
+The Adv's object NP was build out of `i_Pron`, which contributed with the `AdpObjAgr` value `Sg1Obj`.
+Finally, the negation morpheme *ma* was glued onto the *iga* that came from the inflection table, and the full contraction was linearized into a single token *igama*.
+
+
+<!-- ### Further information
+
+These parameters can do quite powerful transformations.
+Consider the ImpersSubj constructor of AdpCombination. It is added at the stage of making a VP out of V2, and so far it adds no object, nor touches the verb, it just elevates the V2's `Adposition` into `AdpCombination` with `ImpersSubj`. The VP is untouched until we get to the `PredVP` function, which adds a subject. There the `ImpersSubj _` value in the VP's `AdpCombination` does one more trick: it takes the newly added subject's agreement and turns it into an `AdpObjAgr` value of the VP, and adds an impersonal subject into the subject position, which affects the verb agreement. Then it produces a combination of adposition, object (which in the GF tree is the subject) and the impersonal subject pronoun. This is how we get a translation equivalence between  *one saw me* for *I was seen* without tree transformations. -->
+
+
+
+<!-- ### Blah
 
 The theme lately has been "postpone all decisions to Cl, only boring normies are done with verb inflection by VP".
 
@@ -133,4 +284,13 @@ The negation morpheme, _ma_, is the final thing that fuses together with the pre
 
 Of course, I can construct the two forms
 
-Technically, we could wait even longer, because it's still possible to add adverbs to a `S`, but … we just need to draw the line somewhere. If you need a different word order than `AdvVP` and `AdVVP`, make as many custom funs on the VP level. The current `Adv` has 4 fields, to cover for 4 different placements in the VP. Exactly for the reason that we can avoid the need to add adverbs after it's become a Cl. Want it before the subject? There's a field for that. When you add the Adv to the `VP`, it just goes into a field in VP that will be added in front of the future subject. Before the object? Sure, there's a field for that. As the last thing in the whole sentence? There's a field for that. If I've missed a critical use case, just add one more field. Fields are cheap.
+Technically, we could wait even longer, because it's still possible to add adverbs to a `S`, but … we just need to draw the line somewhere. If you need a different word order than `AdvVP` and `AdVVP`, make as many custom funs on the VP level. The current `Adv` has 4 fields, to cover for 4 different placements in the VP. Exactly for the reason that we can avoid the need to add adverbs after it's become a Cl. Want it before the subject? There's a field for that. When you add the Adv to the `VP`, it just goes into a field in VP that will be added in front of the future subject. Before the object? Sure, there's a field for that. As the last thing in the whole sentence? There's a field for that. If I've missed a critical use case, just add one more field. Fields are cheap. -->
+
+
+
+
+### Footnotes
+
+
+[^1]: Due to gaps in data, impersonal subject pronoun can't combine with two adpositions---such a state is simply not represented in the param type. Ideally, the `ImpersSubj` constructor would combine with one of the 6 combinations of 2 adpositions (and an object pronoun at later step). I do allow the combination impersonal subject + one adposition + object pronoun, but some of the forms have a dummy linearisation, because I couldn't find a form.
+
