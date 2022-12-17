@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "Generalising agreement, part III: Obliques"
-date:   2022-10-21
+title:  "Generalising agreement, part III: Beyond verbs"
+date:   2022-12-17
 categories: gf
 tags: "gf linguistics"
 ---
@@ -13,7 +13,7 @@ In the first post, we learned that many languages mark the core argument(s) like
 In the second post, we learned that some languages mark also the addressee. Then I argued that [register](https://en.wikipedia.org/wiki/Register_(sociolinguistics)) can also be thought of as agreement: the argument that is marked is the situation itself.
 
 In this post, I'm going to take it a bit more general still. If an orthographical word in *any category* depends on other elements in the tree, I'll call that agreement.
-The bulk of the post will be dedicated to just a single example: contraction of adpositions, pronouns and negation particle in Somali.
+The rest of this post will be dedicated to just a single example: contraction of adpositions, pronouns and negation particle in Somali.
 <!-- There are around 100[^1] unique forms of such contractions, and they exhibit complex morphosyntactic changes. -->
 The way we deal with them in GF in the Somali resource grammar is just like we deal with any agreement.
 
@@ -85,12 +85,11 @@ The orthographic word *nooga* covers the three English words "for us from".
 
 #### Adposition + object pronoun + negation particle
 
-The final example features an adposition *ka*, the object pronoun *i* and the negation particle *ma*, all in a single orthographic word *igama*.
+The final example (Nilsson 2022, p. 127) features an adposition *ka*, the object pronoun *i* and the negation particle *ma*, all in a single orthographic word *igama*.
 
 ![SomaliContr34](/images/somali-contraction-4.png "Somali adposition contraction: 'Igama dul boodi kartid', translation 'You can't jump over me'")
 
-Note that the adposition *ka* on its own has meanings such as 'from' or 'about'. In this expression, it is part of the compound adposition *ka dul* 'over', where the *ka* component merges with the object pronoun and the negation in the beginning of the sentence, and *dul* appears before the infinitive verb.
-
+Note that the adposition *ka* on its own has meanings such as 'from' or 'about'. In this expression, it is part of the compound adposition *ka dul*[^2] 'over', where the *ka* component merges with the object pronoun and the negation in the beginning of the sentence, and *dul* appears before the infinitive verb.
 ## Morphology
 
 From the systematic listing in Saeed (1999) pp. 38--41, we count at least 80 distinct combinations, many of which feature nontrivial assimilations and metathesis, and are therefore best stored as full forms, not combined from smaller pieces.
@@ -294,3 +293,4 @@ Technically, we could wait even longer, because it's still possible to add adver
 
 [^1]: Due to gaps in data, impersonal subject pronoun can't combine with two adpositions---such a state is simply not represented in the param type. Ideally, the `ImpersSubj` constructor would combine with one of the 6 combinations of 2 adpositions (and an object pronoun at later step). I do allow the combination impersonal subject + one adposition + object pronoun, but some of the forms have a dummy linearisation, because I couldn't find a form.
 
+[^2]: Contrast with the sentence "I can jump over it" where the adposition doesn't contract, because the object is 3rd person (i.e. zero morpheme) and the sentence is positive. ![SomaliContr5](/images/somali-contraction-5.png "Waan ka dul boodi karaa 'I can jump over it'")
