@@ -327,4 +327,4 @@ My [next blog post](https://inariksit.github.io/gf/2019/02/17/beyond-API.html) i
 
 ## Appendix: functors
 
-I got an email asking how to make the previous `Modifiers` grammar to be a functor instead. Here's the answer---ignore the changed filename, apart from that it's the same grammar. https://gist.github.com/inariksit/daf9b5c6cd374930aca6eec9d57ce3a6
+I got an email asking how to make the previous `Modifiers` grammar to be a functor instead. Here's the answer---ignore the changed filename, apart from that it's the same grammar. [gist.github.com/inariksit/daf9b5c6cd374930aca6eec9d57ce3a6](https://gist.github.com/inariksit/daf9b5c6cd374930aca6eec9d57ce3a6)
