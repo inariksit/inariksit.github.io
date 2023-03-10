@@ -19,6 +19,7 @@ tags: gf
   * [Output of the grammar](#output-of-the-grammar-1)
   * [Gotchas](#cannot-parse-literals-that-contain-spaces)
 - [Read more](#read-more)
+- [Appendix: functors](#appendix-functors)
 
 ## Using numerals as modifiers
 
@@ -323,3 +324,7 @@ Krasimir's thesis before I get out of the bed, it's so good.
 Here's a [Stack Overflow answer](https://stackoverflow.com/questions/66740217/proper-names-with-determiners-in-gf/66740911#66740911) which shows a similar solution, but making String literals into APs instead. (Scroll or Ctrl+F to "Arbitrary strings as artists".)
 
 My [next blog post](https://inariksit.github.io/gf/2019/02/17/beyond-API.html) is about going beyond the API more generally (not just with literals), and how to limit the dangers of using low-level opers in your application grammar.
+
+## Appendix: functors
+
+I got an email asking how to make the previous `Modifiers` grammar to be a functor instead. Here's the answer---ignore the changed filename, apart from that it's the same grammar. https://gist.github.com/inariksit/daf9b5c6cd374930aca6eec9d57ce3a6
