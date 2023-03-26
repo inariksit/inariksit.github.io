@@ -7,7 +7,7 @@ tags: gf
 ---
 
 ![gf_rubberduck](/images/gf-rubber-duck.png "Your favourite companion for writing GF")
-Latest update: 2022-03-18
+Latest update: 2023-03-26
 
 This post contains real-life examples when I or others have been
 confused in the past. It might be updated whenever someone is confused
@@ -33,6 +33,7 @@ again.
   - [Raise an exception](#raise-an-exception)
   - [variants {}](#empty-variants)
 - [Wrong claim that some function is unimplemented](#wrong-claim-that-some-function-is-unimplemented)
+- [Mysterious empty strings even though lin exists](#mysterious-empty-strings-even-though-lin-exists)
 - [Too good linearisations for some RGL functions](#too-good-linearisations-for-some-rgl-functions)
 - [Re-export RGL opers in application grammar](#re-export-rgl-opers-in-application-grammar)
 - [Naming conventions](#naming-conventions)
@@ -888,6 +889,46 @@ constant not found: OrdNumeral
 ```
 
 So now you know which one is missing, go and implement `OrdNumeral`, and then you can try again linearising the original tree for "second cat".
+
+___
+
+## Mysterious empty strings even though lin exists
+
+You've implemented a linearisation for some fun, but when testing some tree in the GF shell, you only get an empty string. *(NB. This is a made up example, if you try this in the actual RGL, it will work correctly.)* But suppose, for the sake of example, that you try the following:
+
+
+```haskell
+$ gf AllEng.gf
+AllEngAbs> l ApposNP nothing_NP something_NP
+
+
+```
+
+The result is just an empty string.
+
+Then you grep for the functions in the source code:
+
+```haskell
+StructuralEng.gf
+109:  something_NP = regNP "something" singular ;
+
+StructuralEng.gf
+148:  nothing_NP = regNP "nothing" singular ;
+
+ExtendEng.gf
+435:    ApposNP np1 np2 = {s = \\c => np1.s ! c ++ comma ++ np2.s ! c; a = np1.a} ;
+```
+
+As we can see, all three functions are defined in the files. But the issue here is that `ExtendEng` is based on [ExtendFunctor](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/common/ExtendFunctor.gf), and the default linearisation for `ApposNP` (and most other functions) is `variants {}`.
+
+So in your own implementation of `ExtendLang`, you will need to do two things for each function:
+
+1. Write the actual linearisation; and
+2. Override the default linearisation from ExtendFunctor, as in [here](https://github.com/GrammaticalFramework/gf-rgl/blob/master/src/english/ExtendEng.gf#L4-L7). The actual English works because `ApposNP` is in the exclusion list.
+
+This holds for any concrete syntax that is based on a functor. If you override a functor implementation, you will need to add it specifically to the exlucison list. Although `ExtendFunctor` is rather uncommon in that most linearisations are `variants {}`, which is usually not the case in functors for application grammars.
+
+
 ___
 
 ## Too good linearisations for some RGL functions
