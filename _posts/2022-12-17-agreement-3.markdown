@@ -233,7 +233,7 @@ As explained previously, lexical categories have an `Adposition` field, which is
 Below are some examples of how the values are updated at the application of different functions.
 
 * `UseV : V -> VP` elevates an intransitive verb into a VP, and inserts a `Single NoAdp` as the VP's `AdpCombination`. This value can still be updated, if an adverbial is added to the VP.
-* `PassV2 : V2 -> VP` makes a V2 into a passive VP, for which the corresponding construction in Somali is to use an impersonal subject: ``one saw me'' for ``I was seen''. The function `PassV2` elevates the V2s inherent `Adposition` into an `AdpCombination` with the constructor `ImpersSubj`.
+* `PassV2 : V2 -> VP` makes a V2 into a passive VP, for which the corresponding construction in Somali is to use an impersonal subject: *one saw me* for *I was seen*. The function `PassV2` elevates the V2s inherent `Adposition` into an `AdpCombination` with the constructor `ImpersSubj`.
 * Any other `V2* -> VP` function uses the constructor `Single` to wrap the verb's `Adposition` into an `AdpCombination`
 * `AdvVP : VP -> Adv -> VP` adds an adverbial into a VP. This process updates the VP's `AdpCombination` with the `Adposition` of the adverb, with rules similar to [previously shown](#combination-of-parameters), but this time taking an `Adposition` and an `AdpCombination`.
 <!-- Note that the description is imperfect due to lack of data in the source material: for instance, ImpersSubj cannot combine with two adpositions, even though we can easily construct a GF tree by first applying `PassV2` to some `V2` that introduces its object with an adposition (i.e. some other value than `NoAdp`), followed by a single application of `AdvVP`. -->
