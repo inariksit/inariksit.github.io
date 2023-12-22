@@ -103,7 +103,7 @@ s Sg Abl : prole      s Pl Abl : prolibus
 s Sg Voc : proles     s Pl Voc : proles
 ```
 
-(TODO: suggest an example with less syncretism?)
+*(TODO: example with less syncretism?)*
 
 In order to produce grammatical Latin, the RGL constructions require more distinct forms in the Latin grammar than in the English one. For example, consider the subject and the object cases in transitive sentences:
 
@@ -141,7 +141,7 @@ That's because functions in GF may not inspect nor manipulate the tokens in its 
 With this definition, we can answer the question "what should go in an inflection table" fully in terms of the GF RGL.
 If there is a function in the RGL that requires a string commonly considered as derivation, then that string should be in the inflection table.
 
-Let's consider the two cases of derivation: into same part of speech (*tidy*->*untidy*) and into a different part of speech (*thought*->*thoughtful*).
+Let's consider the two cases of derivation: into same part of speech (*tidy*→*untidy*) and into a different part of speech (*thought*→*thoughtful*).
 
 ### Derivations to same POS
 
@@ -218,8 +218,8 @@ causativeV : V -> V ;  -- to make someone wash
 reflexiveV : V -> V ;  -- to wash oneself
 
 -- V -> N derivations
-doerN : V -> N ;   -- to farm -> farmer
-actionN : V -> N ; -- to farm -> farming
+doerN : V -> N ;   -- to farm → farmer
+actionN : V -> N ; -- to farm → farming
 
 -- verbing weirds language
 verbifyNounV : N -> V ;
@@ -256,9 +256,9 @@ oper causativeV v = make_V ** {
 -- For Finnish
 oper causativeV v =
 {- Actually derive the causative verb from argument
-    "syödä" -> "syöttää"
-    "nähdä" -> "nãyttää"
-can be applied recursively: näyttää -> näytättää -> näytätyttää -> …
+    "syödä" → "syöttää"
+    "nähdä" → "nãyttää"
+can be applied recursively: näyttää → näytättää → näytätyttää → …
 warning: stops making sense semantically at some point -}
 ```
 
