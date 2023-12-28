@@ -12,7 +12,7 @@ This happens to me regularly:
 - They linearize `write_V2` and expect to find the string *book* among the forms in the inflection table, but it is not there
 - They ask me why, and I finally wrote this blog post so I can link to it and explain!
 
-This example comes up all the time with Arabic (كَتَبَ *kataba* 'write' / كِتَاب *kitab* 'book'). But there are other expectations with other languages: maybe they expect *kill* from `die_V`, or *be a pathological liar* from `lie_V`.
+This example comes up all the time with Arabic (كَتَبَ *kataba* 'write' / كِتَاب *kitāb* 'book'). But there are other expectations with other languages: maybe they expect *kill* from `die_V`, or *dormisco* 'fall asleep' from `dormio_V` 'sleep' (Latin).
 
 In English, these particular examples don't make sense because the words look different, but consider *book* and *bookish*—clearly the latter comes from the former by adding an affix. Morphologically the process is just like making *killed* from *kill*—add an affix and you get a different string with a different but related meaning. So why is *bookish* not in `book_N` but *killed* is in `kill_V2`?
 
@@ -20,7 +20,7 @@ The short answer is as follows:
 
 > A single lexical entry only contains *inflectional* morphology, such as the singular and plural forms for nouns, or past and present forms for verbs. In contrast, the process to make "bookish" from "book" is not inflection of the noun, but *derivation* from a noun to an adjective, and those words belong to separate lexical entries.
 
-In most RGL languages with rich morphology, adding derivation carelessly would make lexical entries large and slow down the grammar. But maybe that is fixed once Krasimir is done with the ✨ majestic runtime ✨, and then the question becomes philosophical again. So the long answer is the rest of this blog post.
+In most RGL languages with rich morphology, adding derivation carelessly would make lexical entries large and slow down the grammar. But maybe that will be fixed once Krasimir is done with the ✨ majestic runtime ✨, and then the question becomes philosophical again. So the long answer is the rest of this blog post.
 
 
 - [Inflection vs. derivation](#inflection-vs-derivation)
@@ -61,7 +61,7 @@ s Sg Gen : child's    s Pl Gen : children's
 
 ### English
 
-These forms are in the inflection table of `child_N`, because there are constructors in the RGL that access all those forms. Here's an (exhaustive, non-unique) example of such trees:
+These forms are in the inflection table of `child_N`, because there are constructors in the RGL that access all those forms. Here's an example of such trees that use all 4 forms:
 
 ```haskell
 $ gf alltenses/AllEng.gfo
@@ -95,25 +95,23 @@ In contrast, let's look at a language with a larger inflection table. Here's the
 ```haskell
 $ gf alltenses/LexiconLat.gfo
 > l -table child_N
-s Sg Nom : proles     s Pl Nom : proles
-s Sg Acc : prolem     s Pl Acc : proles
-s Sg Gen : prolis     s Pl Gen : prolium
-s Sg Dat : proli      s Pl Dat : prolibus
-s Sg Abl : prole      s Pl Abl : prolibus
-s Sg Voc : proles     s Pl Voc : proles
+s Sg Nom : puer       s Pl Nom : pueri
+s Sg Acc : puerum     s Pl Acc : pueros
+s Sg Gen : pueri      s Pl Gen : puerorum
+s Sg Dat : puero      s Pl Dat : pueris
+s Sg Abl : puero      s Pl Abl : pueris
+s Sg Voc : puer       s Pl Voc : pueri
 ```
-
-*(TODO: example with less syncretism?)*
 
 In order to produce grammatical Latin, the RGL constructions require more distinct forms in the Latin grammar than in the English one. For example, consider the subject and the object cases in transitive sentences:
 
 ```haskell
 $ gf alltenses/LangEng.gfo alltenses/LangLat.gfo
 > p "I saw the child" | l -lang=Lat
-prolem videbam
+puerum videbam
 
 > p "the child saw me" | l -lang=Lat
-proles me videbat
+puer me videbat
 ```
 
 ### Hungarian
@@ -124,15 +122,15 @@ This is the case for Hungarian possessive suffixes:
 ```haskell
 $ gf alltenses/LangEng.gfo alltenses/LangLat.gfo alltenses/LangHun.gfo
 > p "my child" | l -bind -lang=Lat,Hun
-mea proles
+puer meus
 én gyerekem
 
 > p "your child" | l -bind
-vestra proles  -- plural you
-ti gyereketök
-
-tua proles     -- singular you
+puer tuus    -- singular you
 te gyereked
+
+puer vester  -- plural you
+ti gyereketök
 ```
 
 Even though clitics are not traditionally considered as inflection, it makes sense for those forms to be accessible from the inflection table.[^1]
