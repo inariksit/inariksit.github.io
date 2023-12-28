@@ -234,10 +234,10 @@ So let's do this for Finnish and English: you're an English speaker who wants to
 
 ```haskell
 -- Fin                        --  Eng
-see_V  = mkV "nähdä" ;       {-…-} mkV "see" ;
-eat_V  = mkV "syödä" ;       {-…-} mkV "eat" ;
-feed_V = causativeV eat_V ;  {-…-} mkV "feed" ;
-show_V = causativeV see_V ;  {-…-} mkV "show" ;
+see_V  = mkV "nähdä" ;        mkV "see" ;
+eat_V  = mkV "syödä" ;        mkV "eat" ;
+feed_V = causativeV eat_V ;   mkV "feed" ;
+show_V = causativeV see_V ;   mkV "show" ;
 ```
 
 Or we could emphasize the aspect how these words are related to each other, and create a constructor `causativeV` for English as follows:
@@ -264,10 +264,10 @@ Now we could actually use the Finnish-specific opers for English:
 
 ```haskell
 -- Fin                      -- Eng
-see_V  = mkV "nähdä" ;      {-…-} mkV "see" ;
-eat_V  = mkV "syödä" ;      {-…-} mkV "eat" ;
-feed_V = causativeV eat_V ; {-…-} causativeV eat_V ;
-show_V = causativeV see_V ; {-…-} causativeV see_V ;
+see_V  = mkV "nähdä" ;       mkV "see" ;
+eat_V  = mkV "syödä" ;       mkV "eat" ;
+feed_V = causativeV eat_V ;  causativeV eat_V ;
+show_V = causativeV see_V ;  causativeV see_V ;
 ```
 
 And now the linearizations for `feed_V` and `show_V` for English become "make eat" and "make see".
