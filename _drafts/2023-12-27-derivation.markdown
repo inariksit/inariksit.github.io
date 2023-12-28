@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Derivational morphology in GF"
-date:   2023-12-20
+date:   2023-12-27
 categories: gf
 tags: "gf"
 ---
@@ -9,10 +9,10 @@ tags: "gf"
 This happens to me regularly:
 - I introduce GF to a new person
 - They start playing around with the RGL
-- They linearize `read_V2` and expect to find the string *book* among the forms in the inflection table, but it is not there
+- They linearize `write_V2` and expect to find the string *book* among the forms in the inflection table, but it is not there
 - They ask me why, and I finally wrote this blog post so I can link to it and explain!
 
-The *book*/*read* example comes up all the time with Arabic. But there are other expectations with other languages: maybe they expect *kill* from `die_V`, or *be a pathological liar* from `lie_V`.
+This example comes up all the time with Arabic (كَتَبَ *kataba* 'write' / كِتَاب *kitab* 'book'). But there are other expectations with other languages: maybe they expect *kill* from `die_V`, or *be a pathological liar* from `lie_V`.
 
 In English, these particular examples don't make sense because the words look different, but consider *book* and *bookish*—clearly the latter comes from the former by adding an affix. Morphologically the process is just like making *killed* from *kill*—add an affix and you get a different string with a different but related meaning. So why is *bookish* not in `book_N` but *killed* is in `kill_V2`?
 
