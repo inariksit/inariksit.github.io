@@ -185,7 +185,7 @@ PresPartAP  : VP -> AP ;       -- (the man) looking at Mary
 GerundCN    : VP -> CN ;       -- publishing of the document
 ```
 
-In English, they all use forms that are traditionally considered part of the verb conjugation. *Lost* is a conjugated verb form, that is used for **predication** in the context "I *have lost* my keys", and **modification** in the context "my *lost* keys". The same holds for the gerund form: "the dog *is running*" (predication) and "the *running* dog" (modification). So let's recap:
+In English, they all use forms that are traditionally considered part of the verb conjugation. *Lost* is a conjugated verb form, that is used for **predication**[^3] in the context "I *have lost* my keys", and **modification** in the context "my *lost* keys". The same holds for the gerund form: "the dog *is running*" (predication) and "the *running* dog" (modification). So let's recap:
 
 1. In the GF RGL, the *syntactic-semantic function* of predication is implemented by the *category* `VP`, and the *syntactic-semantic function* of modification is implemented by the *category* `AP`.
 2. In English, the verb form used for modification happens to coincide with a verb form already used for predication.
@@ -197,9 +197,9 @@ If it does blow up the grammar, then I would suggest not implementing the same A
 
 ## Derivations as opers in resource modules
 
-I hope that the previous section has cleared up some definitions, and what matters in a GF grammar. It's not about following tradition blindly—nobody is aesthetically offended by mixing inflection and derivation, it's mostly about limiting the size of the inflection tables, and keeping the core RGL generic for as many languages as possible.
+I hope that the previous section has cleared up some definitions, and what matters in a GF grammar. It's not about following tradition blindly, it's mostly about limiting the size of the inflection tables, and keeping the core RGL generic for as many languages as possible.
 
-In contrast, there are no limitations or considerations in what kind of `oper`s to write in resource modules.
+In contrast, there are no limitations on what kind of `oper`s you can write in resource modules.
 The Paradigms modules are 100% language dependent, and they may include anything that is convenient for a particular language.
 So this would be a great design for some language that has all these features.
 
@@ -215,28 +215,29 @@ causativeV : V -> V ;  -- to make someone wash
 reflexiveV : V -> V ;  -- to wash oneself
 
 -- V -> N derivations
-doerN : V -> N ;   -- to farm → farmer
-actionN : V -> N ; -- to farm → farming
+doerN : V -> N ;   -- (to) farm → (a) farmer
+placeN : V -> N ;  -- (to) farm → (a) farm
+actionN : V -> N ; -- (to) farm → (a) farming
 
 -- verbing weirds language
 verbifyNounV : N -> V ;
 verbifyAdjV : A -> V ;
 ```
 
-These constructors would just be convenience for the grammarian, and not show up at any abstract and language-independent representation.
+These constructors would just be convenience for the grammarian, and not show up at any abstract and language-independent representation. Also they don't have to be applicable to every single verb in the language—it's the responsibility of the application grammar writer to decide which constructor to use with which verb.
 
-On the other hand, if one wanted to use derivations for an application such as language learning, one could, in fact, port these target language opers to the source language. If the source language doesn't have corresponding morphological constructions, then their linearizations could be just glosses.
+On the other hand, if one wanted to use derivations for an application such as language learning, one could, in fact, port these target language `oper`s to the source language. If the source language doesn't have corresponding morphological constructions, then their linearizations could be just glosses.
 
 ### Example for language learning application
 
-So let's do this for Finnish and English: you're an English speaker who wants to learn about derivations in Finnish. The first option is to *not use* the Finnish-specific derivation opers for English, but just have everything at a lexical level, as follows:
+So let's do this for Finnish and English: you're an English speaker who wants to learn about derivations in Finnish. The first option is to *not use* the Finnish-specific derivation `oper`s for English, but just have everything at a lexical level, as follows:
 
 ```haskell
--- Fin                         --  Eng
-see_V  = mkV "nähdä" ;        | mkV "see" ;
-eat_V  = mkV "syödä" ;        | mkV "eat" ;
-feed_V = causativeV eat_V ;   | mkV "feed" ;
-show_V = causativeV see_V ;   | mkV "show" ;
+-- Fin                        --  Eng
+see_V  = mkV "nähdä" ;       {-…-} mkV "see" ;
+eat_V  = mkV "syödä" ;       {-…-} mkV "eat" ;
+feed_V = causativeV eat_V ;  {-…-} mkV "feed" ;
+show_V = causativeV see_V ;  {-…-} mkV "show" ;
 ```
 
 Or we could emphasize the aspect how these words are related to each other, and create a constructor `causativeV` for English as follows:
@@ -254,7 +255,7 @@ oper causativeV v = make_V ** {
 oper causativeV v =
 {- Actually derive the causative verb from argument
     "syödä" → "syöttää"
-    "nähdä" → "nãyttää"
+    "nähdä" → "näyttää"
 can be applied recursively: näyttää → näytättää → näytätyttää → …
 warning: stops making sense semantically at some point -}
 ```
@@ -262,21 +263,29 @@ warning: stops making sense semantically at some point -}
 Now we could actually use the Finnish-specific opers for English:
 
 ```haskell
--- Fin                      --  Eng
-see_V  = mkV "nähdä" ;      | mkV "see" ;
-eat_V  = mkV "syödä" ;      | mkV "eat" ;
-feed_V = causativeV eat_V ; | causativeV eat_V ;
-show_V = causativeV see_V ; | causativeV see_V ;
+-- Fin                      -- Eng
+see_V  = mkV "nähdä" ;      {-…-} mkV "see" ;
+eat_V  = mkV "syödä" ;      {-…-} mkV "eat" ;
+feed_V = causativeV eat_V ; {-…-} causativeV eat_V ;
+show_V = causativeV see_V ; {-…-} causativeV see_V ;
 ```
 
 And now the linearizations for `feed_V` and `show_V` for English become "make eat" and "make see".
 
-These `oper`s construct *new lexical items*, so no changes are required in lincats. They just might be useful for some application.
+These `oper`s construct *new lexical items*, so no changes are required in `lincat`s. They just might be useful for some application.
 
-<!-- ### Derivations in an application grammar
+### Derivations in an application grammar
 
 
-Many application grammars already use a custom lincat to achieve this. For example, `lincat Action = {verb : V2 ; noun : N2}` makes it possible to create both "apply (the function)" and "application (of the function)". -->
+Many application grammars already use a custom `lincat` to achieve this. For example, `lincat Action = {verb : V2 ; noun : N2}` makes it possible to create both "apply (the function)" and "application (of the function)".
+
+So if some RGL category doesn't contain the exact morphologically and semantically related cluster that you need in your application, you can always make your own combination in a record type.
+
+## Conclusion
+
+The nature and level of productivity of derivations differs more sharply across languages than the corresponding properties of inflections do. For example, almost all languages that use inflections at all have some that can be applied very generally, like pluralization of nouns. This applies at the semantic level as well—we can easily predic that *cats* means *more than one cat*, but we can't easily predict that *unclean* doesn't mean just the opposite of clean.
+
+All this means that derivations are unlikely to be included in inflection tables in the core RGL, even if it became computationally feasible. But at the level of resource modules and application grammars, you can use derivations in a broader way.
 
 ## Footnotes
 
@@ -284,4 +293,4 @@ Many application grammars already use a custom lincat to achieve this. For examp
 [^1]: The actual internal details of the Hungarian RG are not relevant here, but the 12 possessed forms (2x number of noun, 2x number of possessor, 3x person of possessor) are formed out of 4 stems in the inflection table. The 4 forms are chosen so that the possessive pronouns need to only store the simplest possible forms for the suffixes, and not have to deal with vowel harmony. Maybe another design could've cut the number of stems to an even smaller number, but such optimizations come at the cost of making the code harder to understand. I think 4 instead of 12 is a good compromise. <br/>If you are interested in the inflection table, you can open `alltenses/LangHun.gfo` in the GF shell and linearize `child_N` to inspect it yourself.
 
 
-[^2]: Meaning 'verbal noun', which is itself a verbal noun of صَدَرَ [*sadara*](https://en.wiktionary.org/wiki/%D8%B5%D8%AF%D8%B1#Arabic).
+[^2]: Meaning 'verbal noun', which is itself a verbal noun of صَدَرَ [*ṣadara*](https://en.wiktionary.org/wiki/%D8%B5%D8%AF%D8%B1#Arabic).
