@@ -22,14 +22,13 @@ The short answer is as follows:
 
 In most RGL languages with rich morphology, adding derivation carelessly would make lexical entries large and slow down the grammar. But maybe that will be fixed once Krasimir is done with the ✨ majestic runtime ✨, and then the question becomes philosophical again. So the long answer is the rest of this blog post.
 
-
 - [Inflection vs. derivation](#inflection-vs-derivation)
 - [Operational definition in terms of GF RGL](#operational-definition-in-terms-of-gf-rgl)
   - [English](#english)
   - [Latin](#latin)
   - [Hungarian](#hungarian)
-  - [Derivations to same POS](#derivations-to-same-pos)
-  - [Derivations to different POS](#derivations-to-different-pos)
+  - [Derivations to same part of speech](#derivations-to-same-part-of-speech)
+  - [Derivations to different part of speech](#derivations-to-different-part-of-speech)
 - [Derivations as opers in resource modules](#derivations-as-opers-in-resource-modules)
   - [Paradigms module for a hypothetical language](#paradigms-module-for-a-hypothetical-language)
   - [Example for language learning application](#example-for-language-learning-application)
@@ -141,7 +140,7 @@ If there is a function in the RGL that requires a string commonly considered as 
 
 Let's consider the two cases of derivation: into same part of speech (*tidy*→*untidy*) and into a different part of speech (*thought*→*thoughtful*).
 
-### Derivations to same POS
+### Derivations to same part of speech
 
 Derivations that keep the part of speech are often semantic in nature. In English, a common example is the prefix *un-*, which creates an opposite.
 
@@ -171,12 +170,12 @@ But the common core of the RGL doesn't have such a function, so the typical RGL 
 However, some grammarian might want to add such forms in their grammar in the *concrete syntax* as internal params, and then add a function such as `OppositeA : A -> AP` in the language-specific Extra module. (More on RGL extensions [here](../../../2021/02/15/rgl-api-core-extensions.html).)
 I think that is all fine, just consider the following:
 1. If large inflection tables make the grammar slow, the grammar should prioritize the ones that are necessary to make all core RGL functions produce grammatical output.
-2. If the grammar is planned to be used for morphological analysis, would you prefer *untidy* to be considered as a form of *tidy*, or an entry of its own?
-3. If the grammar is meant to generate language, consider whether this derivation is truly productive for all words of the given part of speech.
+2. If the grammar is planned to be used for morphological analysis, would you prefer *untidy* to be considered as a form of *tidy*, or an entry of its own? What about cases where the meanings have diverged more widely? For example, English *unclean* has significantly different (e.g. religious) connotations from *dirty*.
+3. If the grammar is meant to generate language, consider whether this derivation is truly productive for all words of the given part of speech. For example, outside of Orwell's 1984, we don't normally see \*ungood.
 
-### Derivations to different POS
+### Derivations to different part of speech
 
-This is actually already happening in many RGL languages, to some extent. For instance, the Arabic resource grammar does contain a verbal noun (masdar), but not a full inflection of it. It wasn't there in the original implementation, but I added that as a single field in 2018, because a particular application grammar needed it.
+This is actually already happening in many RGL languages, to some extent. For instance, the Arabic resource grammar does contain a verbal noun (مَصْدَر *masdar*[^2]), but not a full inflection of it. It wasn't there in the original implementation, but I added that as a single field in 2018, because a particular application grammar needed it.
 
 There are already several functions in the RGL (mostly in the Extend module) that change the part of speech of a phrasal category. These all come from VP:
 
@@ -186,15 +185,15 @@ PresPartAP  : VP -> AP ;       -- (the man) looking at Mary
 GerundCN    : VP -> CN ;       -- publishing of the document
 ```
 
-In English, they all use forms that are traditionally considered part of the verb conjugation. *Lost* is a conjugated verb form, that is used for **predication** in the context "I *have lost* my keys", and **modification** in the context "my *lost* keys". Same hols for the gerund form: "the dog *is running*" (predication) and "the *running* dog" (modification). So let's recap:
+In English, they all use forms that are traditionally considered part of the verb conjugation. *Lost* is a conjugated verb form, that is used for **predication** in the context "I *have lost* my keys", and **modification** in the context "my *lost* keys". The same holds for the gerund form: "the dog *is running*" (predication) and "the *running* dog" (modification). So let's recap:
 
 1. In the GF RGL, the *syntactic-semantic function* of predication is implemented by the *category* `VP`, and the *syntactic-semantic function* of modification is implemented by the *category* `AP`.
 2. In English, the verb form used for modification happens to coincide with a verb form already used for predication.
 
 Thanks to these two facts, we can implement `VP* -> AP` functions for English without adding any new forms in verbs' inflection tables.
 
-But another RGL language might use a completely different grammatical strategy for these syntactic-semantic functions. Then, if one wishes to use such a language with the same API as English, that language needs to include in its inflection tables forms that are traditionally considered derivation, not inflection. If that doesn't blow up the grammar due to large inflection tables, I believe this is a good solution.
-If it does blow up the grammar, then I would suggest not implementing the same API that works for English, but rather find another design and implement it in a language-specific Extra module.
+But another RGL language might use a completely different grammatical strategy for these syntactic-semantic functions. Then, if one wants to use such a language with the same API as English, that language needs to include in its inflection tables forms that are traditionally considered derivation, not inflection. If that doesn't blow up the grammar due to large inflection tables, I believe this is a good solution.
+If it does blow up the grammar, then I would suggest not implementing the same API that works for English, but rather finding another design and implementing it in a language-specific Extra module.
 
 ## Derivations as opers in resource modules
 
@@ -284,3 +283,5 @@ Many application grammars already use a custom lincat to achieve this. For examp
 
 [^1]: The actual internal details of the Hungarian RG are not relevant here, but the 12 possessed forms (2x number of noun, 2x number of possessor, 3x person of possessor) are formed out of 4 stems in the inflection table. The 4 forms are chosen so that the possessive pronouns need to only store the simplest possible forms for the suffixes, and not have to deal with vowel harmony. Maybe another design could've cut the number of stems to an even smaller number, but such optimizations come at the cost of making the code harder to understand. I think 4 instead of 12 is a good compromise. <br/>If you are interested in the inflection table, you can open `alltenses/LangHun.gfo` in the GF shell and linearize `child_N` to inspect it yourself.
 
+
+[^2]: Meaning 'verbal noun', which is itself a verbal noun of صَدَرَ [*sadara*](https://en.wiktionary.org/wiki/%D8%B5%D8%AF%D8%B1#Arabic).
