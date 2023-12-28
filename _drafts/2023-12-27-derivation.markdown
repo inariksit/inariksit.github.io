@@ -175,7 +175,7 @@ I think that is all fine, just consider the following:
 
 ### Derivations to different part of speech
 
-This is actually already happening in many RGL languages, to some extent. For instance, the Arabic resource grammar does contain a verbal noun (مَصْدَر *masdar*[^2]), but not a full inflection of it. It wasn't there in the original implementation, but I added that as a single field in 2018, because a particular application grammar needed it.
+This is actually already happening in many RGL languages, to some extent. For instance, the Arabic resource grammar does contain a verbal noun (مَصْدَر *maṣdar*[^2]), but not a full inflection of it. It wasn't there in the original implementation, but I added that as a single field in 2018, because a particular application grammar needed it.
 
 There are already several functions in the RGL (mostly in the Extend module) that change the part of speech of a phrasal category. These all come from VP:
 
