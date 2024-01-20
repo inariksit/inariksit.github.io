@@ -8,8 +8,8 @@ tags: "gf linguistics"
 
 Lately I've been thinking about verbal agreement in various GF resource grammars.
 
-This will be a series of three posts. (I publish this plan so that I will feel the pressure to actually write them.)
-The first post---this one---is an introduction to verbal agreement, most useful for a reader with little knowledge in linguistics or GF. The second post will be about implicit arguments: how do we model the real world adding all kinds of inconvenient restrictions on how we speak. In the third post I will talk about obliques and how, if you squint enough, you can kind of interpret preposition contraction and other unrelated things as agreement!
+This will be a series of three posts.
+The first post---this one---is an introduction to verbal agreement, most useful for a reader with little knowledge in linguistics or GF. The [second post](../../11/17/agreement-2.html) will be about implicit arguments: how do we model the real world adding all kinds of inconvenient restrictions on how we speak. In the [third post](../../../2022/12/17/agreement-3.html) I will talk about obliques and how, if you squint enough, you can kind of interpret preposition contraction and other unrelated things as agreement!
 
 If you're a seasoned GF grammarian and have any familiarity with linguistics, the first post won't be all that new information, but you surely wouldn't want to miss my hot takes on ergativity. If you don't know what ergativity means, that's a sign that you need to read the first post.
 
