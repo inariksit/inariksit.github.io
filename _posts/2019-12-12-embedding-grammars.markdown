@@ -318,9 +318,11 @@ The first steps are:
 
 * In the main directory (i.e. called `gf-embedded-grammars-tutorial`), run
 
-  > `gf -make -f haskell resource/MiniLangEng.gf`
+  > `gf -make -f haskell --haskell=lexical --lexical=A,N,V,V2 resource/MiniLangEng.gf`
 
   This creates the PGF file `MiniLang.pgf` and the Haskell file `MiniLang.hs`.
+
+  The extra flags `--haskell=lexical --lexical=A,N,V,V2` make the generated Haskell file more compact, so that there is only a single constructor for all As, Ns, Vs and V2s. I'll explain that feature more in the sequel, you can ignore it for now—it won't be relevant for the rest of this tutorial.
 
 * **If you use Stack:** run `stack build`, still in the main directory.
 
