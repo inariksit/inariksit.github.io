@@ -219,7 +219,7 @@ gf -make \
    YourGrammar.gf
 ```
 
-Adding the flag `--haskell=gadt` creates a Haskell module where the full GF abstract syntax is represented under a single Haskell data type—a [GADT](TODO:link to GADT). [Earlier in this post](#without-lexical-flags), we saw how the GF types `A` and `N` were converted into two different Haskell types. Now everything is part of the same type:
+Adding the flag `--haskell=gadt` creates a Haskell module where the full GF abstract syntax is represented under a single Haskell data type—a [GADT](https://en.wikibooks.org/wiki/Haskell/GADT). [Earlier in this post](#without-lexical-flags), we saw how the GF types `A` and `N` were converted into two different Haskell types. Now everything is part of the same type:
 
 ```haskell
 data Tree :: * -> * where

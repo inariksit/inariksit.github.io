@@ -201,10 +201,11 @@ If you want to use Haskell, the first question is which library to use, `PGF` or
 <!--For most purposes, they are equally good, and on the scale of small or medium-sized grammars, there is no significant difference in speed. -->
 For this post, I chose `PGF` for three reasons:
 
-1. It's installed by default if you get GF from Hackage or compile it from source.
+1. It's installed by default if you get GF from Hackage or compile it from source, and only depends on Haskell.
 1. The API is better documented than `PGF2`.
-1. It works smoothly with the abstract syntax compiled into Haskell.
+1. Notable examples (like Aarne's classic [translating between language and logic](https://github.com/GrammaticalFramework/gf-contrib/tree/master/cade-2011)) use the PGF library, and it's useful to keep the knowledge alive, so that anyone can compile that grammar.
 
+There are many good reasons to use the `PGF2` library. However, that is a topic for another post (which you can read [here](../../../2024/01/25/embedding-grammars-2.html)).
 <!--When would you like to use PGF2 then? If you have a large grammar, PGF2 is faster. Once you're familiar with `PGF`, switching to `PGF2` is just a minor change---a couple of functions have a slightly different type signature and that's it.-->
 
 
@@ -503,48 +504,6 @@ By making a datatype into an instance of the typeclass `Gf`, we need to provide 
 1. Turn the new Haskell expression back into a PGF expression, using `gf`.  <!-- : GUtt -> Expr`. -->
 1. Linearise the transformed PGF expression into a string, using the PGF library.
 
-<!--
-Let's start from translation *to*:
-
-```haskell
-instance Gf GA where
-  gf Gbad_A = mkApp (mkCId "bad_A") []
-```
-
-The functions `mkApp` and `mkCId` come from the PGF library. `mkCId` constructs an identifier called `bad_A`, and `mkApp` applies  it to an empty list of arguments---because `bad_A` is just a lexical 0-place function, it doesn't have arguments. The full list of Gf instance for GA is as follows:
-
-```haskell
-instance Gf GA where
-  -- gf :: a -> Expr
-  gf Gbad_A = mkApp (mkCId "bad_A") []
-  gf Gbig_A = mkApp (mkCId "big_A") []
-  ...
-  gf Gyoung_A = mkApp (mkCId "young_A") []
-```
-
-The translation *from* involves also pattern matching, but from the tree's side.
-
-```haskell
-instance Gf GA where
-  -- fg :: Expr -> a
-  fg t =
-    case unApp t of
-      Just (i,[]) | i == mkCId "bad_A" -> Gbad_A
-      Just (i,[]) | i == mkCId "big_A" -> Gbig_A
-      ...
-      Just (i,[]) | i == mkCId "young_A" -> Gyoung_A
-```
-
-If we translate a data type that has more complex constructors, then  we just call  `fg` and `gf` recursively. See for example `GCl`:
-
-```haskell
-instance Gf GCl where
-  gf (GPredVP x1 x2) = mkApp (mkCId "PredVP") [gf x1, gf x2]
-```
-
--->
-
-
 ### The program
 
 <!-- In case you forgot in the sea of datatypes, let us recap the goal again!  -->
@@ -625,4 +584,4 @@ If you are unable to repeat these steps, please let me know! This time it's not 
 
 * This post has concentrated on PGF the library. But maybe you're curious about PGF the file format and the compilation? You can get the gist of it in [my blog](https://inariksit.github.io/gf/2018/06/13/pmcfg.html), and a thorough description in [Krasimir's PhD thesis](http://www.cse.chalmers.se/~krasimir/phd-thesis.pdf).
 
-* At some point, I'm planning to write a follow-up post comparing the two Haskell options: `PGF` (native Haskell library) vs. `PGF2` (Haskell bindings to the C library). When such a post exists, I'll link it here.
+* [Follow-up post](../../../2024/01/25/embedding-grammars-2.html) comparing the two Haskell options: `PGF` (native Haskell library) vs. `PGF2` (Haskell bindings to the C library) and other advanced topics
