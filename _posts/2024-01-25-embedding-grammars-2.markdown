@@ -283,11 +283,11 @@ transformTree :: forall a . Tree a -> Tree a
 transformTree tree = case tree of
   -- If argument tree matches, transform it
   SimpleSubtree -> AnotherSimpleSubtree
-  ComplexSubtree arg1 arg2 -> ComplexSubtree arg1 ConstantArg2
+  ComplexSubtree a1 a2 -> ComplexSubtree a1 ConstantArg2
   Foo foo -> Bar Baz (computeResultFrom foo)
   …
 
-  -- If argument tree doesn't match, apply toReflexive to all subtrees
+  -- Otherwise, try to apply transformTree to all subtrees
   _ -> composOp transformTree tree
 ```
 
