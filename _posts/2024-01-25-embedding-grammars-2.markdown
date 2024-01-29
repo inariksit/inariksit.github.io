@@ -13,22 +13,15 @@ This is a sequel to the 2019 post on [using GF grammar from an external program]
 
 In this post, I will only concentrate on Haskell. If anyone wants a post on more advanced things in Python, let me know and maybe I'll write one in 5 years.
 
-
 - [Lexical functions under single constructor per type](#lexical-functions-under-single-constructor-per-type)
 - [The two Haskell libraries: PGF vs. PGF2](#the-two-haskell-libraries-pgf-vs-pgf2)
 - [Installation of C runtime](#installation-of-c-runtime)
 - [PGF2 with Haskell version of abstract syntax](#pgf2-with-haskell-version-of-abstract-syntax)
 - [GADTs](#gadts)
-  - [composOp](#composop)
-  - [composOpMonoid](#composopmonoid)
+   * [Transform a subtree within a larger tree: composOp](#transform-a-subtree-within-a-larger-tree-composop)
+   * [Extract subtree(s) from a larger tree: composOpMonoid](#extract-subtrees-from-a-larger-tree-composopmonoid)
 - [Read more](#read-more)
 - [Footnotes](#footnotes)
-
-
-
-
-
-
 
 ## Lexical functions under single constructor per type
 
