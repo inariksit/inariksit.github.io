@@ -149,6 +149,18 @@ N,N2,N3,A,A2,A3,V,V2,V3,VA,V2V,VV,VS,V2A,V2S,V2Q,Adv,AdV,AdA,AdN,ACard,CAdv,Conj
 
 The PGF2 library in Hackage doesn't come with the C library, so you need to install the C library yourself. (The Python bindings manage this with a Python wheel, so in Python there's no need to manually compile any C libraries.)
 
+The C library is installed in the location `/usr/local/lib`, and that path may need to be specified in a few different places. I have put the following in the [stack.yaml file](https://github.com/inariksit/gf-embedded-grammars-tutorial/blob/7b7c1b98b55b24fac8030c21e5fe82a66816b2e5/advanced-pgf2/stack.yaml#L9C1-L19C45) in my repository:
+
+```yaml
+extra-lib-dirs:
+- /usr/local/lib
+ghc-options:
+  "$locals": -optl=-Wl,-rpath,/usr/local/lib
+```
+
+Depending on your system, you might need 0-2 of these options in your stack.yaml.
+<!-- I found that last line in [Roman Cheplyaka's blog](https://ro-che.info/articles/2020-04-07-haskell-local-c-library), when I was looking for alternatives to setting a `LD_LIB_PATH`. If you try this and it doesn't work on your system, please let me know and I can update this tutorial. -->
+
 ### Manually install from source
 The steps to do this are as follows:
 
