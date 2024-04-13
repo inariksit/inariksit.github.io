@@ -53,7 +53,7 @@ Senior developer at Digital Grammars AB.
 
 ### June 2020 — present
 Senior research scientist at Singapore Management University, Centre for Computational Law.  
-Profile page on SMU website: https://cclaw.smu.edu.sg/people/inari-listenmaa
+Profile page on SMU website: [https://cclaw.smu.edu.sg/people/inari-listenmaa](https://cclaw.smu.edu.sg/people/inari-listenmaa)
 
 #### September 2013 – September 2018
 
