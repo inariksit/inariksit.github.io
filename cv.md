@@ -4,7 +4,7 @@ title: Curriculum Vitae
 ---
 
 Inari Listenmaa  
-August 2022
+April 2024
 
 ## Contact information
 <table class="hackytable" cellpadding="0" cellspacing="0" border="0">
@@ -48,12 +48,12 @@ Thesis: “[Ontology-based lexicon management in a multilingual translation syst
 
 ## Employment
 
-### September 2018 –
+### September 2018 – present
 Senior developer at Digital Grammars AB.  
-*Current employment.*
 
-#### June 2020 — May 2022
-Senior Research Scientist – Computational Linguistics at Singapore Management University, Centre for Computational Law
+### June 2020 — present
+Senior research scientist at Singapore Management University, Centre for Computational Law.  
+Profile page on SMU website: https://cclaw.smu.edu.sg/people/inari-listenmaa
 
 #### September 2013 – September 2018
 
@@ -64,6 +64,10 @@ PhD student at University of Gothenburg and Chalmers University of Technology, D
 Research assistant at University of Helsinki, Department of Modern Languages.
 
 ## Publications
+
+### 2022
+
+* Ranta, Aarne and Listenmaa, Inari and Soh, Jerrold and Wong, Meng Weng (2022). **An End-to-End Pipeline from Law Text to Logical Formulas**. Legal knowledge and information systems: Proceedings of the 35th International Conference (JURIX 2022). [<a href="https://ebooks.iospress.nl/volumearticle/62060">Link</a>]
 
 ### 2021
 
@@ -101,6 +105,10 @@ Research assistant at University of Helsinki, Department of Modern Languages.
 
 ## Teaching
 
+### Education
+
+Completed a basic course of 3 HEC in higher education pedagogy.
+
 ### Teaching assistant
 
 * Algorithms (2016-2018)
@@ -111,7 +119,7 @@ Research assistant at University of Helsinki, Department of Modern Languages.
 
 ### Summer schools
 
-* GF Summer School (2013, 2015, 2017, 2018)
+* GF Summer School (2013, 2015, 2017, 2018, 2021, 2023)
 * Summer School in Rule-Based Machine Translation (2016)
 
 ### Thesis (co-)supervision
