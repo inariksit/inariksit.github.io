@@ -54,9 +54,9 @@ In this post, and in formal language theory in general, "language" means a set o
 
 Here's a verbal description of a trivial grammar, which generates the language `{dog barks, cat barks, dog meows, cat meows}`.
 
-> **Rule 1.** Concatenate one noun and one verb (in that order).
-> **Rule 2.** Nouns are: `{dog, cat}`.
-> **Rule 3.** Verbs are: `{meows, barks}`.
+> **Rule 1.** Concatenate one noun and one verb (in that order).  
+> **Rule 2.** Nouns are: `{dog, cat}`.  
+> **Rule 3.** Verbs are: `{meows, barks}`.  
 
 There are different ways of writing grammars, and with some of them, you can describe more complex phenomena than others. (What counts as a "complex phenomenon" in formal language theory doesn't necessarily correspond to a language learner's intuitions of what is difficult!)
 The different kinds of grammars are divided into a [*hierarchy*](https://en.wikipedia.org/wiki/Chomsky_hierarchy), named after its inventor Noam Chomsky.
