@@ -9,9 +9,14 @@ If you are reading this blog, you may have asked yourself the following question
 
 **Should I write my grammar in GF, or would I be fine with a more mainstream but less expressive formalism?**
 
-One of GF's selling points is its superior *expressivity* compared to its alternatives (that are often *context-free grammars*), but the standard explanations for that sort of expressivity are either combinations of symbols that don't look even remotely like natural language, or Swiss German triple subordinate clauses about promising to help someone paint their house. If neither of these sounds like your use case, is it worthwhile to learn GF?
+One of GF's selling points is its superior expressivity compared to its alternatives (that are often *context-free grammars*), but the standard explanations for that sort of expressivity are either combinations of symbols that don't look even remotely like natural language, or Swiss German triple subordinate clauses about promising to help someone paint their house. If neither of these sounds like your use case, is it worthwhile to learn GF?
 
-In this post, I will approach the question from the point of view of *ergonomy*. Even if it is possible express all of your domain with another tool, it might still be a more pleasant experience in GF.
+In the first part of this post, I will first explain the concept of **expressivity**, focusing specifically on the spot that is interesting for natural language purposes.
+In the second part of the post, I approach the question from the point of view of **ergonomy**.
+I argue that even if it is *possible* express all of your domain with another tool, it might still be a more *pleasant* experience in GF.
+
+
+<!-- The takeaway from this post will be as follows: Even if it is possible express all of your domain with another tool, it might still be a more pleasant experience in GF. -->
 
 
 
@@ -20,7 +25,7 @@ In this post, I will approach the question from the point of view of *ergonomy*.
 
 <!-- code_chunk_output -->
 
-- [Expressivity of GF](#expressivity-of-gf)
+- [Part I: Expressivity of GF](#part-i-expressivity-of-gf)
   - [What is expressivity: a gentle introduction](#what-is-expressivity-a-gentle-introduction)
     - [The Chomsky hierarchy: a simplified overview](#the-chomsky-hierarchy-a-simplified-overview)
     - [Regular languages](#regular-languages)
@@ -29,7 +34,7 @@ In this post, I will approach the question from the point of view of *ergonomy*.
     - [Recursively enumerable languages](#recursively-enumerable-languages)
   - [Where is natural language](#where-is-natural-language)
   - [Where is GF](#where-is-gf)
-- [Ergonomy of GF](#ergonomy-of-gf)
+- [Part II: Ergonomy of GF](#part-ii-ergonomy-of-gf)
   - [Actually abstract ASTs](#actually-abstract-asts)
     - [Inflection tables](#inflection-tables)
     - [Inherent parameters](#inherent-parameters)
@@ -42,11 +47,11 @@ In this post, I will approach the question from the point of view of *ergonomy*.
 
 
 
-## Expressivity of GF
+## Part I: Expressivity of GF
 
 It's not essential to understand every single detail of this section to appreciate the section about ergonomy. I start with a brief handwavy introduction for those who are new to formal language theory, followed by a more exact definition for those who aren't.
 
-If you're looking for a rigorous treatise full of formal language theory, you're just one click away! Such a monograph has existed for 20 years already, so go ahead and read [Ljunglöf (2004)](https://gupea.ub.gu.se/bitstream/handle/2077/16377/gupea_2077_16377_3.pdf) if that's what you're after.
+If you're looking for a rigorous treatise full of formal language theory, you're just one click away! Such a monograph has existed for 20 years already, so go ahead and read [Ljunglöf (2004)](https://gupea.ub.gu.se/bitstream/handle/2077/16377/gupea_2077_16377_3.pdf) if that's what you're after. Also if that's you, feel free to skip the whole gentle introduction, and jump directly to [Where is natural language](#where-is-natural-language).
 
 ### What is expressivity: a gentle introduction
 
@@ -63,16 +68,19 @@ The different kinds of grammars are divided into a [*hierarchy*](https://en.wiki
  <!-- based on what kinds of languages they can express. -->
 
 
-
 #### The Chomsky hierarchy: a simplified overview
 
-Below is a simplified, handwavy picture that tries to give an intuition about the landscape. If you are already familiar with the Chomsky hierarchy, feel free to jump ahead to [Where is natural language](#where-is-natural-language).
+Below is a simplified picture that tries to give an intuition about the landscape.
 
-![Handwave](/images/handwavy-explanation-chomsky-hierarchy.png "Simplified summary of Chomsky hierarchy and language complexity")
+<!-- If you are already familiar with the Chomsky hierarchy, you can jump ahead to [Where is natural language](#where-is-natural-language). -->
+
+![Simplified summary of Chomsky hierarchy and language complexity](/images/chomsky-hierarchy-handwavy-explanation.png "Simplified summary of Chomsky hierarchy and language complexity")
+
+Now I'm going to shortly explain each level. Whenever I give an example of how one level is more expressive than the one before it, you may assume that the example is *representative*, but not *exhaustive*.
 
 #### Regular languages
 
-At the simplest level, we have *regular languages*. Our example string in the picture is the humble "aaaa…", which belongs to the language "any number of letter *a*".
+At the simplest level, we have **regular languages**. Our example string in the picture is the humble "aaaa…", which belongs to the language "any number of letter *a*".
 
 What makes this language so simple? It's not because we only deal with a single character! We could've specified "any number of any Unicode characters in any order", and that language would've been a regular language—equally simple as our strings of plain *a*'s.
 
@@ -86,11 +94,11 @@ This tree is completely linear. The letters just come one after another, there i
 
 #### Context-free languages
 
-Next in the hierarchy are *context-free languages*. Typical examples are markup languages or programming languages.
+Next in the hierarchy are **context-free languages**. Typical examples are markup languages or programming languages.
 
 Compared to the regular languages, these languages have a slightly longer "memory". The HTML fragment in the [simplified overview](#the-chomsky-hierarchy-a-simplified-overview) is a good example: the `<a>` tag must be terminated with a corresponding `</a>` tag, and the complete `<a>…</a>` pair must be fully enclosed in the `<div> … </div>` tags.
 
-For the sake of illustration, let's take the language that was impossible with regular grammars: "**any amount** of letter *a*, followed by **the same amount** of letter *b*". The usual shorthand for this language is `aⁿbⁿ`, where `a` and `b` are the actual letters, and `n` just means any arbitrary number.
+For the sake of illustration, let's take the language that was impossible with regular grammars: "**any amount** of letter *a*, followed by **the same amount** of letter *b*". The conventional notation for this language is `aⁿbⁿ`, which means "*n* repetitions of each letter."
 
 Two things have changed from the sad-looking linear "trees" in the previous section.
 
@@ -103,19 +111,20 @@ Two things have changed from the sad-looking linear "trees" in the previous sect
 
 how many different characters we're dealing with is irrelevant! the full HTML specification has lots of different tags, but it's equally simple -->
 
-However, if we wanted to balance *more than two* elements, such as `aⁿbⁿcⁿ`, that would no longer be a context-free language. (More on this language in the next section.)
+However, if we wanted agreement between *more than two* elements, such as `aⁿbⁿcⁿ`, that would no longer be a context-free language. Luckily, we have more levels of the Chomsky hierarchy!
+<!-- (More on this language in the next section.) -->
 
 <!-- We could pump out an "abc", and then surround it by more letters, but there's no way to insert those  -->
 
 #### Context-sensitive languages
 
-The next level is *context-sensitive languages*. There is no "typical example" of a context-sensitive language that would be familiar to non-experts, at least that I can think of. Contrast how HTML, an example of a context-free language, is known by many people who have never heard about the Chomsky hierarchy! But context-sensitive languages as a class don't have such a famous representative.
+The next level is **context-sensitive languages**. There is no "typical example" of a context-sensitive language that would be familiar to non-experts. Contrast how HTML, an example of a context-free language, is known by many people who have never heard about the Chomsky hierarchy! But context-sensitive languages as a class don't have such a famous representative.
 
-Previously we saw a tree for the string "aaabbb" of the context-free language `aⁿbⁿ`. Then I said that the language `aⁿbⁿcⁿ` is not context-free. But now we're in a more expressive realm, so we can show a tree for a string like "aabbcc".
+Previously, we saw that the language `aⁿbⁿ` was context-free, and `aⁿbⁿcⁿ` was not. But now we're in a more expressive realm, so we can generate that language! Here's a tree for the string "aabbcc".
 
 ![A tree for the string 'aabbcc' from the language aⁿbⁿcⁿ](/images/aabbcc.png "A tree for the string 'aabbcc' from the language aⁿbⁿcⁿ")
 
-Look at that second *b* sneaking in between two letters! This would be impossible to do at a lower level. In a context-free language, you are allowed to output multiple letters at a time, but the moment you have laid them out on the paper, *their order may not change*, you can only keep adding more letters before and after them. In contrast, context-sensitive languages allow this kind of "late edits" (not a technical term).
+Look at that second *b* sneaking in between two letters! This would be impossible to do at a lower level. In a context-free language, you are allowed to output multiple letters at a time, but the moment you have laid them out on the paper, *their order may not change*, you can only add more letters before and after. In contrast, context-sensitive languages allow this kind of "late edits" (not a technical term).
 
 <!-- They allow lots of other things too, but I want to keep this section short—this is just to give some intuition. -->
 
@@ -123,7 +132,7 @@ I have a few things to say about natural language, but I'm saving it for the sec
 
 #### Recursively enumerable languages
 
-The highest level is called *recursively enumerable languages*. Here I have used the set of prime numbers as an example language. This might look strange from a linguistic perspective: how come a list of numbers is "more complex" than a piece of legalese jargon?
+The highest level is called **recursively enumerable languages**. Here I have used the set of prime numbers as an example language. This might look strange from a linguistic perspective: how come a list of numbers is "more complex" than a piece of legalese jargon?
 
 The answer is that the grammar that generates the set of prime numbers has to actually *compute* the set. So it's not really a "grammar" in the same way as a book describing the morphosyntax of Basque or Greenlandic is a grammar. In formal language theory, grammars are actually *models of computation*.
 
@@ -133,43 +142,53 @@ The simpler ~~grammars~~ models of computation just deal with strings, but once 
 | Language | Grammar / Model of computation |
 |----------|----------------------------------|
 | All prime numbers | A Turing machine that computes prime numbers |
-| All strings that spell out the answer to life, universe and everything |  [Deep Thought](https://hitchhikers.fandom.com/wiki/Deep_Thought) |
+| (Singleton set of) the string that spells out the answer to life, universe and everything |  [Deep Thought](https://hitchhikers.fandom.com/wiki/Deep_Thought) |
 
-If you thought this was interesting, you're lucky because there's a whole field out there, way beyond what this blog or grammar formalisms meant for natural languages cover!
+If you thought this was interesting, you're lucky because there's a whole field out there, way beyond this blog and natural-language-oriented grammar formalisms!
 
-If you thought this was boring nonsense, you're lucky because ~~it won't be on the test~~ I have never seen any useful application of recursively enumerable languages in computational linguistics.
+If you thought this was a bunch of nonsense, you're lucky because ~~it won't be on the test~~ I have never seen any useful application of recursively enumerable languages in computational linguistics.
 
-Speaking of computational linguistics, now is finally the time to talk about natural language.
+Speaking of which, now is finally the time to talk about natural language.
 
 ### Where is natural language
 
+Computational linguists ignore most of the Chomsky hierarchy, and zoom in on a tiny dot, right at the border of context-free and context-sensitive languages. The picture below is still a gross oversimplification of all the different formalisms that have proliferated in that ecological niche.
+
+![Chomsky hierarchy, zoomed in between CF and CS](/images/chomsky-hierarchy-zoomed-in.png "Chomsky hierarchy, zoomed in between CF and CS")
+
+Many (computational) linguists agree that natural language goes beyond context-free[^1], but doesn't quite need the full power of context-sensitive languages. So people have set out to discover *subclasses* right between the two classes, each with different pros and cons. For these researchers, the tradeoff is expressivity of the formalism vs. a fast parsing algorithm.
+
+Finally, a lot of people use plain old context-free grammars in order to model some *fragment* of natural language! This is a reasonable engineering decision, if you know that you only need to express a very simple domain. Context-free grammars are relatively fast, well-known, easy to use and very easy to find answers on Stack Overflow (especially compared to any of the formalisms named in the picture!) For a developer, the tradeoff is expressivity of the formalism vs. the learning curve to actually become productive.
+
+
+<!-- The relevant landscape for natural languages is somewhere around context-free and context-sensitive.
+![Chomsky hierarchy, only CF and CS](/images/chomsky-hierarchy-handwavy-explanation-cf-cs.png "Simplified summary of Chomsky hierarchy and language complexity, only focusing on natural language") -->
+
+<!--
 There is no scientific consensus on the classification of natural languages in the Chomsky hierarchy.
+
+Even if there was one, it would still leave a lot of engineering questions,.
+
 But for engineering purposes, there are plenty of empirical answers! There are different grammar formalisms with different features, and we can try them out to implement our applications.
 
-Let's look at the picture again.
-
-![Chomsky hierarchy, only CF and CS](/images/handwavy-explanation-chomsky-hierarchy-cf-cs.png "Simplified summary of Chomsky hierarchy and language complexity, only focusing on natural language")
-
-The relevant landscape for natural languages is between context-free and context-sensitive.
 
 
   - Most grammar formalisms with somewhat mainstream adoption are somewhere between context-free (CF) and context-sensitive (CS).
   - In fact, formal language theorists have made up lots of subdivisions between the 4 classes! This is useful for performance purposes. The jump from CF to CS is pretty significant, and there are some things that are less relevant
   - For engineering purposes, there are plenty of usable fragments that can be expressed with context-free grammars.
 - Some phenomena in some natural languages [aren't context-free](https://www.eecs.harvard.edu/~shieber/Biblio/Papers/shieber85.pdf).
-  - If you're thinking "English isn't context-free because the inflection form of a verb depends on the subject", that's actually not what context means—see [linguistics Stack Exchange](https://linguistics.stackexchange.com/questions/46893/why-isn-t-it-obvious-that-the-grammars-of-natural-languages-cannot-be-context-fr) for an answer.
-
-
+ -->
 
 
 
 ### Where is GF
 
-GF is [equivalent to Parallel Multiple Context-Free Grammar](../../06/13/pmcfg.html#terminology) (PMCFG). It's between *mildly context-sensitive* and *context-sensitive* grammars. So if you look at the picture in the previous section, just imagine that the black line that separates context-free and context-sensitive is actually a large area with its own subdivisions—GF is somewhere in that line.
+GF is [equivalent to Parallel Multiple Context-Free Grammar](../../06/13/pmcfg.html#terminology) (PMCFG). Its expressive power is between *mildly context-sensitive* and *context-sensitive* languages[^4]—in a slot so tiny that it doesn't have its own name. This means that GF can express a *subset* of context-sensitive languages, but not all of them. However, it's a very useful subset for natural language purposes.
 
-Writing a GF grammar for a non-context-free language like aⁿbⁿcⁿ is trivial, thanks to the lincats being *tuples of strings* instead of just strings.
+So let's demonstrate GF's expressive power by writing a GF grammar for the context-sensitive language `aⁿbⁿcⁿ`. (The standard natural language examples are not nearly as compact.)
+This is a simple task, thanks to the lincats being *tuples of strings* instead of just strings.
 
-So here's the GF grammar for aⁿbⁿcⁿ.
+We start with the abstract syntax:
 
 ```haskell
 abstract ABC = {
@@ -177,8 +196,8 @@ abstract ABC = {
   cat
     S ; ABC ;
   fun
-    mkS : ABC -> S ; -- concatenate all As, Bs, Cs into a single string
-    addABC : ABC -> ABC ; -- add one A, one B, one C in right places
+    s : ABC -> S ; -- concatenate all As, Bs, Cs into a single string
+    abc : ABC -> ABC ; -- add one A, one B, one C in right places
     empty : ABC ; -- n = 0, i.e. the empty string
 }
 ```
@@ -191,11 +210,11 @@ concrete ABCcnc of ABC = {
     S = Str ;
     ABC = {a,b,c : Str} ;
   lin
-    mkS abc = abc.a ++ abc.b ++ abc.c ;
-    addABC abc = {
-      a = abc.a ++ "a" ;
-      b = abc.b ++ "b" ;
-      c = abc.c ++ "c"
+    s ABC = ABC.a ++ ABC.b ++ ABC.c ;
+    abc ABC = {
+      a = ABC.a ++ "a" ;
+      b = ABC.b ++ "b" ;
+      c = ABC.c ++ "c"
       } ;
     empty = {a,b,c = ""} ;
 }
@@ -206,10 +225,12 @@ You can test the grammar in your GF shell as follows:
 ```bash
 $ gf ABCcnc.gf
 …
-ABC> p "a a b b c c" | vp -view=open
+ABC> p "a a a b b b c c c"
+s (abc (abc (abc empty)))
+ABC> p "a a b b c c" | vp -showfun -view=open
 ```
 
-![a2b2c2](/images/anbncn.png "GF parse tree for the string aabbcc")
+![GF parse tree for the string aabbcc](/images/anbncn.png "GF parse tree for the string aabbcc")
 
 This is just scratching the surface of formal language theory. If you want to learn about the larger context and how GF compares to some other grammar formalisms, here's the link to [Ljunglöf (2004)](https://gupea.ub.gu.se/bitstream/handle/2077/16377/gupea_2077_16377_3.pdf) again. But you don't *need* to read it to understand the rest of this post.
 
@@ -233,7 +254,7 @@ and while in GF shell, you can print out the PGF with the command `pg` and obser
 -->
 
 
-## Ergonomy of GF
+## Part II: Ergonomy of GF
 
 As we learned in the previous section, GF being equivalent to PMCFG allows you to do some stuff that is literally impossible with a plain CFG.
 
@@ -245,7 +266,7 @@ But for most purposes, the relevant question to ask isn't "is it possible to rep
 
 I feel like number 3 is the most commonly pitched thing about GF. But points 1 and 2 are relevant even if you only want to work on one language, even if that language is English, and even if you aren't even planning to use the RGL.[^3]
 
-So now I will discuss how GF has [actually abstract ASTs](TODO), how it [makes impossible states unrepresentable](TODO) and how [I just love morphosyntax](TODO).
+So now I will discuss how GF has [actually abstract ASTs](#actually-abstract-asts), how it [makes impossible states unrepresentable](#making-impossible-states-unrepresentable) and how … (TODO more examples?).
 
 ### Actually abstract ASTs
 
@@ -255,8 +276,6 @@ Consider the following two sentences:
 
 - The company **raises capital**
 - Equity financing means a transaction with the purpose of **raising capital**
-
-#### Inflection tables
 
 The boldfaced fragments have different grammatical functions in their respective sentences. But semantically they express the same thing, and I would expect that to be reflected in the AST of an *application grammar*.
 
@@ -268,11 +287,15 @@ I have a small GF grammar that generates these sentences [here](https://gist.git
 
 The subtree `Raise (IndefItem Capital)` has a different linearization depending on its context. When it's the main predicate, it linearizes to the finite verb form "raises capital". When it's modifying a noun as a part of an adverbial, it linearizes to a gerund "raising capital".
 
-I hope you can appreciate how much prettier this is to the alternative, where "raises" and "raising" would be completely disconnected productions!
+If you've ever written context-free grammars, I hope you can appreciate how much prettier this is to the alternative, where "raises" and "raising" would be completely disconnected productions!
 
 The properties of GF that made it *possible* to implement aⁿbⁿcⁿ are the same that make it *pretty* to implement this grammar. Let's discuss them one at a time.
 
+#### Inflection tables
+
 Previously, we saw that the lincat of `ABC` contained 3 different string fields, where we accumulated the appropriate amount of "a", "b" and "c" to be put together later. Now we make use of the concept "lincats may be tuples of strings" to create an *inflection table*.
+
+TODO: GF code! Maybe also write a CFG version and link to it?
 
 #### Inherent parameters
 
@@ -325,6 +348,8 @@ You see that the function `DefinitionSentence` takes as its first argument a `Ki
 A good design principle is to make impossible states unrepresentable. I'm going to demonstrate this with a grammar that generates a generic transitive construction (*I see a cat*, *you see me*) and the reflexive construction (*I see myself*, *you see yourself*, …).
 
 Attempt 1 is a context-free grammar, and Attempt 2 is a GF grammar.
+
+TODO: move the CFG to another place and only link to it.
 
 #### Attempt 1: overgenerating or overcomplicated
 
@@ -462,6 +487,10 @@ Pred You (Refl See)           you see yourself
 
 <!-- [^1]: Although if you truly erase arguments, so that they contribute neither with textual content nor with a parameter, then nothing can save you from getting [metavariables](../../08/28/gf-gotchas.html#metavariables-or-those-question-marks-that-appear-when-parsing). -->
 
-[^2]: Finite approximations are possible for all of those languages whose description has an ^n, and most applications are finite.
+[^1]: The canonical source is [Shieber (1985)](https://www.eecs.harvard.edu/~shieber/Biblio/Papers/shieber85.pdf), with the classic painting-in-Swiss-German example.<br/>In case you're thinking "English isn't context-free because the inflection form of a verb depends on the subject", that's actually not what *context* means—see [linguistics Stack Exchange](https://linguistics.stackexchange.com/questions/46893/why-isn-t-it-obvious-that-the-grammars-of-natural-languages-cannot-be-context-fr) for an answer.
+
+[^2]: Finite approximations are possible for all of those languages whose description has an ⁿ, and most applications are finite.
 
 [^3]: I believe that for most applications, if they are complex enough for you to use GF, you'd be better off using the RGL in the long run. But I also understand that the RGL has a learning curve, and you can get started faster if you define everything as strings. You can do quick RGL-free prototyping while you design your abstract syntax, not care if some linearizations are grammatically incorrect, and RGLify your concrete syntax once you're happy with the abstract.
+
+[^4]: Mildly context-sensitive means "includes [these 3 features](https://en.wikipedia.org/wiki/Mildly_context-sensitive_grammar_formalism#Characterization) from the class of context-sensitive languages, plus all of context-free". And GF includes all of those + some more, details of which you can read from [Ljunglöf (2004)](https://gupea.ub.gu.se/bitstream/handle/2077/16377/gupea_2077_16377_3.pdf).
