@@ -36,8 +36,9 @@ I argue that even if it is *possible* express all of your domain with another to
   - [Where is GF](#where-is-gf)
 - [Part II: Ergonomy of GF](#part-ii-ergonomy-of-gf)
   - [Actually abstract ASTs](#actually-abstract-asts)
-    - [Inflection tables](#inflection-tables)
-    - [Inherent parameters](#inherent-parameters)
+    - [Inflection tables, or “whose subtree am I?”](#inflection-tables-or-whose-subtree-am-i)
+    - [Inherent parameters, or “who is my subtree?”](#inherent-parameters-or-who-is-my-subtree)
+      - [Flexibility of parameters](#flexibility-of-parameters)
   - [Making impossible states unrepresentable](#making-impossible-states-unrepresentable)
     - [Attempt 1: overgenerating or overcomplicated](#attempt-1-overgenerating-or-overcomplicated)
     - [Attempt 2: syncategorematicity to the rescue](#attempt-2-syncategorematicity-to-the-rescue)
@@ -59,9 +60,9 @@ In this post, and in formal language theory in general, "language" means a set o
 
 Here's a verbal description of a trivial grammar, which generates the language `{dog barks, cat barks, dog meows, cat meows}`.
 
-> **Rule 1.** Concatenate one noun and one verb (in that order).  
-> **Rule 2.** Nouns are: `{dog, cat}`.  
-> **Rule 3.** Verbs are: `{meows, barks}`.  
+> **Rule 1.** Concatenate one noun and one verb (in that order).
+> **Rule 2.** Nouns are: `{dog, cat}`.
+> **Rule 3.** Verbs are: `{meows, barks}`.
 
 There are different ways of writing grammars, and with some of them, you can describe more complex phenomena than others. (What counts as a "complex phenomenon" in formal language theory doesn't necessarily correspond to a language learner's intuitions of what is difficult!)
 The different kinds of grammars are divided into a [*hierarchy*](https://en.wikipedia.org/wiki/Chomsky_hierarchy), named after its inventor Noam Chomsky.
@@ -160,7 +161,7 @@ Computational linguists ignore most of the Chomsky hierarchy, and zoom in on a t
 
 Many linguists agree that natural language goes beyond context-free[^1], but doesn't quite need the full power of context-sensitive languages. So people have set out to discover *subclasses* right between the two classes, each with different pros and cons. For these researchers, the tradeoff is expressivity of the formalism vs. a fast parsing algorithm.
 
-Finally, a lot of people use plain old context-free grammars (CFGs) in order to model some *fragment* of natural language! This is a reasonable engineering decision, if you know that you only need to express a very simple domain. Context-free grammars are relatively fast, well-known, easy to use and easy to find answers on Stack Overflow (especially compared to any of the formalisms named in the picture!) For a developer, the tradeoff is expressivity of the formalism vs. the learning curve to actually become productive.
+But a lot of people still use plain old context-free grammars (CFGs) in order to model some *fragment* of natural language! This is a reasonable engineering decision, if you know that you only need to express a very simple domain. Context-free grammars are relatively fast, well-known, easy to use and easy to find answers on Stack Overflow (especially compared to any of the formalisms named in the picture!) For a developer, the tradeoff is expressivity of the formalism vs. the learning curve to actually become productive.
 
 
 <!-- The relevant landscape for natural languages is somewhere around context-free and context-sensitive.
@@ -185,42 +186,42 @@ But for engineering purposes, there are plenty of empirical answers! There are d
 
 ### Where is GF
 
-GF is [equivalent to Parallel Multiple Context-Free Grammar](../../06/13/pmcfg.html#terminology) (PMCFG). Its expressive power is between *mildly context-sensitive* and *context-sensitive* languages[^4], in a class so tiny that it doesn't have an established name. This means that GF can express a *subset* of context-sensitive languages, but not all of them. However, it's a very useful subset for natural language purposes.
+GF is [equivalent to Parallel Multiple Context-Free Grammar](../../06/13/pmcfg.html#terminology) (PMCFG). Its expressive power is between *mildly context-sensitive*[^4] and *context-sensitive* languages, in a class so tiny that it doesn't have an established name. This means that GF can express a *subset* of context-sensitive languages, but not all of them. However, it's a very useful subset for natural language purposes.
 
 So let's demonstrate GF's expressive power by writing a GF grammar for the context-sensitive language `aⁿbⁿcⁿ`. (The standard natural language examples are not nearly as compact.)
 This is a simple task, thanks to the lincats being *tuples of strings* instead of just strings.
 
 We start with the abstract syntax:
 
-```haskell
-abstract ABC = {
-  flags startcat = S ;
-  cat
-    S ; ABC ;
-  fun
-    s : ABC -> S ; -- concatenate all As, Bs, Cs into a single string
-    abc : ABC -> ABC ; -- add one A, one B, one C in right places
-    empty : ABC ; -- n = 0, i.e. the empty string
-}
-```
+> ```haskell
+> abstract ABC = {
+>   flags startcat = S ;
+>   cat
+>     S ; ABC ;
+>   fun
+>     s : ABC -> S ; -- concat As, Bs, Cs into a single string
+>     abc : ABC -> ABC ; -- add A, B, C in right places
+>     empty : ABC ; -- n = 0, i.e. the empty string
+> }
+> ```
 
 And here is the concrete syntax for the grammar.
 
-```haskell
-concrete ABCcnc of ABC = {
-  lincat
-    S = Str ;
-    ABC = {a,b,c : Str} ;
-  lin
-    s ABC = ABC.a ++ ABC.b ++ ABC.c ;
-    abc ABC = {
-      a = ABC.a ++ "a" ;
-      b = ABC.b ++ "b" ;
-      c = ABC.c ++ "c"
-      } ;
-    empty = {a,b,c = ""} ;
-}
-```
+> ```haskell
+> concrete ABCcnc of ABC = {
+>   lincat
+>     S = Str ;
+>     ABC = {a,b,c : Str} ;
+>   lin
+>     s ABC = ABC.a ++ ABC.b ++ ABC.c ;
+>     abc ABC = {
+>       a = ABC.a ++ "a" ;
+>       b = ABC.b ++ "b" ;
+>       c = ABC.c ++ "c"
+>       } ;
+>     empty = {a,b,c = ""} ;
+> }
+> ```
 
 You can test the grammar in your GF shell as follows:
 
@@ -234,7 +235,7 @@ ABC> p "a a b b c c" | vp -showfun -view=open
 
 ![GF parse tree for the string aabbcc](/images/anbncn.png "GF parse tree for the string aabbcc")
 
-This concludes the part about expressivity. If you want to learn <!--about the larger context and how GF compares to some other grammar formalisms--> more, here's the link to [Ljunglöf (2004)](https://gupea.ub.gu.se/bitstream/handle/2077/16377/gupea_2077_16377_3.pdf) again. If you don't, that's cool—this overview is enough to understand the rest of this post!
+This concludes the part about expressivity. If you want to learn <!--about the larger context and how GF compares to some other grammar formalisms--> more, here's the link to [Ljunglöf (2004)](https://gupea.ub.gu.se/bitstream/handle/2077/16377/gupea_2077_16377_3.pdf) again. If you don't, that's cool—this overview is more than enough to understand the rest of this post!
 
 
 <!-- You can also do stuff like erase[^1] and duplicate arguments on the right-hand side. If you are familiar with the [PGF format](../../06/13/pmcfg.html) and want to explore how this works on the lower level, you can add these functions to the previous grammars:
@@ -260,13 +261,13 @@ and while in GF shell, you can print out the PGF with the command `pg` and obser
 
 As we learned in the previous section, GF being equivalent to PMCFG allows you to do some stuff that is literally impossible with a plain CFG.
 
-But for most purposes, the relevant question to ask isn't "is it possible to represent __ with __". Often the answer is yes[^2], but it's still not a good idea.
+But for most purposes, the relevant question to ask isn't "is it possible to represent `__` with `__`". Often the answer is yes[^2], but it's still not a good idea.
 
 1. There are plenty of things that are perfectly *possible*, but they are *painful* when all you have is a CFG.
 2. It might not be *that* painful, but you want an AST that is robust for future changes in minor wordings.
 3. You want multiple languages to have the same ASTs.
 
-I feel like number 3 is the most commonly pitched thing about GF. But points 1 and 2 are relevant even if you only want to work on one language, even if that language is English, and even if you aren't even planning to use the RGL.[^3]
+I feel like number 3 is the most commonly pitched thing about GF. But points 1 and 2 are relevant even if you only want to work on one language, even if that language is English, and even if you aren't using the RGL.[^3]
 
 So now I will discuss how GF has [actually abstract ASTs](#actually-abstract-asts), how it [makes impossible states unrepresentable](#making-impossible-states-unrepresentable) and how … (TODO more examples?).
 
@@ -276,10 +277,10 @@ So now I will discuss how GF has [actually abstract ASTs](#actually-abstract-ast
 
 Consider the following two sentences:
 
-- The company **raises capital**
-- Equity financing means a transaction with the purpose of **raising capital**
+- The company <u>raises capital</u>
+- Equity financing means a transaction with the purpose of <u>raising capital</u>
 
-The boldfaced fragments have different grammatical functions in their respective sentences. But semantically they express the same thing, and I would expect that to be reflected in the AST of an *application grammar*.
+The underlined fragments have different grammatical functions in their respective sentences. But semantically they express the same thing, and I would expect that to be reflected in the AST of an *application grammar*.
 
 I have a small GF grammar that generates these sentences [here](https://gist.github.com/inariksit/28e182bd4f6881cd69eb96121f048829). Now look at the subtrees highlighted in blue in the following trees:
 
@@ -293,56 +294,53 @@ If you've ever written context-free grammars, I hope you can appreciate how much
 
 The properties of GF that made it *possible* to implement aⁿbⁿcⁿ are the same that make it *pretty* to implement this grammar. Let's discuss them one at a time.
 
-#### Inflection tables
+#### Inflection tables, or “whose subtree am I?”
 
-Previously, we saw that the lincat of `ABC` contained 3 different string fields, where we accumulated the appropriate amount of "a", "b" and "c" to be put together later. Now we make use of the concept "lincats may be tuples of strings" to create an *inflection table*.
+Previously, we saw that the lincat of `ABC` contained 3 different string fields, where we accumulated the appropriate amount of "a", "b" and "c" to be put together later. Now we make use of the concept "lincats may be tuples of strings" to create an **inflection table**.
 <!-- The full grammar is [here](https://gist.github.com/inariksit/28e182bd4f6881cd69eb96121f048829). -->
 
+1. The lincat of `Action` consists of the fields called `pred` and `mod`, for predication and modification.
 
-**1.** The lincat of `Action` consists of the fields called `pred` and `mod`, for predication and modification.
+    >  ```haskell
+    >  lincat
+    >    Action = {pred, mod : Str} ;
+    >  ```
 
-```haskell
-lincat
-  Action = {pred, mod : Str} ;
-```
+2. The function `Raise`, which creates an `Action`, puts the appropriate forms in the fields.
 
-**2.** The function `Raise`, which creates an `Action`, puts the appropriate forms in the fields.
+    > ```haskell
+    > -- : Item -> Action ;
+    > Raise item = {
+    >   pred = "raises" ++ item.s ; -- raises capital
+    >   mod = "raising" ++ item.s ; -- raising capital
+    >   } ;
+    > ```
 
-```haskell
--- : Item -> Action ;
-Raise item = {
-  pred = "raises" ++ item.s ; -- raises capital
-  mod = "raising" ++ item.s ; -- raising capital
-  } ;
-```
+3. The functions `ActionSentence` and `WithPurpose` each choose the field they need.
 
-**3.** The functions `ActionSentence` and `WithPurpose` each choose the field they need.
+    > ```haskell
+    > -- Create a sentence
+    > -- : Item -> Action -> S ;
+    > ActionSentence item action = {
+    >   s = item.s ++ action.pred
+    > } ;
+    >
+    > -- Modify a Kind with an Action
+    > -- : Action -> Kind -> Kind ;
+    > WithPurpose action kind = kind ** {
+    >   s = kind.s ++ "with the purpose of" ++ action.mod
+    > } ;
+    > ```
 
-```haskell
--- Create a sentence
--- : Item -> Action -> S ;
-ActionSentence item action = {
-  s = item.s ++ action.pred
-} ;
+And that's how the same AST outputs different strings, *depending on whose subtree it is.*
 
--- Modify a Kind with an Action
--- : Action -> Kind -> Kind ;
-WithPurpose action kind = kind ** {
-  s = kind.s ++ "with the purpose of" ++ action.mod
-} ;
-```
+If you want to practice the concept, click the footnote[^5] for some homework! Otherwise, keep reading.
 
-And that's how the same AST linearizes into different strings.
-
-If we wanted to support *references* like "(the company's) **raising of capital** (was brutal)", we could add a third field into the lincat of `Action`, construct it in `Raise`, and add any number of function(s) that use the new field. This is not in the [grammar that I linked](https://gist.github.com/inariksit/28e182bd4f6881cd69eb96121f048829), but if you'd like some homework, feel free to implement it yourself.
-
-![GF tree for 'raising of capital is brutal'](/images/brutal.png "GF tree for 'raising of capital is brutal'—not present in the current grammar!")
-
-#### Inherent parameters
+#### Inherent parameters, or “who is my subtree?”
 
 Let's look at this sentence again.
 
-- Equity financing means **a transaction** with the purpose of raising **capital**
+- Equity financing means <u>a transaction</u> with the purpose of raising <u>capital</u>
 
 Did you notice that the function `IndefItem` was applied twice, but the indefinite article "a" was only produced once?
 
@@ -359,48 +357,58 @@ capital
 We apply the same function `IndefItem` to two different `Kind`s, and get a different strategy: "a transaction" vs. "capital" without an article.
 -->
 
-This is possible, because in the concrete syntax <!--[StartupsEng](https://gist.github.com/inariksit/28e182bd4f6881cd69eb96121f048829)-->, I have defined an *inherent parameter* called `MassOrCount`, which specifies whether the `Kind` is a mass or a count noun. Then the linearization of `IndefItem` checks its argument's parameter, and inserts the indefinite article for count nouns, and no article for mass nouns.[^5]
+This is possible, because in the lincat of `Kind`, I have defined an **inherent parameter** called `MassOrCount`. As the name suggests, the parameter specifies whether the Kind is a mass noun or a count noun.
 
-```haskell
-lincat
-  Kind = {s : Str ; c : MassOrCount} ;
-  Item = {s : Str} ;
+>  ```haskell
+>  lincat
+>    Item = {s : Str} ;
+>    Kind = {s : Str ; c : MassOrCount} ;
+>  param
+>    MassOrCount = Mass | Count ;
+>  lin
+>    Capital     = {s = "capital"     ; c = Mass} ;
+>    Transaction = {s = "transaction" ; c = Count} ;
+> ```
 
-param
-  MassOrCount = Mass | Count ;
+Then `IndefItem` checks its argument's parameter, inserting an indefinite article for count nouns and nothing for mass nouns.[^6]
 
-lin
-  Capital     = {s = "capital"     ; c = Mass} ;
-  Transaction = {s = "transaction" ; c = Count} ;
-
-  -- : Kind -> Item ;
-  IndefItem kind = {s = article ++ kind.s}
-    where {
-      article : Str = case kind.c of {
-        Count => "a" ; -- simplification—the RGL has rules for a/an
-        Mass  => [] }  -- no indefinite article for mass nouns
-    } ;
-```
+>  ```haskell
+>  lin
+>    -- : Kind -> Item ;
+>    IndefItem kind = {s = article ++ kind.s}
+>      where {
+>        article : Str = case kind.c of {
+>          Count => "a" ; -- simplification: the RGL handles a/an
+>          Mass  => [] }  -- no indefinite article for mass nouns
+>      } ;
+>  ```
 
 <!-- ```python
 Startups> p -cat=Item "transaction"
 The parser failed at token 1: "transaction"
 ``` -->
 
-The parameter makes an obligatory difference when constructing an Item from a Kind, so that the combinations "a capital" or "transaction" are not valid Items.
-But in the context of *term definition*, even count nouns appear without an article.
+In other words, the AST outputs different strings, *depending on which subtree it gets as an argument*.
 
-```haskell
-lin
-  -- : Kind -> Item -> S ;
-  DefinitionSentence kind item = {
-    s = kind.s ++ "means" ++ item.s
-  } ; -- all Kinds appear without article
-```
+##### Flexibility of parameters
 
-So with these two contexts for Kinds, we get the following trees and their linearizations.
+The *meaning* of a parameter is defined individually for each function.
+
+In our example, `MassOrCount` makes an obligatory difference when quantifying a `Kind` into an `Item`, so that ~~"a capital"~~ or ~~"transaction"~~ are not valid Items. If we add more functions to quantify a Kind, we can decide for each of them how to handle mass and count nouns.
 
 ```python
+# MultipleItem : Kind -> Item   (not in current grammar)
+Startups> p "many transactions"
+MultipleItem Transaction
+
+Startups> p "a lot of capital"
+MultipleItem Capital
+```
+
+But in a different context, we may decide to treat all Kinds the same way! Consider these two, rather tautological, sentences.
+
+```python
+# DefinitionSentence : Kind -> Item -> S
 Startups> p "transaction means a transaction"
 DefinitionSentence Transaction (IndefItem Transaction)
 
@@ -408,11 +416,24 @@ Startups> p "capital means capital"
 DefinitionSentence Capital (IndefItem Capital)
 ```
 
+The secret technique is to completely ignore the parameter in the `Kind`. Look at that code with its total lack of <code><span class="token keyword keyword-case">case</span> <span class="token hvariable">kind</span><span class="token punctuation">.</span><span class="token hvariable">c</span> <span class="token keyword keyword-of">of</span> …</code>!
+
+> ```haskell
+> lin
+>  -- : Kind -> Item -> S ;
+>  DefinitionSentence kind item = {
+>    s = kind.s ++ "means" ++ item.s
+>  } ; -- all Kinds appear without article
+> ```
+
+
+Anyway, the point is that "transaction" being a count noun doesn't mean something fixed, like "always appears with a determiner". It means a different thing for every function that takes it as an argument.
+
+<!-- force it to always appear with a determiner. Some functions treat you differently, others treat you differently in a different way, and yet others treat you the same. -->
 <!-- This is because the function `DefinitionSentence` takes as its first argument a `Kind`, and ignores whether it's mass or count. -->
 
 
 Thanks to the separation of abstract and concrete syntax, the ASTs don't need to include detail about articles. The subcategories of the Kinds play a role for some functions but not for others, but crucially, all of that detail is hidden inside the concrete syntax.
-
 
 
 ### Making impossible states unrepresentable
@@ -553,27 +574,30 @@ Pred You (Compl See You)      you see you
 Pred You (Refl See)           you see yourself
 ```
 
-
-
 ## Footnotes
 
 <!-- [^1]: Although if you truly erase arguments, so that they contribute neither with textual content nor with a parameter, then nothing can save you from getting [metavariables](../../08/28/gf-gotchas.html#metavariables-or-those-question-marks-that-appear-when-parsing). -->
 
-[^1]: The canonical source is [Shieber (1985)](https://www.eecs.harvard.edu/~shieber/Biblio/Papers/shieber85.pdf), with the classic painting-in-Swiss-German example.<br/>In case you're thinking "English isn't context-free because the inflection form of a verb depends on the subject", that's actually not what *context* means—see [linguistics Stack Exchange](https://linguistics.stackexchange.com/questions/46893/why-isn-t-it-obvious-that-the-grammars-of-natural-languages-cannot-be-context-fr) for an answer.
+[^1]: The canonical source is [Shieber (1985)](https://www.eecs.harvard.edu/~shieber/Biblio/Papers/shieber85.pdf), with the classic house-painting-in-Swiss-German example.<br/><br/>In case you're thinking "English isn't context-free because the inflection form of a verb depends on the subject", that's actually not what *context* means—see [linguistics Stack Exchange](https://linguistics.stackexchange.com/questions/46893/why-isn-t-it-obvious-that-the-grammars-of-natural-languages-cannot-be-context-fr) for an answer.<br/>
 
-[^2]: Finite approximations are possible for all of those languages whose description has an ⁿ, and most applications are finite.
+[^2]: Finite approximations are possible for all of those languages whose description has an ⁿ, and most applications have quite a small ⁿ in practice.
 
 [^3]: I believe that for most applications, if they are complex enough for you to use GF, you'd be better off using the RGL in the long run. But I also understand that the RGL has a learning curve, and you can get started faster if you define everything as strings. You can do quick RGL-free prototyping while you design your abstract syntax, not care if some linearizations are grammatically incorrect, and RGLify your concrete syntax once you're happy with the abstract.
 
 [^4]: Mildly context-sensitive means "includes [these 3 features](https://en.wikipedia.org/wiki/Mildly_context-sensitive_grammar_formalism#Characterization) from the class of context-sensitive languages, plus all of context-free". And GF includes all of those + some more, details of which you can read from [Ljunglöf (2004)](https://gupea.ub.gu.se/bitstream/handle/2077/16377/gupea_2077_16377_3.pdf).
 
-<!-- [^5]: GF has its [own tag](https://stackoverflow.com/questions/tagged/gf), with 45 questions as of June 2024. That's insanely popular and mainstream -->
 
-[^5]: In case you wonder: `WithPurpose` preserves the parameter of the `Kind`, so we get "a transaction" as well as "a transaction with the purpose of …". The syntax <code><span class="token constant">WithPurpose</span> <span class="token hvariable">kind</span> <span class="token operator">=</span> <span class="token hvariable">kind</span> <span class="token operator"> ** </span> { s = … }</code> means that we <em>extend</em> the original argument with a new `s` field, but keep the rest of its fields (i.e. `c`) unchanged.
+[^5]: Suggestion for extending [the grammar](https://gist.github.com/inariksit/28e182bd4f6881cd69eb96121f048829): Refer to actions in form of a noun phrase, like "(the company's) **raising of capital**".<blockquote>![GF tree for 'the company's raising of capital is brutal'](/images/brutal.png "GF tree for 'the company's raising of capital is brutal'. Not present in the current grammar, implement this as an exercise!")</blockquote>
+<!-- <p>The code is [here](https://gist.github.com/inariksit/28e182bd4f6881cd69eb96121f048829).</p> -->
+<!-- Ref is short for reference, and it comes in a series with *predication*, *modification* and *reference*. TODO add table. -->
+
+
+[^6]: In case you wonder: `WithPurpose` preserves the parameter of the `Kind`, so we get "a transaction" as well as "a transaction with the purpose of …". The syntax <code><span class="token constant">WithPurpose</span> <span class="token hvariable">kind</span> <span class="token operator">=</span> <span class="token hvariable">kind</span> <span class="token operator"> ** </span> { s = … }</code> means that we <em>extend</em> the original argument with a new `s` field, but keep the rest of its fields (i.e. `c`) unchanged.
 
 <!-- ```haskell
   WithPurpose kind = kind ** { -- Record extension
     -- only modify the s field here!
   }
 ```
+-->
 
