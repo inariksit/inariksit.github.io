@@ -13,7 +13,7 @@ One of GF's selling points is its superior expressivity compared to its alternat
 
 In the first part of this post, I will first explain the concept of **expressivity**, focusing specifically on the spot that is interesting for natural language purposes.
 In the second part of the post, I approach the question from the point of view of **ergonomy**.
-I argue that even if it is *possible* express all of your domain with another tool, it might still be a more *pleasant* experience in GF.
+I argue that even if it is *possible* to express all of your domain with another tool, it might still be a more *pleasant* experience in GF.
 
 
 <!-- The takeaway from this post will be as follows: Even if it is possible express all of your domain with another tool, it might still be a more pleasant experience in GF. -->
@@ -40,7 +40,7 @@ I argue that even if it is *possible* express all of your domain with another to
     - [Inherent parameters, or “who is my subtree?”](#inherent-parameters-or-who-is-my-subtree)
   - [Making illegal states unrepresentable](#making-illegal-states-unrepresentable)
     - [Meaning of parameters](#meaning-of-parameters)
-    - [Selectional restrictions: banning trees vs. never creating them](#selectional-restrictions-banning-trees-vs-never-creating-them)
+    - [Banning trees vs. never creating them](#banning-trees-vs-never-creating-them)
   - [When to do tree transformations](#when-to-do-tree-transformations)
 - [Footnotes](#footnotes)
 
@@ -145,7 +145,7 @@ The simpler ~~grammars~~ models of computation just deal with strings, but once 
 | All prime numbers | A Turing machine that computes prime numbers |
 | (Singleton set of) the string that spells out the answer to life, universe and everything |  [Deep Thought](https://hitchhikers.fandom.com/wiki/Deep_Thought) |
 
-If you thought this was interesting, you're lucky because there's a whole field out there, way beyond this blog and natural-language-oriented grammar formalisms!
+If you thought this was interesting, you're lucky because there's a whole world[^8] out there, way beyond this blog and natural-language-oriented grammar formalisms!
 
 If you thought this was a bunch of nonsense, you're lucky because ~~it won't be on the test~~ I have never seen any useful application of recursively enumerable languages in computational linguistics.
 
@@ -158,6 +158,8 @@ Computational linguists ignore most of the Chomsky hierarchy, and zoom in on a t
 
 
 ![Chomsky hierarchy, zoomed in between CF and CS](/images/chomsky-hierarchy-zoomed-in.png "Chomsky hierarchy, zoomed in between CF and CS")
+
+<font size="2">*Not relevant for the post, but if you want to know what the abbreviations stand for, check the footnote.[^9]*</font>
 
 Many linguists agree that natural language goes beyond context-free[^1], but doesn't quite need the full power of context-sensitive languages. So people have set out to discover *subclasses* right between the two classes, each with different pros and cons. For these researchers, the tradeoff is expressivity of the formalism vs. a fast parsing algorithm.
 
@@ -265,7 +267,7 @@ As we learned in the previous section, GF being equivalent to PMCFG allows you t
 But for most purposes, the relevant question to ask isn't "is it possible to represent `__` with `__`". Often the answer is yes[^2], but it's still not a good idea.
 
 1. There are plenty of things that are perfectly *possible*, but they are *painful* when all you have is a CFG.
-2. It might not be *that* painful, but you want an AST that is robust for future changes in minor wordings.
+2. It might not be *that* painful, but you want an AST that is robust for minor changes.
 3. You want multiple languages to have the same ASTs.
 
 I feel like number 3 is the most commonly pitched thing about GF. But points 1 and 2 are relevant even if you only want to work on one language, even if that language is English, and even if you aren't using the Resource Grammar Library.[^3]
@@ -283,7 +285,7 @@ Consider the following two sentences:
 
 The underlined fragments have different grammatical functions in their respective sentences. But semantically they express the same thing, and I would expect that to be reflected in the AST of an *application grammar*.
 
-I have a small GF grammar that generates these sentences [here](https://gist.github.com/inariksit/28e182bd4f6881cd69eb96121f048829). Now look at the subtrees highlighted in blue in the following trees:
+I have a small GF grammar that generates these sentences [here](https://gist.github.com/inariksit/28e182bd4f6881cd69eb96121f048829). Now look at the highlighted subtrees in the following trees:
 
 - ![GF tree for 'the company {raises capital}'](/images/predication.png "GF tree for 'the company raises capital'")
 
@@ -396,6 +398,9 @@ The parser failed at token 1: "transaction"
 
 This is how a function outputs different strings, *depending on which subtree it gets as an argument*.
 
+By the way, this string "a", which is inserted not in a leaf, but by a function that takes arguments? If you hang out with the GF folks, we call such strings *syncategorematic*.
+![bananagrams tiles spelling a bunch of words related to GF and similar things](/images/syncategorematicity.png "we can't even spell syncategorematicity correctly")
+
 <!--
 These two  demonstrate how GF's separation of abstract and concrete syntax, as well as lincats being tuples of strings, allows the ASTs to abstract away from such minor details as inflection forms.
 
@@ -417,7 +422,7 @@ The meaning of a parameter is defined individually for each function. For `Indef
 <!-- - The *syntactic structure*—whether to output an article or not—depends on the value of the Kind's `MassOrCount` parameter. -->
 - The *strategy to express this*—whether to output an article or not—depends on the Kind's `MassOrCount` value.
 
-This makes our grammar never generate an Item called ~~"a capital"~~ or ~~"transaction"~~.
+This makes our grammar never generate an `Item` called ~~"a capital"~~ or ~~"transaction"~~.
 
 But these strings are not categorically banned in our grammar—they just aren't valid linearizations in the category of `Item`!
 For example, we may decide that a term to be defined always appears without an article.
@@ -466,7 +471,7 @@ The secret technique is to completely ignore the `MassOrCount` parameter in the 
 <!-- This may seem like a trivial example, but I just wanted to highlight how the internal parameters aren't immutable destiny. A count noun may appear without an article, if -->
 
 
-#### Selectional restrictions: banning trees vs. never creating them
+#### Banning trees vs. never creating them
 
 This is a more powerful abstraction than providing the structures for "output an article" and "output no article" in the abstract syntax, and banning certain ASTs as an afterthought.
 
@@ -499,16 +504,12 @@ Thanks to the separation of abstract and concrete syntax, the ASTs don't need to
 [^4]: Mildly context-sensitive means "includes [these 3 features](https://en.wikipedia.org/wiki/Mildly_context-sensitive_grammar_formalism#Characterization) from the class of context-sensitive languages, plus all of context-free". And GF includes all of those + some more, details of which you can read from [Ljunglöf (2004)](https://gupea.ub.gu.se/bitstream/handle/2077/16377/gupea_2077_16377_3.pdf).
 
 
-[^5]: Suggestion for extending [the grammar](https://gist.github.com/inariksit/28e182bd4f6881cd69eb96121f048829): Refer to actions in form of a noun phrase, like "(the company's) **raising of capital**".<blockquote>![GF tree for 'the company's raising of capital is brutal'](/images/brutal.png "GF tree for 'the company's raising of capital is brutal'. Not present in the current grammar, implement this as an exercise!")</blockquote>
+[^5]: Suggestion for extending [the grammar](https://gist.github.com/inariksit/28e182bd4f6881cd69eb96121f048829): Refer to actions in form of a noun phrase, like "(the company's) **raising of capital**".<blockquote>![GF tree for 'the company's raising of capital is unethical'](/images/unethical.png "GF tree for 'the company's raising of capital is unethical'. Not present in the current grammar, implement this as an exercise!")</blockquote>
 <!-- <p>The code is [here](https://gist.github.com/inariksit/28e182bd4f6881cd69eb96121f048829).</p> -->
 <!-- Ref is short for reference, and it comes in a series with *predication*, *modification* and *reference*. TODO add table. -->
 
 
 <!-- [^6]: In case you wonder: `WithPurpose` preserves the parameter of the `Kind`, so we get "a transaction" as well as "a transaction with the purpose of …". The syntax <code><span class="token constant">WithPurpose</span> <span class="token hvariable">kind</span> <span class="token operator">=</span> <span class="token hvariable">kind</span> <span class="token operator"> ** </span> { s = … }</code> means that we <em>extend</em> the original argument with a new `s` field, but keep the rest of its fields (i.e. `c`) unchanged. -->
-
-[^7]: The [previous aⁿbⁿcⁿ tree](#context-sensitive-languages) was in fact also produced with a GF grammar! If you'd like to have a small exercise, try to recreate this tree.<br/> ![A tree for the string 'aabbcc' from the language aⁿbⁿcⁿ](/images/aabbcc_alternative_tree.png "A tree for the string 'aabbcc' from the language aⁿbⁿcⁿ") (Solution [here](https://gist.github.com/inariksit/f19f35c5ee46cef842757626cf81e630).)
-
-
 
 <!-- ```haskell
   WithPurpose kind = kind ** { -- Record extension
@@ -517,3 +518,11 @@ Thanks to the separation of abstract and concrete syntax, the ASTs don't need to
 ```
 -->
 
+
+[^7]: The [previous aⁿbⁿcⁿ tree](#context-sensitive-languages) was in fact also produced with a GF grammar! If you'd like to have a small exercise, try to recreate this tree.<br/> ![A tree for the string 'aabbcc' from the language aⁿbⁿcⁿ](/images/aabbcc_alternative_tree.png "A tree for the string 'aabbcc' from the language aⁿbⁿcⁿ") (Solution [here](https://gist.github.com/inariksit/f19f35c5ee46cef842757626cf81e630).)
+
+[^8]: To give an example of the "world out there" that has **nothing to do with natural language**, here's a [popular science story](https://www.quantamagazine.org/amateur-mathematicians-find-fifth-busy-beaver-turing-machine-20240702/) about amateur mathematicians making a discovery in the theory of computation. It has cool illustrations of Turing machines, and it's written for non-expert audience.
+
+<!-- [^9]: In case you're wondering what the abbreviations refer to: HPSG = [Head-driven phrase structure grammar](https://en.wikipedia.org/wiki/Head-driven_phrase_structure_grammar), LFG = [Lexical functional grammar](https://en.wikipedia.org/wiki/Lexical_functional_grammar), TAG = [Tree-adjoining grammar](https://en.wikipedia.org/wiki/Tree-adjoining_grammar) and CCG = [Combinatory categorial grammar](https://en.wikipedia.org/wiki/Combinatory_categorial_grammar). None of them is addressed further in this post, they are only included for illustrative purposes: GF is not alone in its niche at the border of context-free and context-sensitive languages. -->
+
+[^9]: In case you're wondering what the abbreviations refer to: HPSG = Head-driven phrase structure grammar, LFG = Lexical functional grammar, TAG = Tree-adjoining grammar and CCG = Combinatory categorial grammar. None of them is addressed further in this post, they are only included for illustrative purposes: GF is not alone in its niche at the border of context-free and context-sensitive languages.
