@@ -71,7 +71,7 @@ The different kinds of grammars are divided into a [*hierarchy*](https://en.wiki
 
 #### The Chomsky hierarchy: a high-level overview
 
-The picture below is intended to give a rough idea about the landscape. Don't worry if you don't understand every box, or even most of them.
+The picture below is intended to give a rough idea about the landscape. Don't worry if you don't understand every box, or even most of them. (The natural language bit is supposed to be "between categories"—I'll get to that later!)
 
 <!-- If you are already familiar with the Chomsky hierarchy, you can jump ahead to [Where is natural language](#where-is-natural-language). -->
 
@@ -157,7 +157,7 @@ Computational linguists ignore most of the Chomsky hierarchy, and zoom in on a t
 <!-- The niche is filled with obscure grammar formalisms, of which only a lucky few have ever been mentioned on Stack Overflow. -->
 
 
-![Chomsky hierarchy, zoomed in between CF and CS](/images/chomsky-hierarchy-zoomed-in.png "Chomsky hierarchy, zoomed in between CF and CS")
+![Chomsky hierarchy, zoomed in between context-free and context-sensitive.](/images/chomsky-hierarchy-zoomed-in.png "Chomsky hierarchy, zoomed in between context-free and context-sensitive.")
 
 <font size="2">*Not relevant for the post, but if you want to know what the abbreviations stand for, check the footnote.[^9]*</font>
 
@@ -236,7 +236,7 @@ concatenate (increment (increment (increment empty)))
 ABC> p "a a b b c c" | vp -showfun -view=open
 ```
 
-![GF parse tree for the string aabbcc](/images/anbncn.png "GF parse tree for the string aabbcc")[^7]
+![GF parse tree for the string aabbcc](/images/anbncn.png "GF parse tree for the string aabbcc")
 
 This concludes the part about expressivity. If you want to learn <!--about the larger context and how GF compares to some other grammar formalisms--> more, here's the link to [Ljunglöf (2004)](https://gupea.ub.gu.se/bitstream/handle/2077/16377/gupea_2077_16377_3.pdf) again. If you don't, that's cool—this overview is more than enough to understand the rest of this post!
 
@@ -287,9 +287,9 @@ The underlined fragments have different grammatical functions in their respectiv
 
 I have a small GF grammar that generates these sentences [here](https://gist.github.com/inariksit/28e182bd4f6881cd69eb96121f048829). Now look at the highlighted subtrees in the following trees:
 
-- ![GF tree for 'the company {raises capital}'](/images/predication.png "GF tree for 'the company raises capital'")
+- The company <u>raises capital</u> ![GF tree for 'the company {raises capital}'](/images/predication.png "GF tree for 'the company raises capital'")
 
-- ![GF tree for 'equity financing means a transaction with the purpose of {raising capital}'](/images/modification.png "GF tree for 'equity financing means a transaction with the purpose of raising capital'")
+- (Equity financing means a) transaction with the purpose of <u>raising capital</u>![GF tree for 'equity financing means a transaction with the purpose of {raising capital}'](/images/modification.png "GF tree for 'equity financing means a transaction with the purpose of raising capital'")
 
 The subtree `Raise (IndefItem Capital)` has a different linearization depending on its context. When it's the main predicate, it linearizes to the finite verb form "raises capital". When it's modifying a noun as a part of an adverbial, it linearizes to a gerund "raising capital".
 
@@ -344,7 +344,7 @@ If you want to practice the concept, click the footnote[^5] for some homework! O
 
 Let's look at this sentence again.
 
-- Equity financing means <u>a transaction</u> with the purpose of raising <u>capital</u>
+- (Equity financing means) <u>a transaction</u> with the purpose of raising <u>capital</u>
   ![GF tree for '{a transaction} with a purpose of raising {capital}'](/images/count_mass_nouns.png "GF tree for 'a transaction with a purpose of raising capital'")
 
 <!--
@@ -357,7 +357,7 @@ capital
 ```
 We apply the same function `IndefItem` to two different `Kind`s, and get a different strategy: "a transaction" vs. "capital" without an article.
 -->
-Did you notice that the function `IndefItem` was applied twice, but the indefinite article "a" was only produced once?
+We notice that the function `IndefItem` is applied twice, but the indefinite article "a" is only produced once.
 
 This is possible, because GF has the concept of **parameter**: a finite set of user-defined values. In addition to text fields, a lincat may also contain any number of these parameters.
 
@@ -495,8 +495,7 @@ Thanks to the separation of abstract and concrete syntax, the ASTs don't need to
 
 <!-- [^1]: Although if you truly erase arguments, so that they contribute neither with textual content nor with a parameter, then nothing can save you from getting [metavariables](../../08/28/gf-gotchas.html#metavariables-or-those-question-marks-that-appear-when-parsing). -->
 
-[^1]: The canonical source is [Shieber (1985)](https://www.eecs.harvard.edu/~shieber/Biblio/Papers/shieber85.pdf), with the classic house-painting-in-Swiss-German example.<br/><br/>In case you're thinking "English isn't context-free because the inflection form of a verb depends on the subject", that's actually not what *context* means—see [linguistics Stack Exchange](https://linguistics.stackexchange.com/questions/46893/why-isn-t-it-obvious-that-the-grammars-of-natural-languages-cannot-be-context-fr) for an answer.
-
+[^1]: The canonical source is [Shieber (1985)](https://www.eecs.harvard.edu/~shieber/Biblio/Papers/shieber85.pdf), which presents examples from Swiss German. In certain constructions, constituents cross each other, as shown in the example below. Generalizing this phenomenon to an arbitrary number of nested clauses cannot be expressed with context-free grammars. <blockquote>![GF tree that demonstrates the word order in Swiss German subordinate clauses (the actual words are in English though.)](/images/swiss-german-subordinate-clause.png "Word order in Swiss German subordinate clauses")</blockquote>
 [^2]: Finite approximations are possible for all of those languages whose description has an ⁿ, and most applications have quite a small ⁿ in practice.
 
 [^3]: I believe that for most applications, if they are complex enough for you to use GF, you'd be better off using the RGL in the long run. But I also understand that the RGL has a learning curve, and you can get started faster if you define everything as strings. You can do quick RGL-free prototyping while you design your abstract syntax, not care if some linearizations are grammatically incorrect, and RGLify your concrete syntax once you're happy with the abstract.
@@ -518,8 +517,8 @@ Thanks to the separation of abstract and concrete syntax, the ASTs don't need to
 ```
 -->
 
-
-[^7]: The [previous aⁿbⁿcⁿ tree](#context-sensitive-languages) was in fact also produced with a GF grammar! If you'd like to have a small exercise, try to recreate this tree.<br/> ![A tree for the string 'aabbcc' from the language aⁿbⁿcⁿ](/images/aabbcc_alternative_tree.png "A tree for the string 'aabbcc' from the language aⁿbⁿcⁿ") (Solution [here](https://gist.github.com/inariksit/f19f35c5ee46cef842757626cf81e630).)
+<!--
+[^7]: The [previous aⁿbⁿcⁿ tree](#context-sensitive-languages) was in fact also produced with a GF grammar! If you'd like to have a small exercise, try to recreate this tree.<br/> ![A tree for the string 'aabbcc' from the language aⁿbⁿcⁿ](/images/aabbcc_alternative_tree.png "A tree for the string 'aabbcc' from the language aⁿbⁿcⁿ") (Solution [here](https://gist.github.com/inariksit/f19f35c5ee46cef842757626cf81e630).) -->
 
 [^8]: To give an example of the "world out there" that has **nothing to do with natural language**, here's a [popular science story](https://www.quantamagazine.org/amateur-mathematicians-find-fifth-busy-beaver-turing-machine-20240702/) about amateur mathematicians making a discovery in the theory of computation. It has cool illustrations of Turing machines, and it's written for non-expert audience.
 
