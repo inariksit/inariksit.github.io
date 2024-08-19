@@ -38,6 +38,7 @@ I argue that even if it is *possible* to express all of your domain with another
   - [Actually abstract ASTs](#actually-abstract-asts)
     - [Inflection tables, or “whose subtree am I?”](#inflection-tables-or-whose-subtree-am-i)
     - [Inherent parameters, or “who is my subtree?”](#inherent-parameters-or-who-is-my-subtree)
+      - [Interlude: syncategorematicity](#interlude-syncategorematicity)
   - [Making illegal states unrepresentable](#making-illegal-states-unrepresentable)
     - [Meaning of parameters](#meaning-of-parameters)
     - [Banning trees vs. never creating them](#banning-trees-vs-never-creating-them)
@@ -357,7 +358,7 @@ capital
 ```
 We apply the same function `IndefItem` to two different `Kind`s, and get a different strategy: "a transaction" vs. "capital" without an article.
 -->
-We notice that the function `IndefItem` is applied twice, but the indefinite article "a" is only produced once.
+We notice that the function `IndefItem` is applied twice, but the indefinite article "a" only appears once.
 
 This is possible, because GF has the concept of **parameter**: a finite set of user-defined values. In addition to text fields, a lincat may also contain any number of these parameters.
 
@@ -371,7 +372,7 @@ This is possible, because GF has the concept of **parameter**: a finite set of u
     >   Item = {s : Str} ;
     > ```
 
-2. Each actual `Kind` has some actual `MassOrCount` value in its `c` field. <!--Capital has `Mass`, Transaction has `Count`.-->
+2. Each `Kind` has some concrete `MassOrCount` value in its `c` field. <!--Capital has `Mass`, Transaction has `Count`.-->
     >  ```haskell
     >  lin
     >    Capital     = {s = "capital"     ; c = Mass} ;
@@ -398,8 +399,20 @@ The parser failed at token 1: "transaction"
 
 This is how a function outputs different strings, *depending on which subtree it gets as an argument*.
 
-By the way, this string "a", which is inserted not in a leaf, but by a function that takes arguments? If you hang out with the GF folks, we call such strings *syncategorematic*.
-![bananagrams tiles spelling a bunch of words related to GF and similar things](/images/syncategorematicity.png "we can't even spell syncategorematicity correctly")
+##### Interlude: syncategorematicity
+
+(TODO: try to explain this without using the word?)
+
+
+We just saw that the indefinite article "a" doesn't have a dedicated lexical entry. Did you consider the implications of that?
+
+If you hang out with GF folks, you'll eventually hear the word [**syncategorematic**](https://en.wikipedia.org/wiki/Syncategorematic_term). In the context of GF, it refers to strings that don't have their own category in the abstract syntax, but are instead inserted by syntactic functions. (The corresponding noun is called "syncategorematicity", but even the people who spontaneously use that word can't spell it correctly.)
+![Bananagrams tiles spelling words related to GF, NLP etc.](/images/syncategorematicity.jpg "We can't even spell syncategorematicity correctly")
+
+
+Lots of things that would be explicit lexicon in other formalisms are syncategorematic in GF.
+
+(TODO: show a tree for e.g. "the cat is small"  in GF and some other formalism, for one language that has and another that doesn't have an explicit copula. The trees with copula as terminal are different, GF trees similar. Yay for abstraction.)
 
 <!--
 These two  demonstrate how GF's separation of abstract and concrete syntax, as well as lincats being tuples of strings, allows the ASTs to abstract away from such minor details as inflection forms.
