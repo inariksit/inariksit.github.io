@@ -4,55 +4,52 @@ title: Curriculum Vitae
 ---
 
 Inari Listenmaa  
-April 2024
+January 2025
 
 ## Contact information
 <table class="hackytable" cellpadding="0" cellspacing="0" border="0">
-<tr>
+<!-- <tr>
   <td rowspan="2">🏠</td>
        <td rowspan="2"> Kallebäcksvägen 3D, lgh 1101 <br/> 41275 Göteborg, Sweden </td>
 </tr>
-<tr></tr>
-<tr>
+<tr></tr> -->
+<!-- <tr>
   <td>📞</td>️
        <td> +46 70 772 61 15  </td>
-</tr>
+</tr> -->
 <tr>
   <td> 📧 </td>
-       <td> inari@digitalgrammars.com </td>
+       <td> inari@chalmers.se </td>
 </tr>
 </table>
 
-<!-- ```
-🚪 Underåsgatan 16A, lgh 1102  
-   41251 Göteborg, Sweden  
-📞️ +46 31 772 61 15  
-📧 inari@digitalgrammars.com
-``` -->
 ## Education
 
 ### Doctor of Philosophy, 2019
-University of Gothenburg and Chalmers University of Technology  
-Department of Computer Science and Engineering  
+University of Gothenburg and Chalmers University of Technology
+Department of Computer Science and Engineering
 Thesis: “[Formal Methods for Testing Grammars](https://gupea.ub.gu.se/handle/2077/59037)”
 
 ### Licentiate of Philosophy, 2016
-University of Gothenburg and Chalmers University of Technology  
-Department of Computer Science and Engineering  
+University of Gothenburg and Chalmers University of Technology
+Department of Computer Science and Engineering
 Thesis: “[Analysing Constraint Grammar with SAT](https://listenmaa.fi/lic.pdf)”
 
 ### Master of Arts, 2013
-University of Helsinki  
-Department of Modern Languages  
+University of Helsinki
+Department of Modern Languages
 Thesis: “[Ontology-based lexicon management in a multilingual translation system—a survey of use cases](http://www.molto-project.eu/sites/default/files/listenmaa_masters_thesis_2012.pdf)”
 
 ## Employment
 
-### September 2018 – present
-Senior developer at Digital Grammars AB.  
+### January 2025 – present
+Lecturer at Chalmers University of Technology, department of Computer Science and Engineering.
 
-### June 2020 — present
-Senior research scientist at Singapore Management University, Centre for Computational Law.  
+### September 2018 – present
+Senior developer at Digital Grammars AB.
+
+#### June 2020 – December 2024
+Senior research scientist at Singapore Management University, Centre for Computational Law.
 Profile page on SMU website: [https://cclaw.smu.edu.sg/people/inari-listenmaa](https://cclaw.smu.edu.sg/people/inari-listenmaa)
 
 #### September 2013 – September 2018
@@ -64,6 +61,9 @@ PhD student at University of Gothenburg and Chalmers University of Technology, D
 Research assistant at University of Helsinki, Department of Modern Languages.
 
 ## Publications
+
+### 2023
+* Ranta, Aarne and Listenmaa, Inari (2023). **Grammatical Framework: from Interlingual Semantics to Morphophonemic Processes**. Book chapter, *Rule-Based Language Technology*. [<a href="http://hdl.handle.net/10062/89595">Link</a>]
 
 ### 2022
 
