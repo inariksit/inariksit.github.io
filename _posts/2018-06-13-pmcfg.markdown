@@ -490,7 +490,7 @@ And that's why we get 4³=64 productions, concrete functions and sequences.
 
 This might not be a realistic scenario, in that maybe you don't want to make determiners into free variation, but it's educational. In the original code, I just put the 4 variants in one place, but it's secretly expanded to 3 places, so the actual number of variants is 4³, not 4.
 
-If you're writing an resource grammar, it's important not to introduce variants there, because they compound very quickly. Using variants in an application grammar is safer, but it might also lead to unexpected blowups. See for instance [this GF question](https://stackoverflow.com/questions/65291197/variants-fails-to-compile-on-gf) on Stack Overflow. I haven't (yet!) compiled a smaller version of that code and looked at the PGF, but I imagine that those 8 verbs end up being used in multiple places in the VP.
+If you're writing an resource grammar, it's important not to introduce variants there, because they compound very quickly. Using variants in an application grammar is safer, but it might also lead to unexpected blowups. See for instance [this GF question](https://stackoverflow.com/questions/65291197/variants-fails-to-compile-on-gf) and my answer to it on Stack Overflow. 
 
 
 #### Pred with only the intended variants
