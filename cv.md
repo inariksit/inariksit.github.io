@@ -13,10 +13,10 @@ January 2025
        <td rowspan="2"> Kallebäcksvägen 3D, lgh 1101 <br/> 41275 Göteborg, Sweden </td>
 </tr>
 <tr></tr> -->
-<!-- <tr>
-  <td>📞</td>️
-       <td> +46 70 772 61 15  </td>
-</tr> -->
+<tr>
+  <td>📞 (work)</td>️
+       <td> +46709726055  </td>
+</tr>
 <tr>
   <td> 📧 </td>
        <td> inari@chalmers.se </td>
