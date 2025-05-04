@@ -112,7 +112,7 @@ This is wrong.
   <span class="kt">Very</span> <span class="n">qual</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span> <span class="o">=</span> <span class="s">"very"</span> <span class="err">+</span> <span class="n">qual</span><span class="o">.</span><span class="n">s</span><span class="p">}</span> <span class="p">;</span>
 </code></pre></div></div>
 
-This is also wrong. (But if you *really* wanted to prevent multiple "very" and don't know how, follow the footnote<sup>[1](#pattern-match-params)</sup><a name="fn-1"></a>.)
+This is also wrong. If you want to prevent multiple "very", it's better to manipulate the GF trees [outside the GF grammar](../../../2019/12/12/embedding-grammars.html).
 
 <div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">lin</span>
   <span class="kt">Very</span> <span class="n">qual</span> <span class="o">=</span> <span class="p">{</span>
@@ -771,8 +771,7 @@ application, let them take care to always choose the plural.
 Okay, *scissor* is not such a controversial thing to put in an
 inflection table. After all, the form does exist e.g. in
 [compound words](http://images4.fanpop.com/image/photos/16700000/Edward-Scissorhands-edward-scissorhands-16774394-488-720.jpg). But
-in my personal opinion<sup>[2](#opinion)</sup>,<a name="fn-2"></a>
-this is a feasible option even for more questionable forms.
+in my personal opinion, this is a feasible option even for more questionable forms.
 
 I'm mostly thinking about RGL, which is already full
 of somewhat questionable language. Consider the following trees:
@@ -810,7 +809,7 @@ person singular) is the only way to go.
 Despite this, I decided to linearise nonexisting forms: the
 morpheme for e.g. 1st person as a subject exists, so does the morpheme
 for 1st person as an object, just put the morphemes together and call
-it a theoretical form<sup>[3](#def)</sup>.<a name="fn-3"></a>
+it a theoretical form<sup>[1](#def)</sup>.<a name="fn-1"></a>
 
 This approach is definitely not for all use cases. For instance, don't
 use it in applications where you provide suggestions for the next
@@ -1205,40 +1204,7 @@ If you wonder why I do this, a few reasons:
 ## Footnotes
 
 
-
-1.<a name="pattern-match-params"> </a>Suppose you wanted to prevent "very very Italian pizza", and wrote this code, which pattern matches a string at run-time.
-
-<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">lin</span>
-  <span class="kt">Very</span> <span class="n">qual</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="err">case qual.s of {</span> <span class="c1">-- don't add a second very</span>
-         <span class="err">"very" + x =&gt; qual.s ;</span>
-         <span class="err">_ =&gt; "very" + qual.s }</span>
-    <span class="p">}</span> <span class="p">;</span>
-</code></pre></div></div>
-
-Instead, you can add a parameter in the lincat of `Quality`, which tells whether `Very` has been applied or not.
-
-```haskell
-lincat
-  Quality = {s : Str ; hasVery : HasVery} ;
-param
-  HasVery = ZeroVery | OneVery ;
-lin
-  Italian = {s = "Italian" ; hasVery = ZeroVery} ;
-  Very qual = {
-    s = case qual.hasVery of { -- don't add a second very
-         OneVery  => qual.s ;
-         ZeroVery => "very" + qual.s } ;
-    hasVery = OneVery ;
-    } ;
-```
-This is legal, because you're pattern matching against a *finite* type. You just defined all possible values of `HasVery`, we know there are only 2. In contrast, there are infinitely many strings, so it's not feasible to be prepared for *all of them* at run-time. <a href="#fn-1">↩</a>
-
-2.<a name="opinion"> </a>My nick *inariksit* is a combination of Finnish morphemes
-in an illegal way, so maybe I just like breaking the
-~~law~~ morphotactics. <a href="#fn-2">↩</a>
-
-3.<a name="def"> </a>Actually, I wonder if the
+1.<a name="def"> </a>Actually, I wonder if the
 [def](http://www.grammaticalframework.org/doc/gf-refman.html#toc19)
 feature would work here--just define all trees of form
 
@@ -1254,4 +1220,4 @@ PredVP (UsePron p) (ReflVP (SlashV2a v))
 
 In practice, it won't work in the RGL, because relevant funs are defined as `fun`, and they'd need to be defined as `data`.
 
-However, if you want to make such a thing work for your own application, here's a [pull request](https://github.com/GrammaticalFramework/gf-rgl/pull/8) that you can use in your own copy of the RGL. <a href="#fn-3">↩</a>
+However, if you want to make such a thing work for your own application, here's a [pull request](https://github.com/GrammaticalFramework/gf-rgl/pull/8) that you can use in your own copy of the RGL. <a href="#fn-1">↩</a>
