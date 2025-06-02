@@ -37,6 +37,7 @@ again.
 - [Too good linearisations for some RGL functions](#too-good-linearisations-for-some-rgl-functions)
 - [Re-export RGL opers in application grammar](#re-export-rgl-opers-in-application-grammar)
 - [Naming conventions](#naming-conventions)
+- [Cute way to count syllables](#cute-way-to-count-syllables)
 
 ## Unsupported token gluing
 
@@ -1200,6 +1201,71 @@ If you wonder why I do this, a few reasons:
 * Often many cats have the same lincat, so this is a way to avoid repetition.
 * Often I need to turn some category into a string in a function. and so very often, some field is missing. Even if everything works when you write the grammar, at a later stage someone may modify a lincat, but doesn't update all the places where that lincat is used. With `linC : LinC -> Str`, it only needs to be updated in one place.
 -->
+___
+
+## Cute way to count syllables
+
+A syllable consists of an _onset_, _nucleus_ and _coda_. The following image from [Wikipedia](https://en.wikipedia.org/wiki/File:Syllable_illustrations_3and4.svg) illustrates the concept:
+
+![[p][ou][t] and [p][o][nd]](https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Syllable_illustrations_3and4.svg/640px-Syllable_illustrations_3and4.svg.png)
+
+Many languages allow only vowels in the nucleus. If this is the case, then we can easily count the syllables of a word by counting the isolated blobs of vowels. For instance:
+- a, ba, ab, bab = 1
+- aba, baba, abab, babab, aaba, baaba, abaa, babaa, … = 2
+- ababa, bababa, ababab, … = 3
+
+Enumerating all options gets tedious soon. In a normal programming language, you could write a function like this:
+
+```haskell
+isVowel = (`elem` "aeiou")
+
+countSyllables :: String -> Int
+countSyllables = go False
+  where
+    go _ [] = 0
+    go wasVowel (c:cs)
+      | wasVowel  = go (isVowel c) cs
+      | isVowel c = go True cs + 1
+      | otherwise = go False cs
+```
+
+But in GF, we can't have nice things, something reversibility something not Turing-complete. But if I really don't want to list every possible syllable structure, what can I do in GF?
+
+I'm glad you asked:
+
+```haskell
+oper
+  -- Lithuanian vowels for the sake of example—substitute with your own!
+  v : pattern Str = #("a"|"ā"|"e"|"ē"|"i"|"ī"|"o"|"u"|"ū") ;
+
+  countSyllables : Str -> Ints 10 = \word  ->
+    case word of {
+        #v + s => Predef.plus (sc s True) 1 ;
+        ?  + s => sc s False ;
+        _      => 0
+    } ;
+
+  SylCnt : Type = Str -> Bool -> Ints 10 ;
+  sc : SylCnt = mkSC {-large but finite # of mkSC-}  (mkSC scBase)
+   where {
+      mkSC : SylCnt -> SylCnt = \sc,word,afterVowel ->
+          case <word,afterVowel> of {
+            <#v + s, False> => Predef.plus (sc s True) 1 ;
+            <#v + s, True>  => sc s True ;
+            <?  + s, _>     => sc s False ;
+            _               => 0 } ;
+      scBase : SylCnt = \_,_ -> 0
+   } ;
+```
+
+This will check as many characters of a word as you type `mkSC` before `scBase`. For instance, this works for words up to 40 characters:
+
+```haskell
+mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC scBase)))))))))))))))))))))))))))))))))))))))
+```
+
+This looks horrible but I honestly think it's nicer than typing out every single combination of  vowels and consonants (ababa, bababa, ababab, abbaba, aababa, …).
+
 
 ## Footnotes
 
