@@ -1234,28 +1234,27 @@ But in GF, we can't have nice things, something reversibility something not Turi
 I'm glad you asked:
 
 ```haskell
-oper
-  -- Lithuanian vowels for the sake of example—substitute with your own!
-  v : pattern Str = #("a"|"ā"|"e"|"ē"|"i"|"ī"|"o"|"u"|"ū") ;
+-- Lithuanian vowels for the sake of example—substitute with your own!
+v : pattern Str = #("a"|"ā"|"e"|"ē"|"i"|"ī"|"o"|"u"|"ū") ;
 
-  countSyllables : Str -> Ints 10 = \word  ->
-    case word of {
-        #v + s => Predef.plus (sc s True) 1 ;
-        ?  + s => sc s False ;
-        _      => 0
-    } ;
+countSyllables : Str -> Ints 10 = \word  ->
+  case word of {
+      #v + s => Predef.plus (sc s True) 1 ;
+      ?  + s => sc s False ;
+      _      => 0
+  } ;
 
-  SylCnt : Type = Str -> Bool -> Ints 10 ;
-  sc : SylCnt = mkSC {-large but finite # of mkSC-}  (mkSC scBase)
-   where {
-      mkSC : SylCnt -> SylCnt = \sc,word,afterVowel ->
-          case <word,afterVowel> of {
-            <#v + s, False> => Predef.plus (sc s True) 1 ;
-            <#v + s, True>  => sc s True ;
-            <?  + s, _>     => sc s False ;
-            _               => 0 } ;
-      scBase : SylCnt = \_,_ -> 0
-   } ;
+SylCnt : Type = Str -> Bool -> Ints 10 ;
+sc : SylCnt = mkSC {-finite # of mkSC-}  (mkSC scBase)
+  where {
+    mkSC : SylCnt -> SylCnt = \sc,word,afterVowel ->
+        case <word,afterVowel> of {
+          <#v + s, False> => Predef.plus (sc s True) 1 ;
+          <#v + s, True>  => sc s True ;
+          <?  + s, _>     => sc s False ;
+          _               => 0 } ;
+    scBase : SylCnt = \_,_ -> 0
+  } ;
 ```
 
 This will check as many characters of a word as you type `mkSC` before `scBase`. For instance, this works for words up to 40 characters:
