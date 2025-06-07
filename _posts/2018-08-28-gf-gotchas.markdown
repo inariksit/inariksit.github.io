@@ -1260,7 +1260,8 @@ countSyllables : Str -> Ints 10 = go count False
 This will check as many characters of a word as you type `go` before `scBase`. For instance, this works for words up to 40 characters:
 
 ```haskell
-sc : SylCnt = go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go scBase)))))))))))))))))))))))))))))))))))))))```
+sc : SylCnt = go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go scBase)))))))))))))))))))))))))))))))))))))))
+```
 
 This looks horrible but I honestly think it's nicer than typing out every single combination of  vowels and consonants (ababa, bababa, ababab, abbaba, aababa, …).
 
