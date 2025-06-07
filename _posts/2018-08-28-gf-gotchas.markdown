@@ -1234,34 +1234,33 @@ But in GF, we can't have nice things, something reversibility something not Turi
 I'm glad you asked:
 
 ```haskell
--- Lithuanian vowels for the sake of example—substitute with your own!
-v : pattern Str = #("a"|"ā"|"e"|"ē"|"i"|"ī"|"o"|"u"|"ū") ;
+-- pattern macro for vowels
+v : pattern Str = #("a"|"e"|"i"|"o"|"u") ;
 
-countSyllables : Str -> Ints 10 = \word  ->
-  case word of {
-      #v + s => Predef.plus (sc s True) 1 ;
-      ?  + s => sc s False ;
-      _      => 0
-  } ;
+-- type alias for the helper function
+SylCnt : Type = Bool -> Str -> Ints 10 ;
 
-SylCnt : Type = Str -> Bool -> Ints 10 ;
-sc : SylCnt = mkSC {-finite # of mkSC-}  (mkSC scBase)
-  where {
-    mkSC : SylCnt -> SylCnt = \sc,word,afterVowel ->
-        case <word,afterVowel> of {
-          <#v + s, False> => Predef.plus (sc s True) 1 ;
-          <#v + s, True>  => sc s True ;
-          <?  + s, _>     => sc s False ;
-          _               => 0 } ;
-    scBase : SylCnt = \_,_ -> 0
-  } ;
+countSyllables : Str -> Ints 10 = go count False
+ where {
+  go : SylCnt -> SylCnt = \f,wasVowel,word ->
+    case <word,wasVowel> of {
+      <#v + s, False> => Predef.plus (f True s) 1 ;
+      <#v + s, True>  => f True s ;
+      <?  + s, _>     => f False s ;
+      _               => 0 } ;
+
+  -- end of recursion
+  scBase : SylCnt = \_,_ -> 0 ;
+
+  -- the function given to countSyllables
+  count : SylCnt = go (go {- finite # of go-} scBase)
+} ;
 ```
 
-This will check as many characters of a word as you type `mkSC` before `scBase`. For instance, this works for words up to 40 characters:
+This will check as many characters of a word as you type `go` before `scBase`. For instance, this works for words up to 40 characters:
 
 ```haskell
-mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC (mkSC scBase)))))))))))))))))))))))))))))))))))))))
-```
+sc : SylCnt = go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go (go scBase)))))))))))))))))))))))))))))))))))))))```
 
 This looks horrible but I honestly think it's nicer than typing out every single combination of  vowels and consonants (ababa, bababa, ababab, abbaba, aababa, …).
 
