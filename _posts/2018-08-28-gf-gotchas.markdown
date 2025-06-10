@@ -7,7 +7,7 @@ tags: gf
 ---
 
 ![gf_rubberduck](/images/gf-rubber-duck.png "Your favourite companion for writing GF")
-Latest update: 2023-03-26
+Latest update: 2025-06-10
 
 This post contains real-life examples when I or others have been
 confused in the past. It might be updated whenever someone is confused
