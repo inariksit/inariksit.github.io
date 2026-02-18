@@ -4,18 +4,18 @@ title: Curriculum Vitae
 ---
 
 Inari Listenmaa  
-January 2025
+January 2026
 
 ## Contact information
 <table class="hackytable" cellpadding="0" cellspacing="0" border="0">
-<!-- <tr>
-  <td rowspan="2">🏠</td>
-       <td rowspan="2"> Kallebäcksvägen 3D, lgh 1101 <br/> 41275 Göteborg, Sweden </td>
+ <tr>
+  <td rowspan="2">🏢</td>
+       <td rowspan="2"> EDIT building, <a href="https://maps.chalmers.se/people#inari">room 6126</a><br/> Rännvägen 6B, Göteborg</td>
 </tr>
-<tr></tr> -->
-<tr>
-  <td>📞 (work)</td>️
-       <td> +46709726055  </td>
+<tr></tr>
+  <tr>
+  <td>📞 </td>️
+       <td> 031 772 2919  </td>
 </tr>
 <tr>
   <td> 📧 </td>
@@ -129,7 +129,7 @@ Completed 10 HEC in higher education pedagogy.
 
 ### Thesis supervision
 
-* Praveen Alavala & Zachris Stenhammar (MSc in Computer Science, Spring 2025)
+* Praveen Alavala & Zachris Stenhammar (MSc in Computer Science, Spring 2026)
 * Bokun Xiao (MSc in Computer Science, Spring 2025)
 * Mohammad Rakib Imtiaz (MSc in Computer Science, Spring 2025)
 * Bjarki Traustason (MSc in Computer Science, Autumn 2016)
