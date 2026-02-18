@@ -49,7 +49,7 @@ Lecturer at Chalmers University of Technology, department of Computer Science an
 Senior research scientist at Singapore Management University, Centre for Computational Law.
 Profile page on SMU website: [https://cclaw.smu.edu.sg/people/inari-listenmaa](https://cclaw.smu.edu.sg/people/inari-listenmaa)
 
-### September 2018 – January 2026
+#### September 2018 – January 2026
 Senior developer at Digital Grammars AB.
 
 #### September 2013 – September 2018
