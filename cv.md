@@ -45,12 +45,12 @@ Thesis: “[Ontology-based lexicon management in a multilingual translation syst
 ### January 2025 – present
 Lecturer at Chalmers University of Technology, department of Computer Science and Engineering.
 
-### September 2018 – present
-Senior developer at Digital Grammars AB.
-
 #### June 2020 – December 2024
 Senior research scientist at Singapore Management University, Centre for Computational Law.
 Profile page on SMU website: [https://cclaw.smu.edu.sg/people/inari-listenmaa](https://cclaw.smu.edu.sg/people/inari-listenmaa)
+
+### September 2018 – January 2026
+Senior developer at Digital Grammars AB.
 
 #### September 2013 – September 2018
 
@@ -107,7 +107,12 @@ Research assistant at University of Helsinki, Department of Modern Languages.
 
 ### Education
 
-Completed a basic course of 3 HEC in higher education pedagogy.
+Completed 10 HEC in higher education pedagogy.
+
+### Lecturer and course responsible
+
+* Fundamentals of Program Development (2025–)
+* Computer Scientist in Society (2025–
 
 ### Teaching assistant
 
@@ -119,10 +124,13 @@ Completed a basic course of 3 HEC in higher education pedagogy.
 
 ### Summer schools
 
-* GF Summer School (2013, 2015, 2017, 2018, 2021, 2023)
+* GF Summer School (2013, 2015, 2017, 2018, 2021, 2023, 2025)
 * Summer School in Rule-Based Machine Translation (2016)
 
-### Thesis (co-)supervision
+### Thesis supervision
 
-* Neda Amiri & Josef Al-Sader (BSc in Software Engineering and Management, Spring 2016)
+* Praveen Alavala & Zachris Stenhammar (MSc in Computer Science, Spring 2025)
+* Bokun Xiao (MSc in Computer Science, Spring 2025)
+* Mohammad Rakib Imtiaz (MSc in Computer Science, Spring 2025)
 * Bjarki Traustason (MSc in Computer Science, Autumn 2016)
+* Neda Amiri & Josef Al-Sader (BSc in Software Engineering and Management, Spring 2016)
