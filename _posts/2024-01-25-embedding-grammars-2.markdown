@@ -334,10 +334,10 @@ PredVP
     )
 ```
 
-Applying `getLex` on that tree gives us a list of all the lexical functions as Strings:
+Applying `getLex` on that tree gives us a list of all the lexical functions as strings:
 
 ```haskell
-[the_Det,  small_A, cat_N, see_V2, a_Det, big_A, dog_N]
+["the_Det", "small_A", "cat_N", "see_V2", "a_Det", "big_A", "dog_N"]
 ```
 
 The return type doesn't have to be a list, it can be any monoid. Haskell just has to know how to `<>` together the two values, since the function is applied to the whole tree, and there are potentially multiple subtrees that match the extraction condition.
@@ -347,7 +347,7 @@ The return type doesn't have to be a list, it can be any monoid. Haskell just ha
 * Bringert and Ranta (2008). [A pattern for almost compositional functions](https://core.ac.uk/download/pdf/70575784.pdf) This was the original paper that inspired the GADT and `compos*` design. There is also  `composOpFold` and more, but I have never found use for them in my day-to-day GF tree transformation needs.
 
 
-* Blog post by some random person on the internet: [Defeating return type polymorphism](https://philipphagenlocher.de/post/defeating-return-type-polymorphism/) When you work with the GADT abstract syntax and you would like to have `composOpMonoid` return a potentially heterogeneous list, you can take inspiration from this post and make your own newtype wrapper.
+* Blog post by some random person on the internet: [Defeating return type polymorphism](https://philipphagenlocher.de/post/defeating-return-type-polymorphism/) When you work with the GADT abstract syntax and you would like to have `composOpMonoid` return a potentially heterogeneous list, you can take inspiration from this post and make your own newtype wrapper, similar to `AnyImage` at the end of the post. My example above didn't have a need for this, because it just gathered the *names* of the lexical functions as strings. But if you'd want your function to return a bunch of `Tree a` for different concrete values of `a`, that blog post explains the issue and the solution.
 
 ## Footnotes
 
